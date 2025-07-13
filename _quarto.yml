@@ -1,0 +1,120 @@
+project:
+  type: book
+  output-dir: build
+
+toc: true
+toc-depth: 3
+number-sections: true
+number-depth: 3
+
+book:
+  title: "Undegraduate Computer Organization at NCKU EE, Fall 2025"
+  author: 
+    - name: "Chun-Hao Chang"
+      email: "q18131500@gs.ncku.edu.tw"
+      affiliations:
+        - name: "National Cheng Kung University"
+  # date: "7/12/2025"
+  # site-url: ...
+  # repo-url: ...
+  navbar:
+    background: primary
+    search: true
+  sidebar:
+    style: docked
+    collapse-level: 1
+  downloads: pdf
+  output-file: "book"
+  chapters:
+    - index.qmd
+    # Lab 0
+    - book/lab-0/index.qmd
+    # Lab 1
+    - part: book/lab-1/index.qmd
+      chapters: 
+        - book/lab-1/c-prog.qmd
+        - book/lab-1/c-comp.qmd
+    # Lab 2
+    - part: book/lab-2/index.qmd
+      chapters:
+        - book/lab-2/riscv.qmd
+        - book/lab-2/iss.qmd
+    # Lab 3
+    - part: book/lab-3/index.qmd
+      chapters:
+        - book/lab-3/riscv-asm.qmd
+        - book/lab-3/bare-metal.qmd
+    # Lab 4
+    - part: book/lab-4/index.qmd
+      chapters: 
+        - book/lab-4/single-cycle-cpu.qmd
+        - book/lab-4/difftest.qmd
+    # Lab 5
+    - part: book/lab-5/index.qmd
+      chapters: 
+        - book/lab-5/pipeline-basic.qmd
+        - book/lab-5/pipeline-microarch.qmd
+        - book/lab-5/modify-difftest.qmd
+    # Lab 6
+    - part: book/lab-6/index.qmd
+      chapters: 
+        - book/lab-6/locality.qmd
+        - book/lab-6/cache.qmd
+    # Lab 7
+    - part: book/lab-7/index.qmd
+      chapters:
+        - book/lab-7/dram.qmd
+        - book/lab-7/bus.qmd
+        - book/lab-7/soc.qmd
+    # Lab 8
+    - part: book/lab-8/index.qmd
+      chapters: 
+        - book/lab-8/hc-dsa.qmd
+        - book/lab-8/sa.qmd
+        - book/lab-8/cordic.qmd
+        - book/lab-8/workload.qmd
+    # Overall References
+    - ref.qmd
+  appendices: 
+    - book/appendix/basic-linux.qmd
+    - book/appendix/git.qmd
+    - book/appendix/docker.qmd
+    - part: book/appendix/rtl/index.qmd
+      chapters: 
+        - book/appendix/rtl/verilog.qmd
+        - book/appendix/rtl/sv.qmd
+        - book/appendix/rtl/sva.qmd
+
+csl: ieee.csl
+
+bibliography:
+  - book/lab-0/ref.bib
+  - book/lab-1/ref.bib
+  - book/lab-2/ref.bib
+  - book/lab-3/ref.bib
+  - book/lab-4/ref.bib
+  - book/lab-5/ref.bib
+  - book/lab-6/ref.bib
+  - book/lab-7/ref.bib
+  - book/lab-8/ref.bib
+  - book/appendix/ref.bib
+  - book/appendix/rtl/ref.bib
+
+format:
+  html:
+    theme:
+      - cosmo
+      - brand
+    toc: true
+    toc-expand: false
+  pdf:
+    documentclass: scrreprt
+    papersize: a4paper
+    lof: true
+    lot: true
+    fontsize: "12"
+    link-citations: true
+    link-bibliography: true
+
+
+
