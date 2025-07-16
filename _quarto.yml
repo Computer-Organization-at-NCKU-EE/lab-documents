@@ -3,7 +3,7 @@ project:
   output-dir: build
 
 toc: true
-toc-depth: 3
+toc-depth: 4
 number-sections: true
 number-depth: 3
 
@@ -73,6 +73,7 @@ book:
         - book/lab-8/sa.qmd
         - book/lab-8/cordic.qmd
         - book/lab-8/workload.qmd
+        - book/lab-8/integration.qmd
     # Overall References
     - ref.qmd
   appendices: 
@@ -106,7 +107,7 @@ format:
       - cosmo
       - brand
     toc: true
-    toc-expand: false
+    toc-expand: true
   pdf:
     documentclass: scrreprt
     papersize: a4paper
@@ -115,6 +116,3 @@ format:
     fontsize: "12"
     link-citations: true
     link-bibliography: true
-
-
-

@@ -1,1 +1,3 @@
-# Enabling Heterogeneous Computing via Domain-Specific Accelerators (DSAs)
+# Heterogeneous Systems: Unlocking High-Efficiency Computing via Domain-Specific Accelerators
+
+## Introduction and System Overview

@@ -1,1 +1,1 @@
-# Workload Off-loading and Scheduling
+# Runtime Design and Workload Management in Heterogeneous Systems         
