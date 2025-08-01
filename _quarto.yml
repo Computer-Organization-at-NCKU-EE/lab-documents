@@ -15,7 +15,7 @@ book:
       affiliations:
         - name: "National Cheng Kung University"
   # date: "7/12/2025"
-  site-url: https://gitlab.aislab.ee.ncku.edu.tw/comporg-fall-2025-wip/co-lab-quarto
+  site-url: https://pages.aislab.ee.ncku.edu.tw/co-lab-quarto-95785f
   repo-url: https://gitlab.aislab.ee.ncku.edu.tw/comporg-fall-2025-wip/co-lab-quarto
   navbar:
     background: primary
