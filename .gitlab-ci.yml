@@ -1,5 +1,5 @@
-pages:
-  stage: depoly
+gitlab-pages:
+  stage: deploy
   image: registry.aislab.ee.ncku.edu.tw/comporg-fall-2025-wip/co-lab-quarto 
   script:
     - quarto render --output-dir public
