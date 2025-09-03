@@ -1,3 +1,0 @@
-# Heterogeneous Systems: Unlocking High-Efficiency Computing via Domain-Specific Accelerators
-
-## Introduction and System Overview

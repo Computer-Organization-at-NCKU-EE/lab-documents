@@ -1,1 +1,0 @@
-# CORDIC Co-Processor: Efficient Support for Non-Linear Arithmetic

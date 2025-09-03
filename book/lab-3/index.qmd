@@ -1,1 +1,1 @@
-# RISC-V Assembly and Bare-metal Programming
+# Single-Cycle CPU Micro-Architecture Design and Reference-Model-Based Verification
