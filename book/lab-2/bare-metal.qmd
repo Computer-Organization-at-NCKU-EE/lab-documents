@@ -1,1 +1,1 @@
-# Bare-metal Programming, Runtime Environment and Hardware Abstraction Layer
+# Bare-metal Programming and Runtime Environment

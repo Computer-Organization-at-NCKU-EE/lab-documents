@@ -1,1 +1,0 @@
-# System Bus Protocol: A AXI4-Lite Case Study

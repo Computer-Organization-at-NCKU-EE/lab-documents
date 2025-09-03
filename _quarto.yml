@@ -33,6 +33,7 @@ book:
     # Lab 1
     - part: book/lab-1/index.qmd
       chapters:
+        - book/lab-1/computer.qmd
         - book/lab-1/riscv.qmd
         - book/lab-1/iss.qmd
     # Lab 2
@@ -50,7 +51,6 @@ book:
       chapters: 
         - book/lab-4/pipeline-basic.qmd
         - book/lab-4/pipeline-microarch.qmd
-        - book/lab-4/modify-difftest.qmd
     # Lab 5
     - part: book/lab-5/index.qmd
       chapters: 
@@ -60,8 +60,7 @@ book:
     - part: book/lab-6/index.qmd
       chapters:
         - book/lab-6/dram.qmd
-        - book/lab-6/bus.qmd
-        - book/lab-6/soc.qmd
+        - book/lab-6/dpi-wrapper.qmd
     # Overall References
     - ref.qmd
   appendices: 

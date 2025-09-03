@@ -1,1 +1,1 @@
-# A More Realistic System: System Bus and Non-ideal Main Memory with Abstract DRAM Model
+# A More Realistic System: Non-ideal Main Memory with Abstract DRAM Model
