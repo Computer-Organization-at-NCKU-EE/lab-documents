@@ -19,7 +19,7 @@ book:
         - name: "National Cheng Kung University"
   page-navigation: true
   site-url: https://computer-organization-at-ncku-ee.github.io/lab-documents/ 
-  repo-url: https://gitlab.aislab.ee.ncku.edu.tw/comporg-fall-2025-wip/co-lab-quarto 
+  repo-url: https://github.com/Computer-Organization-at-NCKU-EE/lab-documents 
   navbar:
     background: primary
     search: true
