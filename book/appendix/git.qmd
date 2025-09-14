@@ -183,7 +183,7 @@ no changes added to commit (use "git add" and/or "git commit -a")
   $ git remote add origin https://gitlab.course.aislab.ee.ncku.edu.tw/貼上自己repo
   ```
 網址可以在repository的`程式碼`按鈕點選
-![](https://hedgedoc.course.aislab.ee.ncku.edu.tw/uploads/15082f1e-d8d0-4bb9-8074-02d93d5e8d3e.png)
+<!-- ![](https://hedgedoc.course.aislab.ee.ncku.edu.tw/uploads/15082f1e-d8d0-4bb9-8074-02d93d5e8d3e.png) -->
 
 2. 檢查遠端 repository：
 ```bash

@@ -12,7 +12,7 @@
 
 Docker 是容器化技術（Containerization）的一種實作，而容器化又是一種輕量級的虛擬化技術，常常和容器化拿來對比的就是虛擬機（Virtual Machine, VM）技術。我們可以參考下面這張圖
 
-![](https://hedgedoc.course.aislab.ee.ncku.edu.tw/uploads/a31684fa-7fa2-4422-ae57-2c9203eacf20.png)
+<!-- ![](https://hedgedoc.course.aislab.ee.ncku.edu.tw/uploads/a31684fa-7fa2-4422-ae57-2c9203eacf20.png) -->
 
 基本上 Docker 的出現讓環境的部屬變得容易很多，試想大家今天在自己的電腦上開發應用程式的時候，你會有自己的開發環境和執行環境；但是，今天如果你要把你寫的 App 開放給別人，讓別人在他們電腦上執行的時候，可能就會出現問題，因為你和別人的電腦的開發環境和執行環境不一定是完全相同的，譬如你們所使用的 Python 版本或是 Java JDK 的版本不同，這時候 Docker 就可以派上用場。利用 Docker，你可以將你的應用程式，連同執行環境打包成一個 Docker Image，別人就可以利用你提供的 Docker Image 來建立一個 Container，就可以在這個 Container 中去執行你開發的應用程式，並且避開環境問題。
 
@@ -73,7 +73,7 @@ Docker 是容器化技術（Containerization）的一種實作，而容器化又
 
 安裝完 Docker Desktop 之後，你可以開啟剛剛安裝的 WSL 的 Ubuntu，然後輸入 `sudo docker run hello-world:latest` 看看是否可以成功執行 Docker。如果出現以下畫面，恭喜你 WSL 和 Docker 都順利安裝完成！
 
-![](https://hedgedoc.course.aislab.ee.ncku.edu.tw/uploads/7482a2a8-01b4-4d91-85aa-bdfde95216c5.png)
+<!-- ![](https://hedgedoc.course.aislab.ee.ncku.edu.tw/uploads/7482a2a8-01b4-4d91-85aa-bdfde95216c5.png) -->
 
 #### Test X11 Forwarding
 
@@ -90,7 +90,7 @@ Docker 是容器化技術（Containerization）的一種實作，而容器化又
   $ xclock
   ```
 3. 如果你有看到一個小視窗出現，代表 X11 功能正常運作！
-  ![](https://hedgedoc.course.aislab.ee.ncku.edu.tw/uploads/28367fa9-1f23-485b-9d49-3f99f2a2e170.png)
+  <!-- ![](https://hedgedoc.course.aislab.ee.ncku.edu.tw/uploads/28367fa9-1f23-485b-9d49-3f99f2a2e170.png) -->
 4. 請執行 `run.sh` 進入 container 之後，一樣執行 `xclock` 看看是否也有正常出現小時鐘視窗
 
 ### Install OrbStack on MacOS
@@ -133,7 +133,7 @@ MacOS 要使用 X11 Forwarding 的功能的話，請下載並安裝 [XQuartz](ht
 
 最後，我們需要討論 Docker 對於管理檔案的特性。當你使用某個 Docker Image 去開啟一個 Container 的時候，Docker 會在這個 Container 的最上層加上一層可寫層（Writable Layer）。你對這個 Container 最的所有更改都會被紀錄在可寫層當中，被 Docker 暫存起來。但是，今天一旦這個 Container 被刪除的話，你做的所有更改就會被刪除，當你下次再用相同 Image 開啟 Container 的時候，一切就會恢復原狀，彷彿你從未做過任何操作一樣。但這樣對我們來說就會有一個很大的問題，因為我們將這個 Docker Container 作為我們開發程式的環境，也就代表我們有儲存程式碼的需求，需要持久性（Persistent）的儲存，最好不要因為 Container 被刪除就跟著不見。因此，我們會需要使用到一個東西，叫做 **Docker Volume**。
 
-![](https://hedgedoc.course.aislab.ee.ncku.edu.tw/uploads/954e66b8-161c-476a-aad8-f31755a62248.png)
+<!-- ![](https://hedgedoc.course.aislab.ee.ncku.edu.tw/uploads/954e66b8-161c-476a-aad8-f31755a62248.png) -->
 
 Docker Volume 又分成兩種模式，分別是 Bind Mount 和 Volume。Bind Mount 就像是卦載硬碟的概念，或是當你使用虛擬機如 VirtualBox 的時候，把電腦本地端的某個 Path 卦載到虛擬機上，讓虛擬機內部也可以看到本地端的資料夾，藉此在本地端和虛擬機之間儲存和傳輸檔案。Volume 的話這邊就不贅述，大家有興趣的話可以去看 Docker 官方的文件。
 

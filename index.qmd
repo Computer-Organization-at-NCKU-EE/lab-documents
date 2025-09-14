@@ -25,7 +25,7 @@ docker pull ghcr.io/computer-organization-at-ncku-ee/co-docker-env:latest
 
 接著，我們必須要 clone 另外一個助教提供的 Repository，並且使用內置的腳本來啟動對應的 Docker Container。
 
-請跟隨下面的指令操作：
+請跟隨下面的指令操作
 
 ```shell
 git clone https://github.com/Computer-Organization-at-NCKU-EE/Docker-Environment.git
