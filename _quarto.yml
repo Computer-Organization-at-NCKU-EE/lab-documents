@@ -26,7 +26,7 @@ book:
   sidebar:
     style: docked
     collapse-level: 1
-  downloads: pdf
+  # downloads: pdf
   output-file: "book"
   chapters:
     - index.qmd
@@ -103,18 +103,19 @@ bibliography:
 format:
   html:
     theme:
-      - cosmo
-      - brand
+      - zephyr
     toc: true
     toc-expand: true
     code-annotations: true
     code-copy: true
     code-line-numbers: true
-  pdf:
-    documentclass: scrreprt
-    papersize: a4paper
-    lof: true
-    lot: true
-    fontsize: "12"
-    link-citations: true
-    link-bibliography: true
+  # pdf:
+    # pdf-engine: xelatex
+    # documentclass: scrreprt
+    # papersize: a4paper
+    # lof: true
+    # lot: true
+    # fontsize: "12"
+    # CJKmainfont: "KaiTi"
+    # link-citations: true
+    # link-bibliography: true

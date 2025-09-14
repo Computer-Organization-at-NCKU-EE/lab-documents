@@ -3,40 +3,52 @@
 Welcome to the Undergraduate Computer Organization course at NCKU EE.
 This website is built with [Quarto Book mode](https://quarto.org/docs/books).
 
-# What will You Learn in This Course? {.unnumbered}
-
-We expect that you should learn the following concepts about Computer Organization:
-
-1. RISC-V Instruction Set Architecture (ISA) 
-
 # Steps to Setup Lab Development Environment {.unnumbered}
 
-## Prepare The Docker Image
+::: {.callout-note}
+如果想知道更多關於 Docker 的知識請參考：@sec-docker。
+:::
 
-這個步驟最主要的目標是從 GitHub 上的 Package Registry 上面下載（pull）助教已經建構好的 Docker Image，
+## Step 1 - Install Docker on Your PC or Laptop
+
+這個步驟請參考 @sec-install-docker 的說明。
+
+## Step 2 - Prepare The Docker Image
+
+接下來，請打開你的終端機，如果是 Windows 電腦的話請打開你在 Step 1 安裝的 WSL 環境。如果使用 MacOS 的話，請直接打開 Terminal 即可。
+
+Step 2 這個步驟最主要的目標是從 GitHub 上的 Package Registry 上面下載（pull）助教已經建構好的 Docker Image，
 
 ```shell
 docker pull ghcr.io/computer-organization-at-ncku-ee/co-docker-env:latest
 ```
 
-如果想知道更多關於 Docker 的知識請參考：@sec-docker。
-
-## Launch The Docker Container {#sec-docker-container}
+## Step 3 - Launch The Docker Container {#sec-docker-container}
 
 接著，我們必須要 clone 另外一個助教提供的 Repository，並且使用內置的腳本來啟動對應的 Docker Container。
 
 請跟隨下面的指令操作
 
 ```shell
-git clone https://github.com/Computer-Organization-at-NCKU-EE/Docker-Environment.git
-cd Docker-Environment
-./create.sh comporg
-./attach.sh
+$ git clone https://github.com/Computer-Organization-at-NCKU-EE/Docker-Environment.git
+$ cd Docker-Environment
+$ ./create.sh comporg
+$ ./attach.sh
+```
+
+如果你是使用 MacOS 作業系統的電腦，請依照下面指令操作：
+
+```shell
+$ git clone https://github.com/Computer-Organization-at-NCKU-EE/Docker-Environment.git
+$ cd Docker-Environment
+$ git switch macos
+$ ./create.sh comporg
+$ ./attach.sh
 ```
 
 關於 Git Version Control System 和 Git 該如何使用，請參考：@sec-git。
 
-## Check X11 Forwarding
+## Step 4 - Check X11 Forwarding
 
 因為我們會使用到 [GTKWave](https://gtkwave.sourceforge.net/) 這個 GUI Tool 來觀察的電路的波形（waveform），所以我們必須要確報我們可以在 Docker Container 內開啟 GUI Applications。
 
@@ -48,7 +60,7 @@ xclock
 
 如果出現以下畫面，則代表可以正常開啟 GUI Applications（i.e., X11 Forwarding 正常運作）。
 
-![](book/appendix/images/x11.png){width=60% fig-align="center"}
+![](book/appendix/images/x11.png){width=80% fig-align="center"}
 
 
 ## Notes on Workspace

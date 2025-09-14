@@ -211,13 +211,16 @@ Password for 'https://UserName@gitlab.course.aislab.ee.ncku.edu.tw'
 ```
 
 ### `git clone`
+
 `git clone` 用來從遠端 repository 複製到本地，包含所有檔案和 commit 紀錄。執行後會創建一個與遠端 repository 相同的本地副本。
 
 ```bash
 $ git clone https://github.com/TA/project0.git
 ```
+
 執行後顯示：
-```
+
+```text
 Cloning into 'prog0'...
 remote: Enumerating objects: 3, done.
 remote: Counting objects: 100% (3/3), done.
@@ -229,40 +232,39 @@ Receiving objects: 100% (3/3), done.
 `git checkout` 用來切換分支或指定的 commit ID，讓工作目錄變成該版本的狀態。可以檢視指定的 commit 或切換到其他分支。
 
 1. 切換到指定 commit：
-```bash
-$ git checkout f041daf7a896afd27199f2c8bd6ee55cd3654113
-```
-這會讓 Git 進入 "detached HEAD" 狀態，允許檢視該版本，但不影響任何分支。
-
+  ```bash
+  $ git checkout f041daf7a896afd27199f2c8bd6ee55cd3654113
+  ```
+  這會讓 Git 進入 "detached HEAD" 狀態，允許檢視該版本，但不影響任何分支。
 2. 回到最新的 `master` 分支：
-```bash
-$ git checkout master
-```
+  ```bash
+  $ git checkout master
+  ```
 
 ### `git branch`
 `git branch` 用來顯示目前存在的分支，並標註目前所在的分支。還可以用來創建或切換分支。
 
 1. 顯示目前的分支：
-```bash
-$ git branch
-* master
-```
-
+  ```bash
+  $ git branch
+  * master
+  ```
 2. 新建一個分支：
-```bash
-$ git branch new-feature
-```
-
+  ```bash
+  $ git branch new-feature
+  ```
 3. 切換到新建的分支：
-```bash
-$ git checkout new-feature
-```
+  ```bash
+  $ git checkout new-feature
+  ```
 
 ### `.gitignore`
+
 當你的專案有許多冗餘的檔案時，`.gitignore` 檔案用來告訴 Git 忽略某些不需要追蹤的檔案或目錄。可以將不必要追蹤的檔案模式寫入 `.gitignore` 檔案。
 
 例如: 在.gitignore寫入
-```
+
+```text
 # Object files
 *.o
 *.elf
@@ -275,16 +277,20 @@ $ git checkout new-feature
 # Logs
 *.log
 ```
+
 Git 便會忽略掉程式編譯過程中的中間檔以及執行檔。
 
 ```bash
 $ git add .gitignore
 $ git commit -m "Add .gitignore"
 ```
+
 執行後顯示：
-```
+
+```text
 [master 8f8e123] Add .gitignore
  1 file changed, 1 insertion(+)
  create mode 100644 .gitignore
 ```
+
 這樣所有 `.log` 檔案都會被 Git 忽略。
