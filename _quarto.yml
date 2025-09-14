@@ -107,6 +107,9 @@ format:
       - brand
     toc: true
     toc-expand: true
+    code-annotations: true
+    code-copy: true
+    code-line-numbers: true
   pdf:
     documentclass: scrreprt
     papersize: a4paper

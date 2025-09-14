@@ -1,1 +1,15 @@
 # Object-Oriented Programming in Pure C
+
+## Preamble
+
+在這個章節當中，我們主要介紹如何使用純 C 語言（不依賴於 C++）來模擬類似物件導向程式設計（Object-Oriented Programming）的設計模式。
+
+## What is OOP?
+
+### Encapsulation in Pure C
+
+### Inheritance in Pure C
+
+### Polymorphism in Pure C
+
+## A Simple Example of OOP in Pure C

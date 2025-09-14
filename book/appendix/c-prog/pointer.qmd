@@ -1,1 +1,5 @@
 # Pointers in C
+
+## Preamble
+
+在這個章節裡面，我們主要探討 C 語言中關於指標的基本用法，這涵蓋了一般指向資料的 ***Data Pointer*** 和指向函式（Function）的 ***Function Pointer***。

@@ -8,3 +8,49 @@ This website is built with [Quarto Book mode](https://quarto.org/docs/books).
 We expect that you should learn the following concepts about Computer Organization:
 
 1. RISC-V Instruction Set Architecture (ISA) 
+
+# Steps to Setup Lab Development Environment {.unnumbered}
+
+## Prepare The Docker Image
+
+這個步驟最主要的目標是從 GitHub 上的 Package Registry 上面下載（pull）助教已經建構好的 Docker Image，
+
+```shell
+docker pull ghcr.io/computer-organization-at-ncku-ee/co-docker-env:latest
+```
+
+如果想知道更多關於 Docker 的知識請參考：@sec-docker。
+
+## Launch The Docker Container {#sec-docker-container}
+
+接著，我們必須要 clone 另外一個助教提供的 Repository，並且使用內置的腳本來啟動對應的 Docker Container。
+
+請跟隨下面的指令操作：
+
+```shell
+git clone https://github.com/Computer-Organization-at-NCKU-EE/Docker-Environment.git
+cd Docker-Environment
+./create.sh comporg
+./attach.sh
+```
+
+關於 Git Version Control System 和 Git 該如何使用，請參考：@sec-git。
+
+## Check X11 Forwarding
+
+因為我們會使用到 [GTKWave](https://gtkwave.sourceforge.net/) 這個 GUI Tool 來觀察的電路的波形（waveform），所以我們必須要確報我們可以在 Docker Container 內開啟 GUI Applications。
+
+在上一個步驟 @sec-docker-container 我們已經透過 `./attach.sh` 進入 Docker Container 中，接著我們輸入以下指令：
+
+```shell
+xclock
+```
+
+如果出現以下畫面，則代表可以正常開啟 GUI Applications（i.e., X11 Forwarding 正常運作）。
+
+![](book/appendix/images/x11.png){width=60% fig-align="center"}
+
+
+## Notes on Workspace
+
+請同學注意，助教建議同學將程式碼一率放在路徑 `/home/ubuntu/workspace` 底下，而非 `/home/ubuntu` 底下，因為助教有使用 Docker Volume 來將 `/home/ubuntu/workspace` 路徑底下的東西進行持久性地保存，避免 Docker Container 意外被刪除的時候，資料也一併不見。詳細的資訊可以參考 @sec-docker-volume。
