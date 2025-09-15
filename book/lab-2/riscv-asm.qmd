@@ -1,1 +1,46 @@
 # RISC-V Assembly Programming
+
+::: {.callout-note}
+Please refer to @riscv-asm-manual and @riscv-asm-book for more information.
+:::
+
+## Assembly Programming Basics
+
+### Registers and Instructions
+
+### If-Else Statements
+
+### For-Loops
+
+### While-Loops
+
+## Application-Binary Interface (ABI)
+
+::: {.callout-note}
+Please refer to @riscv-abi-repo for more information about RISC-V ABI.
+:::
+
+### Why ABI Matters?
+
+### Function Call Convention
+
+### Stack Allocation and Stack Pointer
+
+### Example Workaround For Using ABI
+
+## Advanced Examples
+
+- strlen
+- array_sum
+- recursion (factorial, fibonacci)
+
+## C-Assembly Hrbrid Programming
+
+- Calling C from assembly
+- Calling assembly from C
+ 
+## Some Common Pesudo-Instructions
+
+- Basic pseudo-instructions (`li`, `mv`, `nop`)
+- Control flow pseudo-instructions (`call`, `ret`, `beqz`)
+- How assembler expands pseudo-instructions

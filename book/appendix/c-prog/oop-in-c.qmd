@@ -10,14 +10,31 @@ Many modern programming languages provide syntactic support (often referred to a
 
 We will begin by introducing the key concepts of OOP — ***Encapsulation***, ***Inheritance***, and ***Polymorphism***. After that, we will examine a simple example of how OOP can be implemented in pure C. Finally, we will look at some well-known C macros in the Linux kernel that embody OOP principles and discuss their usage.
 
-## What is OOP?
+## Core Concepts of OOP
 
-### Encapsulation in Pure C
+### Encapsulation
 
-### Inheritance in Pure C
+- Concept: hide internal data, expose methods
+- C implementation: struct + functions
 
-### Polymorphism in Pure C
+### Inheritance
 
-## C Macros Related To OOP in Linux Kernel
+- Concept: reuse and extend behavior
+- C implementation: embedding structs
+
+### Polymorphism
+
+- Concept: multiple forms via dynamic dispatch
+- C implementation: function pointers / vtable
 
 ## A Simple Example of OOP in Pure C
+
+- Step-by-step implementation
+- Combining encapsulation, inheritance, polymorphism
+- Small program students can compile and run
+
+## Advanced: C Macros Related to OOP in Linux Kernel
+
+- Macros like container_of, DEFINE_MUTEX, etc.
+- How macros emulate OOP patterns
+- Optional deep dive for advanced students
