@@ -2,13 +2,21 @@
 
 ## What is ISA Simulator (ISS)?
 
+When discussing RISC-V and its instructions, people often imagine a physical processor circuit capable of executing them. However, building an actual digital processor is usually a time-consuming task. To prototype ideas more quickly, we can instead build a simulator.
+
+Designing real hardware like a CPU typically requires Hardware Description Languages (HDLs), such as Verilog or SystemVerilog, which are relatively low-level and detail-oriented. In contrast, a simulator can be developed using general-purpose programming languages like C, C++, or Python. Simulators also abstract away many low-level concerns such as timing information and register-level transactions, allowing us to save a significant amount of development time.
+
+In this lab, our goal is to build a simulator that mimics the behavior of a RISC-V machine. Such a tool is commonly referred to as an ***Instruction Set Architecture (ISA) Simulator***, or ***ISS*** for short. The role of the ISS is straightforward: it recognizes RISC-V instructions and executes them accordingly.
+
 ## Overall Architecture of Example ISS
 
-place architectural diagram at here
+![](images/iss.png){fig-align="center"}
 
 ## Detailed Architecture of Example ISS
 
 ### Some Pre-Defined Information
+
+In order to develop the ISS in a more convenient way, we must define some user-defined types to make our code more elegant and readable.
 
 ### Fetch, Decode and Execute
 
