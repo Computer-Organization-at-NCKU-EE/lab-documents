@@ -1,1 +1,17 @@
 # What is Computer?
+
+## The General View
+
+## The Abstraction View
+
+### The Software/Hardware Interface
+
+### A Big Finite-State Machine
+
+## The Detailed View
+
+### Von-Neumann Architecture
+
+### Harvard Architecture
+
+## Memory Map

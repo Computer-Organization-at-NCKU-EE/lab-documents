@@ -2,7 +2,13 @@
 
 ## Preamble
 
-在這個章節當中，我們主要介紹如何使用純 C 語言（不依賴於 C++）來模擬類似物件導向程式設計（Object-Oriented Programming）的設計模式。
+In this chapter, we focus on how to *imitate* ***Object-Oriented Programming*** (OOP) in Pure C language.
+
+First of all, we must recognize that OOP is a programming paradigm, rather than a built-in language feature. In other words, this paradigm can, in principle, be implemented in any programming language — including C, which is fundamentally a procedural language.
+
+Many modern programming languages provide syntactic support (often referred to as syntax sugar) to make OOP easier to express. By contrast, since C does not natively provide such syntax, we say that we imitate OOP in C by manually applying its principles and design patterns.
+
+We will begin by introducing the key concepts of OOP — ***Encapsulation***, ***Inheritance***, and ***Polymorphism***. After that, we will examine a simple example of how OOP can be implemented in pure C. Finally, we will look at some well-known C macros in the Linux kernel that embody OOP principles and discuss their usage.
 
 ## What is OOP?
 
@@ -11,5 +17,7 @@
 ### Inheritance in Pure C
 
 ### Polymorphism in Pure C
+
+## C Macros Related To OOP in Linux Kernel
 
 ## A Simple Example of OOP in Pure C
