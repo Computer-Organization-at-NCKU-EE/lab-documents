@@ -8,19 +8,216 @@ Designing real hardware like a CPU typically requires Hardware Description Langu
 
 In this lab, our goal is to build a simulator that mimics the behavior of a RISC-V machine. Such a tool is commonly referred to as an ***Instruction Set Architecture (ISA) Simulator***, or ***ISS*** for short. The role of the ISS is straightforward: it recognizes RISC-V instructions and executes them accordingly.
 
-## Overall Architecture of Example ISS
+## Overall Architecture of Example ISS {#sec-iss-overall-arch}
+
+The overall execution flow of the ISS itself can be abstracted into three steps: Fetch, Decode and Execute.
+In the fetch stage, the ISS will try to read the memory (ROM or RAM) to get the instruction to be executed.
+The read instruction will be decoded in the decode stage. The output of the decode stage is the `inst_enum_t` which indicates what the current instruction is. Finally, both `inst_fields_t` and `inst_enum_t` will be send to the execution stage to execute the fetched instruction. The most important thing is that the update of ***architectural states*** only happens at the execution stage. In both fetch and decode stages, the ISS does not change its architectural states. 
 
 ![](images/iss.png){fig-align="center"}
+
+In addition to the ISS itself, we also provide eight public APIs. These APIs make the ISS easier to test and integrate. More importantly, they are essential for reference-model-based verification, as described in @sec-cross-verify.
 
 ## Detailed Architecture of Example ISS
 
 ### Some Pre-Defined Information
 
-In order to develop the ISS in a more convenient way, we must define some user-defined types to make our code more elegant and readable.
+In order to develop the ISS in a more convenient way, we must define some user-defined types (i.e., some special data structures) to make our code more elegant and readable.
+
+Firstly, we define `inst_fields_t` by usgin *union* in C language to make the decoding of instruction more convinent.
+
+```cpp
+/* define 6 (4 base + 2 extended) types of formats of instructions in RV64I */
+typedef union {
+    struct {
+        uint32_t opcode : 7;
+        uint32_t rd : 5;
+        uint32_t func3 : 3;
+        uint32_t rs1 : 5;
+        uint32_t rs2 : 5;
+        uint32_t func7 : 7;
+    } R_TYPE;
+    struct {
+        uint32_t opcode : 7;
+        uint32_t rd : 5;
+        uint32_t func3 : 3;
+        uint32_t rs1 : 5;
+        int32_t imm_11_0 : 12;
+    } I_TYPE;
+    struct {
+        uint32_t opcode : 7;
+        uint32_t imm_4_0 : 5;
+        uint32_t func3 : 3;
+        uint32_t rs1 : 5;
+        uint32_t rs2 : 5;
+        int32_t imm_11_5 : 7;
+    } S_TYPE;
+    struct {
+        uint32_t opcode : 7;
+        uint32_t rd : 5;
+        int32_t imm_31_12 : 20;
+    } U_TYPE;
+    struct {
+        uint32_t opcode : 7;
+        uint32_t imm_11 : 1;
+        uint32_t imm_4_1 : 4;
+        uint32_t func3 : 3;
+        uint32_t rs1 : 5;
+        uint32_t rs2 : 5;
+        uint32_t imm_10_5 : 6;
+        int32_t imm_12 : 1; // highest imm
+    } B_TYPE;
+    struct {
+        uint32_t opcode : 7;
+        uint32_t rd : 5;
+        uint32_t imm_19_12 : 8;
+        uint32_t imm_11 : 1;
+        uint32_t imm_10_1 : 10;
+        int32_t imm_20 : 1; // highest imm
+    } J_TYPE;
+    uint32_t raw;
+} inst_fields_t;
+```
+
+Secondly, we define `inst_enum_t` by using `enum` in C language to enumerate all the instructions we must implement in this lab.
+
+```cpp
+/*
+ * Enumerate 37 instructions in total
+ * It should be generated in ISS_decode() stage
+ */
+typedef enum {
+    // OP
+    inst_add,
+    inst_sub,
+    inst_sll,
+    inst_slt,
+    inst_sltu,
+    inst_xor,
+    inst_srl,
+    inst_sra,
+    inst_or,
+    inst_and,
+    // OP-IMM
+    inst_addi,
+    inst_slti,
+    inst_sltiu,
+    inst_xori,
+    inst_ori,
+    inst_andi,
+    inst_slli,
+    inst_srli,
+    inst_srai,
+    // LOAD
+    isnt_lb,
+    inst_lh,
+    inst_lw,
+    inst_lbu,
+    inst_lhu,
+    // STORE
+    inst_sb,
+    inst_sh,
+    inst_sw,
+    // BRANCH
+    inst_beq,
+    inst_bne,
+    inst_blt,
+    inst_bge,
+    inst_bltu,
+    inst_bgeu,
+    // JAL
+    inst_jal,
+    // JALR
+    inst_jalr,
+    // AUIPC
+    inst_auipc,
+    // LUI
+    inst_lui,
+} inst_enum_t;
+```
+
+The reason we define `inst_enum_t` is that it can simplify the implementation of execute stage of the ISS.
+With `inst_enum_t`, the execute stage can be implemented with a large `case` statement in C language, which is straightforward and easy to understand.
+For example, one might implement the `ISS_decode()` as following:
+
+```cpp
+inst_enum_t inst_enum;
+switch (inst_enum) {
+	inst_add: {
+		// perform addition
+		break;
+	}
+	inst_sub: {
+		// perform substraction
+		break;
+	}
+	...
+	...
+	...
+}
+```
 
 ### Fetch, Decode and Execute
 
+As metioned in @sec-iss-overall-arch, TODO
+
+- Fetch Stage
+- Decode Stage
+- Execute Stage
+
 ### Object-Oriented in The ISS: `Tick` and `AbstractMem`
+
+In our ISS, we model the simulator as like a ***clock-trigger*** machine. Because of the OOP design paradigm, we want to utilize the capability of inheritance to express our code structure.
+Consequently, we define a base class which is called `Tick`, and the definition of `Tick` is as following:
+
+```{.cpp filename="tick.h"}
+// parent class for general ticked devices
+struct TickVtbl;
+typedef struct {
+    struct TickVtbl const *vtbl;
+} Tick;
+
+// define virtual table
+struct TickVtbl {
+    void (*tick)(Tick *const self);
+};
+
+// define public APIs
+extern void Tick_ctor(Tick *const self);
+extern void Tick_tick(Tick *const self);
+
+// helper macros for children classes
+#define SIGNATURE_TICK_TICK(cls) cls##_Tick_tick
+#define DECLARE_TICK_TICK(cls) void (SIGNATURE_TICK_TICK(cls))(Tick *const self)
+```
+
+```{.cpp filename="tick.c"}
+#include "tick.h"
+
+#include <stdio.h>
+#include <assert.h>
+#include <stdbool.h>
+
+static void _tick(Tick *const self) {
+    assert(false);
+    fprintf(stderr, "%s\n", "Please implement the virtual function!");
+}
+
+void Tick_ctor(Tick *const self) {
+    assert(self != NULL);
+    static struct TickVtbl const vtbl = { .tick = &_tick };
+    self->vtbl                        = &vtbl;
+}
+
+void Tick_tick(Tick *const self) {
+    assert((self != NULL) && (self->vtbl != NULL));
+    self->vtbl->tick(self);
+}
+```
+
+::: {.callout-tip}
+If you are confused about the `const` keyword in C language, please refer to @const-keyword.
+:::
 
 ### Generic Memory-Mapped Load/Store
 
