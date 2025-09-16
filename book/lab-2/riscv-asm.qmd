@@ -14,7 +14,7 @@ Please refer to @riscv-asm-manual and @riscv-asm-book for more information.
 
 ### While-Loops
 
-## Application-Binary Interface (ABI)
+## Application-Binary Interface (ABI) {#sec-riscv-abi}
 
 ::: {.callout-note}
 Please refer to @riscv-abi-repo for more information about RISC-V ABI.
