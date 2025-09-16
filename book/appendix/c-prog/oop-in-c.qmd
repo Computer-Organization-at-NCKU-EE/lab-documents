@@ -33,7 +33,7 @@ We will begin by introducing the key concepts of OOP — ***Encapsulation***, **
 - Combining encapsulation, inheritance, polymorphism
 - Small program students can compile and run
 
-## Advanced: C Macros Related to OOP in Linux Kernel
+## Advanced: C Macros Related to OOP in Linux Kernel {#sec-linux-oop-macro}
 
 - Macros like container_of, DEFINE_MUTEX, etc.
 - How macros emulate OOP patterns
