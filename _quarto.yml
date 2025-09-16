@@ -27,7 +27,7 @@ book:
     style: docked
     collapse-level: 1
   # downloads: pdf
-  output-file: "book"
+  # output-file: "book"
   chapters:
     - index.qmd
     # Lab 1
@@ -104,18 +104,20 @@ format:
   html:
     theme:
       - zephyr
+    css:
+      - style.css
     toc: true
     toc-expand: true
     code-annotations: true
     code-copy: true
     code-line-numbers: true
   # pdf:
-    # pdf-engine: xelatex
-    # documentclass: scrreprt
-    # papersize: a4paper
-    # lof: true
-    # lot: true
-    # fontsize: "12"
-    # CJKmainfont: "KaiTi"
-    # link-citations: true
-    # link-bibliography: true
+  #   pdf-engine: xelatex
+  #   documentclass: scrreprt
+  #   papersize: a4paper
+  #   lof: true
+  #   lot: true
+  #   fontsize: "12"
+  #   # CJKmainfont: "KaiTi"
+  #   link-citations: true
+  #   link-bibliography: true

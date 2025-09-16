@@ -1,1 +1,5 @@
 # Introduction to RISC-V ISA
+
+::: {.callout-tip}
+If you are interested in how RISC-V is developed, you can read the book @riscv-reader.
+:::

@@ -6,13 +6,47 @@
 
 ### The Software/Hardware Interface
 
+We can also view computers as one kind of machine whose mission is to execute the software we want.
+
+![](images/sw-hw-intf.png){width=50% fig-align="center"}
+
 ### A Big Finite-State Machine
+
+In another point of view, computers can also be viewd as a very big and complicated finite-state machines (FSMs), which means that the two most important things are:
+
+1. What is the current states of the computer?
+2. How does the state transitio happens in the computer?
 
 ## The Detailed View
 
 ### Von-Neumann Architecture
 
+One kind of architecture for computers is called ***Von-Neumann Architecture***, which is firstly discusse in the report @von-neumann-arch-paper for the early computer ***EDVAC***.
+The core concepts of Von-Neumann Architecture is to seperate the whole computer into five different parts: central arithmetic unit, central control unit, memory and input/output.
+
+![[Source](https://en.wikipedia.org/wiki/Von_Neumann_architecture)](images/von-neumann.png){fig-align="center"}
+
+One important thing in Von-Neumann Architecture is that data memory and instruction memory is unified.
+In other words, the computers with Von-Neumann Architecture only have one memory unit.
+
+In order to execute a program, the computer must be able to TODO
+
 ### Harvard Architecture
 
 ## Memory Map
 
+### Physical Memory Space
+
+For a 32-bit processor, the ***addressable*** range of the memory address is from `0x0000_0000` to `0xFFFF_FFFF`, and we refer to the range as ***physical memory space*** or memory space for short.
+However, for a low-end system, the space of read memories (e.g., RAM and FLASH) are typically small, such as 64-KiB.
+
+### Why Does The Computer Need Memory Map?
+
+At this point, we already know that what a computer is and how a computer works.
+However, there is still a big question: how these different components in the computer communicate with each other?
+Let's consider a very simple (embedded) system as below:
+
+![A Simple Computer System](images/simple-sys.png){width=50% fig-align="center"}
+
+How can the CPU do if it want to control the LED light? One straightfowad idea is that we can think the LED light as one kind of memory device!
+Let's say the memory location
