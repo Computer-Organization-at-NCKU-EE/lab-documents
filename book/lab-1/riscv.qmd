@@ -11,11 +11,18 @@ For more information about priv. architecture, please refer to the specification
 
 ## The Software/Hardware Interface - ISA
 
+As stated in @sec-computer, the ISA serves as the interface between software and hardware. The term “interface” here represents a level of **abstraction**. In other words, software developers do not need to understand the low-level details of hardware implementation as long as the ISA requirements are satisfied. Similarly, hardware designers do not need to fully understand the complexities of the software stack, as long as the hardware correctly supports the ISA.
+
+This abstraction allows both sides to evolve **independently**: new hardware implementations can be developed without requiring changes to existing software, and new software can run on different generations of hardware, provided they share the same ISA. Only when performance considerations or specialized optimizations are involved does a deeper cross-layer understanding become necessary.
+
+> We can solve any problem by introducing an extra level of indirection. <br>
+> --- The fundamental theorem of software engineering (FTSE)
+
 ## Introduction to RISC-V
 
 > introduce the modular design of RISC-V, and CISC vs. RISC
 
-## General Purpose Registers
+## [Architectural Registers]{.mark} for Base Integer ISA
 
 Register are the most important part for almost any processor.
 In RISC-V base integer set, there are 32 ***general purpose registers***, which are used for **any** purpose. However, the register `x0` should always be zero according the the ISA specification @riscv-spec-unpriv.
@@ -70,33 +77,169 @@ The introduction to ABI will be placed at the @sec-riscv-abi, and we will skip t
 
 When it comes to ISA instructions, the encoding for the instruction is always the first aspect to address.
 The way an instruction is encoded has a significant impact on how a processor is designed, particularly for the instruction decoder.
-Similarly, it affects how we implement the decode logics when implementing the ISA simulator.
+Similarly, it affects how we implement the decode logic when building the ISA simulator.
 Therefore, getting familiar with RISC-V instruction formats is one of the essential tasks.
 
 In RISC-V, there are **four** base instruction formats and **two** extended formats. The additional two formats are mainly related to the handling of immediates.
 
 ### Base Instruction Format
 
-TODO
-
 ![](images/r-format.png){fig-align="center"}
 
 ![](images/i-format.png){fig-align="center"}
+
+R-Type and I-Type are two of the four base instruction formats which do not have extended format. Besides, there are two formats S-Type and U-Type which have extended formats. The extended formats for S-Type and U-Type are B-Type and J-Type respectively.
 
 ![](images/s-format.png){fig-align="center"}
 
 ![](images/u-format.png){fig-align="center"}
 
+According to the RISC-V specification for unprivileged architecture @riscv-spec-unpriv:
+
+> The RISC-V ISA keeps the source (rs1 and rs2) and destination (rd) registers at the same position in all formats to simplify decoding.
+>
+> Except for the 5-bit immediates used in CSR instructions (Chapter 6), immediates are always sign-extended, and are generally packed towards the leftmost available bits in the instruction and have been allocated to reduce hardware complexity.
+>
+> In particular, the sign bit for all immediates is always in bit 31 of the instruction to speed sign-extension circuitry.
+
+We could find some important properties:
+
+1. The source (rs1 and rs2) and destination (rd) registers are at the same position in all formats (except for CSR instructions)
+2. Immediates are always sign-extended
+3. The sign bit for all immediates is always in bit 31 of the instruction
+
+These great ideas greatly reduce the hardware complexity of designing a instruction decoder inside a real RISC-V processor.
 
 ### Immediate Encoding Variants
 
-TODO
+![S-Type Format](images/s-format.png){fig-align="center"}
+
+![B-Type Format](images/b-format.png){fig-align="center"}
+
+As what we just said, there are two extended instruction format B-Type and J-Type.
+The B-Type format is based on S-Type format, while how the immediates are encoded is different.
+According to @riscv-spec-unpriv:
+
+> The only difference between the S and B formats is that the 12-bit immediate field is used to encode branch offsets in multiples of 2 in the B format. Instead of shifting all bits in the instruction-encoded immediate left by one in hardware as is conventionally done, the middle bits (imm[10:1]) and sign bit
+
+![U-Type Format](images/u-format.png){fig-align="center"}
+
+![J-Type Format](images/j-format.png){fig-align="center"}
+
+Similarly, J-Type format is based on U-Type format. According to @riscv-spec-unpriv:
+
+> The only difference between the U and J formats is that the 20-bit immediate is shifted left by 12 bits to form U immediates and by 1 bit to form J immediates. The location of instruction bits in the U and J format immediates is chosen to maximize overlap with the other formats and with each other.
+
+Let's look these different immediates in another point of view:
+
+![Immediate types](images/imm-produced.png){fig-align="center"}
+
+> Immediate types shows the immediates produced by each of the base instruction formats, and is
+labeled to show which instruction bit (inst[y]) produces each bit of the immediate value.
+> The fields are labeled with the instruction bits used to construct their value. Sign extensions always uses inst[31].
+>
+> --- From @riscv-spec-unpriv
+
+## RV32I Instructions
+
+We can divide instructions in RV32I base integer instruction set into several parts, including (a) **integer computational instructions**, (b) **control transfer instructions**, (c) **load and store instructions**, (d) **memory ordering instructions** and (e) **environment call and breakpoint instructions**. However, we do not cover (d) and (e) in this lecture.
+
+Before we go into the details about each instruction, let's take a look on ***opcode map***:
+
+![Opcode Map from @riscv-spec-unpriv](images/opcode-map.png){fig-align="center"}
+
+For those instructions we must implement in the ISA Simulator, we have to recognize the following opcodes:
+
+- OP
+- OP-IMM
+- LOAD
+- STORE
+- BRANCH
+- JAL
+- JALR
+- LUI
+- AUIPC
+
+All the **37** instructions we must implement all belong to one of these opcodes.
+Let's talk about these 37 instructions in the perspective of their functionality.
+
+### Integer Computational Instructions
+
+#### Integer Register-Immediate Operations
+
+![](images/op-imm-1.png)
+
+![](images/op-imm-2.png)
+
+![](images/op-imm-3.png)
+
+#### Integer Register-Register Operations
+
+![](images/op.png)
+
+#### NOP Instruction
+
+![](images/nop.png)
+
+### Control Transfer Instructions
+
+#### Unconditional Jumps
+
+![](images/jal.png)
+
+![](images/jalr.png)
+
+#### Conditional Branches
+
+![](images/branch.png)
+
+### Load and Store Instructions
+
+![](images/load.png)
+
+![](images/store.png)
 
 ## RV32I Instruction List
 
 | Instruction Name | Opcode Map | Semantics |
 |------------------|------------|-----------|
-| TODO             | TODO       | TODO      |
+| LUI              | LUI        | TODO      |
+| AUIPC            | AUIPC      | TODO      |
+| JAL              | JAL        | TODO      |
+| JALR             | JALR       | TODO      |
+| BEQ              | BRANCH     | TODO      |
+| BNE              | TODO       | TODO      |
+| BLT              | TODO       | TODO      |
+| BGE              | TODO       | TODO      |
+| BLTU             | TODO       | TODO      |
+| BGEU             | TODO       | TODO      |
+| LB               | TODO       | TODO      |
+| LH               | TODO       | TODO      |
+| LW               | TODO       | TODO      |
+| LBU              | TODO       | TODO      |
+| LHU              | TODO       | TODO      |
+| SB               | TODO       | TODO      |
+| SH               | TODO       | TODO      |
+| SW               | TODO       | TODO      |
+| ADDI             | TODO       | TODO      |
+| SLTI             | TODO       | TODO      |
+| SLTIU            | TODO       | TODO      |
+| XORI             | TODO       | TODO      |
+| ORI              | TODO       | TODO      |
+| ANDI             | TODO       | TODO      |
+| SLLI             | TODO       | TODO      |
+| SRLI             | TODO       | TODO      |
+| SRAI             | TODO       | TODO      |
+| ADD              | TODO       | TODO      |
+| SUB              | TODO       | TODO      |
+| SLL              | TODO       | TODO      |
+| SLT              | TODO       | TODO      |
+| SLTU             | TODO       | TODO      |
+| XOR              | TODO       | TODO      |
+| SRL              | TODO       | TODO      |
+| SRA              | TODO       | TODO      |
+| OR               | TODO       | TODO      |
+| AND              | TODO       | TODO      |
 
 ::: {.callout-caution}
 We did not actually cover __all__ RV32I instructions in this lab. There are three instructions we do not cover: FENCE, EBREAK and ECALL instructions.

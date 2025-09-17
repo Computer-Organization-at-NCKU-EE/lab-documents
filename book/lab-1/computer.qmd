@@ -1,4 +1,4 @@
-# What is Computer?
+# What is Computer? {#sec-computer}
 
 ## The General View
 

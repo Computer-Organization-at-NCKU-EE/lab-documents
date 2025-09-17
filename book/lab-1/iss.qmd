@@ -12,7 +12,7 @@ In this lab, our goal is to build a simulator that mimics the behavior of a RISC
 
 The overall execution flow of the ISS itself can be abstracted into three steps: Fetch, Decode and Execute.
 In the fetch stage, the ISS will try to read the memory (ROM or RAM) to get the instruction to be executed.
-The read instruction will be decoded in the decode stage. The output of the decode stage is the `inst_enum_t` which indicates what the current instruction is. Finally, both `inst_fields_t` and `inst_enum_t` will be send to the execution stage to execute the fetched instruction. The most important thing is that the update of ***architectural states*** only happens at the execution stage. In both fetch and decode stages, the ISS does not change its architectural states. 
+The read instruction will be decoded in the decode stage. The output of the decode stage is the `inst_enum_t` which indicates what the current instruction is. Finally, both `inst_fields_t` and `inst_enum_t` will be send to the execution stage to execute the fetched instruction. The most important thing is that the update of ***architectural states*** only happens at the execution stage. In both fetch and decode stages, the ISS does not change its architectural states.
 
 ![](images/iss.png){fig-align="center"}
 
