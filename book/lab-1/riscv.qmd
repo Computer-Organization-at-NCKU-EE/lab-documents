@@ -22,9 +22,9 @@ This abstraction allows both sides to evolve **independently**: new hardware imp
 
 > introduce the modular design of RISC-V, and CISC vs. RISC
 
-## [Architectural Registers]{.mark} for Base Integer ISA
+## Architectural Registers for Base Integer Instruction Set
 
-Register are the most important part for almost any processor.
+Register are the most important part for almost any processor. Mote precisely, the [***architectural register***]{.mark} are the most important component inside a processor which records the current states of the processor.
 In RISC-V base integer set, there are 32 ***general purpose registers***, which are used for **any** purpose. However, the register `x0` should always be zero according the the ISA specification @riscv-spec-unpriv.
 In addition, there is one special register which is called ***Program Counter*** or ***PC*** for short. The duty of PC is to record the memory address of the current instruction to be executed.
 
@@ -151,14 +151,23 @@ Before we go into the details about each instruction, let's take a look on ***op
 For those instructions we must implement in the ISA Simulator, we have to recognize the following opcodes:
 
 - OP
+  - **Register-Register** Operations
 - OP-IMM
+  - **Register-Immediate** Operations
 - LOAD
+  - Load Operations
 - STORE
+  - Store Operations
 - BRANCH
+  - **Conditional** Branches
 - JAL
+  - Only for JAL instruction, which is **Unconditional** Jump
 - JALR
+  - Only for JALR instruction, which is **Unconditional** Jump
 - LUI
+  - Only for LUI instruction
 - AUIPC
+  - Only for AUIPC instruction
 
 All the **37** instructions we must implement all belong to one of these opcodes.
 Let's talk about these 37 instructions in the perspective of their functionality.
@@ -167,37 +176,37 @@ Let's talk about these 37 instructions in the perspective of their functionality
 
 #### Integer Register-Immediate Operations
 
-![](images/op-imm-1.png)
+![](images/op-imm-1.png){fig-align="center"}
 
-![](images/op-imm-2.png)
+![](images/op-imm-2.png){fig-align="center"}
 
-![](images/op-imm-3.png)
+![](images/op-imm-3.png){fig-align="center"}
 
 #### Integer Register-Register Operations
 
-![](images/op.png)
+![](images/op.png){fig-align="center"}
 
 #### NOP Instruction
 
-![](images/nop.png)
+![](images/nop.png){fig-align="center"}
 
 ### Control Transfer Instructions
 
 #### Unconditional Jumps
 
-![](images/jal.png)
+![](images/jal.png){fig-align="center"}
 
-![](images/jalr.png)
+![](images/jalr.png){fig-align="center"}
 
 #### Conditional Branches
 
-![](images/branch.png)
+![](images/branch.png){fig-align="center"}
 
 ### Load and Store Instructions
 
-![](images/load.png)
+![](images/load.png){fig-align="center"}
 
-![](images/store.png)
+![](images/store.png){fig-align="center"}
 
 ## RV32I Instruction List
 

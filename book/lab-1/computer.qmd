@@ -2,7 +2,15 @@
 
 ## The General View
 
-## The Abstraction View
+So, what is a computer? There may be many different answers depending on who you ask. I would say that a computer is a kind of machine that [**can be programmed to perform tasks automatically**]{.mark}.
+
+![Electronic Numerical Integrator And Computer (ENIAC), [Source](https://en.wikipedia.org/wiki/Computer)](images/ENIAC.jpg){width=80% fig-align="center"}
+
+Early computers were primarily designed for numerical computation tasks, such as calculating ballistic trajectories. In contrast, modern computers can carry out a wide variety of general-purpose tasks. If early computers behaved like pure calculators, I would describe modern computers as automatic executors of algorithms.
+
+This shift from specialized number crunching to versatile programmability marks the essence of the computer revolution. It is not only about speed, but also about flexibility --- the same machine can run entirely different programs, from scientific simulations to web browsing or gaming.
+
+## The Abstract View
 
 ### The Software/Hardware Interface
 
@@ -10,28 +18,43 @@ We can also view computers as one kind of machine whose mission is to execute th
 
 ![](images/sw-hw-intf.png){width=50% fig-align="center"}
 
-### A Big Finite-State Machine
+One big questions is that how the computer *understand* different programs? Computer are only a set of transistors, and how could it know how to execute programs? The key idea is about the ***Instruction Set Architecture***, or ***ISA*** for short. ISA is one kind of **abstraction** (**indirection**) layer. ISA can be viewed as a [common language between software programs and hardware implementations]{.mark}. Furthermore, ISA also **decouples** the details about software and hardware.
+
+In general, computers are often referred to as the hardware in the figure above. A computer is a kind of hardware implementation which can recognize one or more kinds of of ISA. With the power of ISA, the computer (hardware) can execute different programs and complete the specific tasks.
+
+### A Sophisticated Finite-State Machine (FSM)
 
 In another point of view, computers can also be viewd as a very big and complicated finite-state machines (FSMs), which means that the two most important things are:
 
 1. What is the current states of the computer?
-2. How does the state transitio happens in the computer?
+2. How does the state transition happen in the computer?
 
 ## The Detailed View
 
 ### Von-Neumann Architecture
 
-One kind of architecture for computers is called ***Von-Neumann Architecture***, which is firstly discusse in the report @von-neumann-arch-paper for the early computer ***EDVAC***.
-The core concepts of Von-Neumann Architecture is to seperate the whole computer into five different parts: central arithmetic unit, central control unit, memory and input/output.
+One type of computer organization is known as the ***Von-Neumann Architecture***, which was first discussed in the well-known report on the early computer ***EDVAC*** @von-neumann-arch-paper.
+The fundamental idea of this architecture is to divide the computer system into five major components: the central arithmetic unit, the central control unit, the memory, and the input/output devices.
 
-![[Source](https://en.wikipedia.org/wiki/Von_Neumann_architecture)](images/von-neumann.png){fig-align="center"}
+![Von-Neumann Architecture, [Source](https://en.wikipedia.org/wiki/Von_Neumann_architecture)](images/von-neumann.png){fig-align="center"}
 
-One important thing in Von-Neumann Architecture is that data memory and instruction memory is unified.
-In other words, the computers with Von-Neumann Architecture only have one memory unit.
+A key feature of the Von Neumann Architecture is the unification of data and instruction memory.
+In other words, both program instructions and data are stored in the same memory unit, and they share the same communication pathways.
+This design greatly simplified early computer construction and programming, but it also introduced the so-called ***Von-Neumann bottleneck***, where the shared memory bus can become a performance limitation.
 
-In order to execute a program, the computer must be able to TODO
+In order to execute a program, the computer must read instructions from the unified memory, and the control unit (C.U.) will try to recognize what the memory is.
+After decoding the instruction, the C.U. will try to control the arithmetic unit (A.U.) to perform specific operations and gives the calculation result.
+
+For a more general program, it is often that the program needs some input from the user and gives the output to the user/programmer.
+Hence, the input/output units are also necessary parts.
 
 ### Harvard Architecture
+
+***Harvard Architecture*** is firstly introduced in the early mainframe called **Harvard Mark I**.
+
+![Harvard Architecture, [Source](https://en.wikipedia.org/wiki/Harvard_architecture)](images/harvard-arch.png){width=50% fig-align="center"}
+
+The main difference between Von-Neumann Architecture and Harvard Architecture is that the specification of memory unit.
 
 ## Memory Map
 

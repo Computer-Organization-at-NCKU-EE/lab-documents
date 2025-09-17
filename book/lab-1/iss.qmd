@@ -24,7 +24,7 @@ In addition to the ISS itself, we also provide eight public APIs. These APIs mak
 
 As a ISA Simulator, the most important thing is to parse the input RISC-V instruction and execute it. Execution means the possibility to change the ***architectural states***. In RISC-V ISA, especially for RV32I we want to implement, the architectural state mainly consists of two parts: ***Program Counter*** (PC) and ***General Purpose Registers*** (a.k.a. Register File).
 
-```{.cpp title="arch.h"}
+```{.cpp filename="arch.h"}
 #include <stdint.h>
 
 // common types
@@ -48,7 +48,7 @@ In order to develop the ISS in a more convenient way, we must define some user-d
 
 Firstly, we define `inst_fields_t` by usgin `union` in C language to make the decoding of instruction more convinent.
 
-```cpp
+```{.cpp filename="inst.h"}
 /* define 6 (4 base + 2 extended) types of formats of instructions in RV64I */
 typedef union {
     struct {
@@ -120,7 +120,7 @@ unsigned rsd_index = inst.R_TYPE.rd;
 
 Secondly, we define `inst_enum_t` by using `enum` in C language to enumerate all the instructions we must implement in this lab.
 
-```cpp
+```{.cpp filename="inst.h"}
 /*
  * Enumerate 37 instructions in total
  * It should be generated in ISS_decode() stage
@@ -344,6 +344,7 @@ In order to make the ISS support ***Memory-Mapped I/O Control***, we implement a
 #include "abstract_mem.h"
 #include "arch.h"
 
+// helper data structures
 typedef struct {
     addr_t first;
     addr_t second;
@@ -353,6 +354,7 @@ typedef struct {
     AbstractMem *device_ptr;
 } mmap_unit_t;
 
+// define Memory Map
 typedef struct {
     unsigned num_device;
     mmap_unit_t *memory_map_arr;
@@ -364,25 +366,27 @@ extern int MemoryMap_ctor(MemoryMap *self);
 extern void MemoryMap_dtor(MemoryMap *self);
 extern int MemoryMap_add_device(MemoryMap *self, mmap_unit_t new_device);
 // generic load/store APIs
-extern void MemoryMap_generic_load(MemoryMap *self, addr_t base_addr, unsigned length, byte_t *buffer);
-extern void MemoryMap_generic_store(MemoryMap *self, addr_t base_addr, unsigned length, const byte_t *ref_data);
+extern void
+MemoryMap_generic_load(MemoryMap *self, addr_t base_addr, unsigned length, byte_t *buffer);
+extern void
+MemoryMap_generic_store(MemoryMap *self, addr_t base_addr, unsigned length, const byte_t *ref_data);
 ```
 
-## How To Build The Lab 2 Code Template
+## How To Build The Lab 1 Code Template
 
-After accepting Lab 2 on the GitHub Classroom, you should have your own repository which contains the code template for lab 2.
+After accepting Lab 1 on the **GitHub Classroom**, you should have your own repository which contains the code template for lab 1.
 Please clone the owned repository into your docker development environment.
 
-For example, if my folder is called `lab-2`, then I can build the code template as following:
+For example, if my folder is called `lab-1`, then I can build the code template as following:
 
 ```shell
-$ cd lab-2
+$ cd lab-1
 $ mkdir build && cd build
 $ cmake ..
 $ make -j
 ```
 
-After building the code templace TA provides, you can now run the unit tests by using the following command:
+After building the code template TA provides, you can now run the unit tests by using the following command:
 
 ```shell
 $ ctest
