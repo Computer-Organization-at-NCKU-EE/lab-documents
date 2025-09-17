@@ -178,9 +178,37 @@ Let's talk about these 37 instructions in the perspective of their functionality
 
 ![](images/op-imm-1.png){fig-align="center"}
 
+> ADDI adds the **sign-extended 12-bit immediate** to register *rs1*. Arithmetic overflow is ignored and the result is simply the low XLEN bits of the result.
+> ADDI *rd*, *rs1*, *0* is used to implement the MV *rd*, *rs1* assembler pseudoinstruction.
+>
+> SLTI (set less than immediate) places the value 1 in register rd if register rs1 is less than the **sign-extended immediate** when both are treated as signed numbers, else 0 is written to rd.
+SLTIU is similar but compares the values as **unsigned numbers** (i.e., [the immediate is first sign-extended to XLEN bits then treated as an unsigned number]{.mark}).
+> Note, SLTIU *rd*, *rs1*, *1* sets *rd* to 1 if *rs1* equals zero, otherwise sets *rd* to 0 (assembler pseudoinstruction SEQZ *rd*, *rs*).
+>
+> ANDI, ORI, XORI are logical operations that perform bitwise AND, OR, and XOR on register *rs1* and the **sign-extended 12-bit immediate** and place the result in *rd*.
+Note, XORI *rd*, *rs1*, *-1* performs a bitwise logical inversion of register *rs1* (assembler pseudoinstruction NOT *rd*, *rs*).
+>
+> --- From Chapter 2.4.1 in RISC-V ISA Spec @riscv-spec-unpriv
+
+The first classes of OP-IMM instructions are the general arithmetic instructions which perform common operations such as addition, logical operations and **conditional set operation**.
+
 ![](images/op-imm-2.png){fig-align="center"}
 
+> Shifts by a constant are encoded as a specialization of the I-type format. The operand to be shifted is in rs1, and the shift amount is encoded in the lower 5 bits of the I-immediate field. The right shift type is encoded in bit 30. SLLI is a logical left shift (zeros are shifted into the lower bits); SRLI is a logical right shift (zeros are shifted into the upper bits); and SRAI is an arithmetic right shift (the original sign bit is copied into the vacated upper bits).
+>
+> --- From Chapter 2.4.1 in RISC-V ISA Spec @riscv-spec-unpriv
+
+The second class of OP-IMM instructions are related to shift operations, including ***shift-right-logically***, ***shift-right-arithmetically***, and ***shift-left-logically***.
+
 ![](images/op-imm-3.png){fig-align="center"}
+
+Third class of OP-IMM instructions are LUI and AUIPC instructions.
+
+> LUI (load upper immediate) is used to build 32-bit constants and uses the U-type format. LUI places the 32-bit U-immediate value into the destination register rd, filling in the lowest 12 bits with zeros.
+>
+> AUIPC (add upper immediate to pc) is used to build pc-relative addresses and uses the U-type format. AUIPC forms a 32-bit offset from the U-immediate, filling in the lowest 12 bits with zeros, adds this offset to the address of the AUIPC instruction, then places the result in register rd.
+>
+> --- From Chapter 2.4.1 in RISC-V ISA Spec @riscv-spec-unpriv
 
 #### Integer Register-Register Operations
 
@@ -210,45 +238,49 @@ Let's talk about these 37 instructions in the perspective of their functionality
 
 ## RV32I Instruction List
 
-| Instruction Name | Opcode Map | Semantics |
-|------------------|------------|-----------|
-| LUI              | LUI        | TODO      |
-| AUIPC            | AUIPC      | TODO      |
-| JAL              | JAL        | TODO      |
-| JALR             | JALR       | TODO      |
-| BEQ              | BRANCH     | TODO      |
-| BNE              | TODO       | TODO      |
-| BLT              | TODO       | TODO      |
-| BGE              | TODO       | TODO      |
-| BLTU             | TODO       | TODO      |
-| BGEU             | TODO       | TODO      |
-| LB               | TODO       | TODO      |
-| LH               | TODO       | TODO      |
-| LW               | TODO       | TODO      |
-| LBU              | TODO       | TODO      |
-| LHU              | TODO       | TODO      |
-| SB               | TODO       | TODO      |
-| SH               | TODO       | TODO      |
-| SW               | TODO       | TODO      |
-| ADDI             | TODO       | TODO      |
-| SLTI             | TODO       | TODO      |
-| SLTIU            | TODO       | TODO      |
-| XORI             | TODO       | TODO      |
-| ORI              | TODO       | TODO      |
-| ANDI             | TODO       | TODO      |
-| SLLI             | TODO       | TODO      |
-| SRLI             | TODO       | TODO      |
-| SRAI             | TODO       | TODO      |
-| ADD              | TODO       | TODO      |
-| SUB              | TODO       | TODO      |
-| SLL              | TODO       | TODO      |
-| SLT              | TODO       | TODO      |
-| SLTU             | TODO       | TODO      |
-| XOR              | TODO       | TODO      |
-| SRL              | TODO       | TODO      |
-| SRA              | TODO       | TODO      |
-| OR               | TODO       | TODO      |
-| AND              | TODO       | TODO      |
+::: {.callout-note title="Notes on Pseudocode Annotation"}
+For a given number (or register) `A`, it is unsigned number if it is annotated as `unsigned(A)`. Otherwise, it is signed number.
+:::
+
+| Instruction Name | Opcode Map | [Semantics]{.mark} (Described in Pseudocode)    |
+|------------------|------------|-------------------------------------------------|
+| LUI              | LUI        | `rd = imm << 12`                                |
+| AUIPC            | AUIPC      | `rd = PC + (imm << 12)`                         |
+| JAL              | JAL        | `rd = PC + 4; PC += imm`                        |
+| JALR             | JALR       | `rd = PC + 4; PC = rs1 + imm`                   |
+| BEQ              | BRANCH     | `if(rs1 == rs2) PC += imm`                      |
+| BNE              | BRANCH     | `if(rs1 != rs2) PC += imm`                      |
+| BLT              | BRANCH     | `if(rs1 < rs2) PC += imm`                       |
+| BGE              | BRANCH     | `if(rs1 >= rs2) PC += imm`                      |
+| BLTU             | BRANCH     | `if(unsigned(rs1) < unsigned(rs2)) PC += imm`   |
+| BGEU             | BRANCH     | `if(unsigned(rs1) >= unsigned(rs2)) PC += imm`  |
+| LB               | LOAD       | `rd = M[rs1+imm][0:7]`                          |
+| LH               | LOAD       | `rd = M[rs1+imm][0:15]`                         |
+| LW               | LOAD       | `rd = M[rs1+imm][0:31]`                         |
+| LBU              | LOAD       | `rd = M[rs1+imm][0:7]`                          |
+| LHU              | LOAD       | `rd = M[rs1+imm][0:15]`                         |
+| SB               | STORE      | `M[rs1+imm][0:7] = rs2[0:7]`                    |
+| SH               | STORE      | `M[rs1+imm][0:15] = rs2[0:15]`                  |
+| SW               | STORE      | `M[rs1+imm][0:31] = rs2[0:31]`                  | 
+| ADDI             | OP-IMM     | TODO                       |
+| SLTI             | OP-IMM     | TODO                       |
+| SLTIU            | OP-IMM     | TODO                       |
+| XORI             | OP-IMM     | TODO                       |
+| ORI              | OP-IMM     | TODO                       |
+| ANDI             | OP-IMM     | TODO                       |
+| SLLI             | OP-IMM     | TODO                       |
+| SRLI             | OP-IMM     | TODO                       |
+| SRAI             | OP-IMM     | TODO                       |
+| ADD              | OP         | TODO                       |
+| SUB              | OP         | TODO                       |
+| SLL              | OP         | TODO                       |
+| SLT              | OP         | TODO                       |
+| SLTU             | OP         | TODO                       |
+| XOR              | OP         | TODO                       |
+| SRL              | OP         | TODO                       |
+| SRA              | OP         | TODO                       |
+| OR               | OP         | TODO                       |
+| AND              | OP         | TODO                       |
 
 ::: {.callout-caution}
 We did not actually cover __all__ RV32I instructions in this lab. There are three instructions we do not cover: FENCE, EBREAK and ECALL instructions.

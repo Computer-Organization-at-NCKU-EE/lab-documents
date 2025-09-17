@@ -2,13 +2,17 @@
 
 ## The General View
 
-So, what is a computer? There may be many different answers depending on who you ask. I would say that a computer is a kind of machine that [**can be programmed to perform tasks automatically**]{.mark}.
+So, what is a computer? There may be many different answers depending on who you ask.
+I would say that a computer is a kind of machine that [**can be programmed to perform tasks automatically**]{.mark}.
 
 ![Electronic Numerical Integrator And Computer (ENIAC), [Source](https://en.wikipedia.org/wiki/Computer)](images/ENIAC.jpg){width=80% fig-align="center"}
 
-Early computers were primarily designed for numerical computation tasks, such as calculating ballistic trajectories. In contrast, modern computers can carry out a wide variety of general-purpose tasks. If early computers behaved like pure calculators, I would describe modern computers as automatic executors of algorithms.
+Early computers were primarily designed for numerical computation tasks, such as calculating ballistic trajectories.
+In contrast, modern computers can carry out a wide variety of general-purpose tasks.
+If early computers behaved like pure calculators, I would describe modern computers as **automatic executors of algorithms**.
 
-This shift from specialized number crunching to versatile programmability marks the essence of the computer revolution. It is not only about speed, but also about flexibility --- the same machine can run entirely different programs, from scientific simulations to web browsing or gaming.
+This shift from specialized number crunching to versatile programmability marks the essence of the computer revolution.
+It is not only about speed, but also about flexibility --- the same machine can run entirely different programs, from scientific simulations to web browsing or gaming.
 
 ## The Abstract View
 
@@ -24,10 +28,36 @@ In general, computers are often referred to as the hardware in the figure above.
 
 ### A Sophisticated Finite-State Machine (FSM)
 
-In another point of view, computers can also be viewd as a very big and complicated finite-state machines (FSMs), which means that the two most important things are:
+From another perspective, a computer can be viewed as a large and complex finite-state machine (FSM). Under this view, the two most important questions are:
 
 1. What is the current states of the computer?
-2. How does the state transition happen in the computer?
+2. How does the state transition occur within the computer?
+
+By definition, the states of an FSM are stored in ***memory elements***.
+In a computer, these memory elements are the processor’s registers and memory devices (units).
+
+![The FSM point of view](images/computer-fsm.png){width=75% fig-align="center"}
+
+The ***state transition function*** for a processor implements specific ISA is the **rules** defined in the ISA specification.
+The term rule here is broad: it includes not only the semantics of individual instructions but also any other definitions provided in the ISA specification that govern state transitions.
+
+You may also notice a special trigger event in the figure above, labeled *other asynchronous events*.
+These refer to the ***traps*** in the RISC-V ISA, such as ***exceptions*** or ***interrupts***.
+While traps are crucial for real processors, we will not cover them in this lab.
+
+This FSM perspective also explains why an Instruction Set Simulator (ISS) only updates the architectural state during the Execute stage—it is simply applying the next-state transition function defined by the ISA.
+
+::: {.callout-warning title="Finite-State Machine in Different Views"}
+In the **narrow sense**, a finite-state machine (FSM) usually refers to a very simple model you may have seen in textbooks: it has a small number of states (e.g., S0, S1, S2) and transitions defined by a few simple rules.
+These FSMs are easy to draw on paper and are often used to describe control logics.
+
+In the **broad sense**, a computer itself can also be described as a finite-state machine.
+The difference is that the “state” here is enormous --- it includes the contents of all registers and memory.
+In theory, we can still view the computer as an FSM, while its state space is too large to be drawn as a simple state diagram.
+
+So, when we say “a computer is a finite-state machine,” we mean it in the broad theoretical sense.
+We are not implying that it looks like the small FSM diagrams you have seen before, but the underlying principle—state + transition rules—still applies.
+:::
 
 ## The Detailed View
 
@@ -55,6 +85,14 @@ Hence, the input/output units are also necessary parts.
 ![Harvard Architecture, [Source](https://en.wikipedia.org/wiki/Harvard_architecture)](images/harvard-arch.png){width=50% fig-align="center"}
 
 The main difference between Von-Neumann Architecture and Harvard Architecture is that the specification of memory unit.
+With Harvard Architecture, the *Von-Neumann Bottleneck* can be solved with separated data and instruction bus, while the hardware cost increases.
+
+In modern processors, you can find that the processor itself is hard to be defined as exact one kind of architectures among *Von-Neumann* and *Harvard*. The modern processors are often **hybrid architecture**.
+
+![The Alpha 21264 Microprocessor @alpha-21264](images/alpha-21264.png){width=80% fig-align="center"}
+
+Such as the microprocessor above, its has separated instruction memory and data memory, which is *Harvard Architecture*.
+However, it also has a unified memory as the **next-level memory** for first-level instruction memory and data memory. The scheme of the unified memory is like *Von-Nuemann Architecture*.
 
 ## Memory Map
 
