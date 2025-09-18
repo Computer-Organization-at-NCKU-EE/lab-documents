@@ -1,1 +1,13 @@
-# Building A Functional RISC-V ISA Simulator 
+# Building A Functional RISC-V ISA Simulator
+
+In Lab 1, our mission is to build a ***functional simulator*** that can emulate a simple RISC-V machine.
+To understand how to construct such a simulator, we need to examine three key concepts:
+
+- What is a computer?
+- What is RISC-V Instruction Set Architecture (ISA)?
+- What is the internal structure of the simulator?
+
+By the end of this lab, you should be able to implement a simulator capable of decoding and executing most of the basic *RV32I* instructions.
+In the process, you will also develop a solid understanding of fundamental computer concepts as well as the RISC-V ISA.
+
+![This figure is from @comporg-book](images/computer.png){width=80% fig-align="center"}

@@ -26,6 +26,12 @@ One big questions is that how the computer *understand* different programs? Comp
 
 In general, computers are often referred to as the hardware in the figure above. A computer is a kind of hardware implementation which can recognize one or more kinds of of ISA. With the power of ISA, the computer (hardware) can execute different programs and complete the specific tasks.
 
+![This figure is from @comporg-book](images/code-inst.png){width=50% fig-align="center"}
+
+The programs we write must first be translated into instructions defined by a specific ISA.
+However, processors can only understand binary representations—sequences of 0s and 1s.
+Therefore, assembly instructions must ultimately be converted into machine code, which is the actual binary encoding executed by the processor.
+
 ### A Sophisticated Finite-State Machine (FSM)
 
 From another perspective, a computer can be viewed as a large and complex finite-state machine (FSM). Under this view, the two most important questions are:
@@ -98,16 +104,54 @@ However, it also has a unified memory as the **next-level memory** for first-lev
 
 ### Physical Memory Space
 
-For a 32-bit processor, the ***addressable*** range of the memory address is from `0x0000_0000` to `0xFFFF_FFFF`, and we refer to the range as ***physical memory space*** or memory space for short.
-However, for a low-end system, the space of read memories (e.g., RAM and FLASH) are typically small, such as 64-KiB.
+For a 32-bit processor, the ***addressable memory range*** spans from `0x0000_0000` to `0xFFFF_FFFF`.
+We usually refer to this range as the ***physical memory space***, or simply ***memory space***.
 
-### Why Does The Computer Need Memory Map?
+In practice, however, low-end systems often have only a small amount of actual readable memory (such as RAM or Flash), sometimes as little as 64 KiB. This leaves a large portion of the memory space unused. Instead of wasting it, the unused address regions can be mapped to other purposes.
 
-At this point, we already know that what a computer is and how a computer works.
-However, there is still a big question: how these different components in the computer communicate with each other?
-Let's consider a very simple (embedded) system as below:
+### Generic Memory Devices
+
+**What is a memory device?**
+
+In a narrow sense, a memory device is simply a circuit that contains memory elements to hold values.
+
+In a broader sense, however, we can generalize the term to mean any device that can be accessed through load and store operations.
+In this view, a generic memory device is characterized by a base memory address, a memory range, and load/store interfaces.
+
+From the processor’s perspective, such a device can be manipulated using standard load/store instructions, in the same way it interacts with ordinary main memory.
+
+### Memory-Mapped Device (Memory-Mapped I/O, MMIO)
+
+At this point, we already understand what a computer is and how it works internally.
+However, a big question remains: **how do the different components inside a computer communicate with each other?**
+To explore this, let’s consider a very simple embedded system, shown below.
 
 ![A Simple Computer System](images/simple-sys.png){width=50% fig-align="center"}
 
-How can the CPU do if it want to control the LED light? One straightfowad idea is that we can think the LED light as one kind of memory device!
-Let's say the memory location
+How can the CPU control the LED light? One straightforward approach is to treat the LED as a type of [***memory-mapped device***]{.mark}.
+Suppose the LED is assigned a base memory address of 0x200, with a memory range of 4 bytes. Inside this device, there is a control register that can hold either the value 0 or 1.
+
+- When the control register holds **1**, the LED turns **on**.
+- When it holds **0**, the LED turns **off**.
+
+For the processor, it can turn on the LED light through the following instruction:
+
+```asm
+STORE 1 0x200
+```
+
+Likewise, the processor can turn off the LED through the instruction below:
+
+```asm
+STORE 0 0x200
+```
+
+Now suppose we want the processor to automatically turn off the LED whenever it is on. A simple program might look like this:
+
+```asm
+label_1:
+    LOAD 0x200 into A
+    IF (A == 0) -> Jump to label_1
+    STORE 0 0x200
+    END
+```

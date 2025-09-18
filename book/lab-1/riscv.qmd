@@ -134,11 +134,11 @@ Let's look these different immediates in another point of view:
 
 ![Immediate types](images/imm-produced.png){fig-align="center"}
 
+According to the statements in @riscv-spec-unpriv:
+
 > Immediate types shows the immediates produced by each of the base instruction formats, and is
 labeled to show which instruction bit (inst[y]) produces each bit of the immediate value.
 > The fields are labeled with the instruction bits used to construct their value. Sign extensions always uses inst[31].
->
-> --- From @riscv-spec-unpriv
 
 ## RV32I Instructions
 
@@ -261,7 +261,7 @@ For a given number (or register) `A`, it is unsigned number if it is annotated a
 | LHU              | LOAD       | `rd = M[rs1+imm][0:15]`                         |
 | SB               | STORE      | `M[rs1+imm][0:7] = rs2[0:7]`                    |
 | SH               | STORE      | `M[rs1+imm][0:15] = rs2[0:15]`                  |
-| SW               | STORE      | `M[rs1+imm][0:31] = rs2[0:31]`                  | 
+| SW               | STORE      | `M[rs1+imm][0:31] = rs2[0:31]`                  |
 | ADDI             | OP-IMM     | TODO                       |
 | SLTI             | OP-IMM     | TODO                       |
 | SLTIU            | OP-IMM     | TODO                       |
