@@ -30,33 +30,35 @@ book:
   # output-file: "book"
   chapters:
     - index.qmd
-    # Lab 1
+    # Lab 1 - ISS
     - part: book/lab-1/index.qmd
       chapters:
         - book/lab-1/computer.qmd
         - book/lab-1/riscv.qmd
         - book/lab-1/iss.qmd
-    # Lab 2
+    # Lab 2 - Assembly Programming and Runtime
     - part: book/lab-2/index.qmd
       chapters:
         - book/lab-2/riscv-asm.qmd
         - book/lab-2/bare-metal.qmd
-    # Lab 3
+    # Lab 3 - Single-Cycle CPU
     - part: book/lab-3/index.qmd
       chapters: 
         - book/lab-3/single-cycle-cpu.qmd
         - book/lab-3/cross-verify.qmd
-    # Lab 4
+    # Lab 4 - Pipeline CPU
     - part: book/lab-4/index.qmd
       chapters: 
         - book/lab-4/pipeline-basic.qmd
         - book/lab-4/pipeline-microarch.qmd
-    # Lab 5
+    # Lab 5 - Baisc Cache
     - part: book/lab-5/index.qmd
       chapters: 
         - book/lab-5/locality.qmd
-        - book/lab-5/cache.qmd
-    # Lab 6
+        - book/lab-5/cache-org.qmd
+        - book/lab-5/cache-perf.qmd
+        - book/lab-5/cache-impl.qmd
+    # Lab 6 - DRAM Model
     - part: book/lab-6/index.qmd
       chapters:
         - book/lab-6/dram.qmd
@@ -103,7 +105,8 @@ bibliography:
 format:
   html:
     theme:
-      - zephyr
+      light: flatly
+      dark: darkly
     css:
       - style.css
     toc: true

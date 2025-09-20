@@ -2,11 +2,16 @@
 
 ## What is ISA Simulator (ISS)?
 
-When discussing RISC-V and its instructions, people often imagine a physical processor circuit capable of executing them. However, building an actual digital processor is usually a time-consuming task. To prototype ideas more quickly, we can instead build a simulator.
+When discussing RISC-V and its instructions, people often imagine a physical processor circuit capable of executing them. However, building an actual digital processor is usually a time-consuming task.
+To prototype ideas more quickly, we can instead build a simulator which is implemented in general purpose programming languages like C/C++.
 
-Designing real hardware like a CPU typically requires Hardware Description Languages (HDLs), such as Verilog or SystemVerilog, which are relatively low-level and detail-oriented. In contrast, a simulator can be developed using general-purpose programming languages like C, C++, or Python. Simulators also abstract away many low-level concerns such as timing information and register-level transactions, allowing us to save a significant amount of development time.
+Designing real hardware like a CPU typically requires Hardware Description Languages (HDLs), such as Verilog or SystemVerilog, which are relatively low-level and detail-oriented.
+In contrast, a simulator can be developed using general-purpose programming languages like C, C++, or Python.
+Simulators also abstract away many low-level concerns such as timing information and register-level transactions, allowing us to save a significant amount of development time.
 
-In this lab, our goal is to build a simulator that mimics the behavior of a RISC-V machine. Such a tool is commonly referred to as an ***Instruction Set Architecture (ISA) Simulator***, or ***ISS*** for short. The role of the ISS is straightforward: it recognizes RISC-V instructions and executes them accordingly.
+In this lab, our goal is to build a simulator that mimics the behavior of a RISC-V machine.
+Such a tool is commonly referred to as an ***Instruction Set Architecture (ISA) Simulator***, or ***ISS*** for short.
+The role of the ISS is straightforward: it recognizes RISC-V instructions and executes them accordingly.
 
 ## Overall Architecture of Example ISS {#sec-iss-overall-arch}
 
@@ -29,7 +34,7 @@ In addition to the ISS itself, we also provide eight public APIs. These APIs mak
 For an ISA simulator, the most important task is to parse the input RISC-V instruction and then execute it.
 Here, execution specifically refers to the ability to modify the architectural state.
 
-In the RISC-V ISA—particularly in the RV32I subset that we aim to implement—the architectural state mainly consists of two components:
+In the RISC-V ISA --- particularly in the RV32I subset that we aim to implement—the architectural state mainly consists of two components:
 
 1. ***Program Counter*** (***PC***)
 2. ***General Purpose Registers*** (***GPRs***)
@@ -52,7 +57,7 @@ typedef struct arch_state {
 In our implementation, we define a user-defined type called `arch_state_t`, which is composed of PC and GPRs.
 As for the main memory, we classify it into the generic memory map devices, and this is the reason why the main memory is not included into the `arch_state_t`.
 
-### Some Pre-Defined Information
+### Some Pre-Defined Information {#sec-iss-predefine}
 
 To develop the ISS more effectively, we define several custom data types (i.e., user-defined data structures) that make the code cleaner, more elegant, and easier to read.
 
@@ -185,30 +190,17 @@ typedef enum {
 } inst_enum_t;
 ```
 
-The reason we define `inst_enum_t` is that it can simplify the implementation of execute stage of the ISS.
+The reason to define `inst_enum_t` is that it can simplify the implementation of execute stage of the ISS.
 With `inst_enum_t`, the execute stage can be implemented with a large `case` statement in C language, which is straightforward and easy to understand.
-For example, one might implement the `ISS_decode()` as following:
+We will introduce how to implement decode logic with `inst_fields_t` and `inst_enum_t` in @sec-iss-decode.
 
-```cpp
-inst_enum_t inst_enum;
-switch (inst_enum) {
-	inst_add: {
-		// perform addition
-		break;
-	}
-	inst_sub: {
-		// perform substraction
-		break;
-	}
-	...
-	...
-	...
-}
-```
+Furthermore, `inst_fields_t` and `inst_enum_t` also help us to implement execution stage in a more easy way, which will be introduced in @sec-iss-exe.
 
-### Break Down the ISS Implementation from A [Top-Down Approach]{.mark}
+### Break Down the ISS Implementation from A Top-Down Approach
 
-In the beginning, we have to realize the definition of structure `ISS` and `Core`.
+In order to better understand the structure of the ISS TA provides, we are going to examine codes of the ISS in a [**top-down approach**]{.mark}.
+
+We must realize the definition of structure `ISS` and `Core` before we start to break down the execution loop of the ISS.
 
 ```cpp
 struct iss {
@@ -233,7 +225,28 @@ typedef struct {
 } Core;
 ```
 
-We then look at the overall execution loop of the ISS:
+As you can see, firstly, there are five components inside the `struct iss`:
+
+1. `Core`
+2. `ROM`
+3. `MainMem`
+4. `TextBuffer`
+5. `Halt`
+
+The struct `Core` is the main component we mainly care about in Lab 1 because most of the functionalities about RISC-V are all inside `Core`. `ROM` and `MainMem` are children classes of `AbstractMem` which will be introduced later. `TextBuffer` is children of **both** `AbstractMem` and `Tick`, and we will also introduce `Tick` in the next section. Lastly, the struct `Halt` is children class of `AbstractMem`, and the struct is simply a kind of flag to indicate whether to stop the simulation.
+
+Next, let's look inside the struct `Core`. Inside `Core`, there are four components, and they have different responsibilities.
+
+1. `Tick super`
+2. `arch_state_t arch_state`
+3. `reg_t new_pc`
+4. `MemoryMap mem_map`
+
+The reason why we define `Tick super` inside `Core` is that we want to **mimics** the *inheritance* in OOP design paradigm in the ISS. In other words, we want `Core` to inherit from its parent class `Tick`. Inheriting from `Tick`, we can manipulate the struct `Core` like a clock-trigger component, which gives us more fine-grained control over the simulator.
+
+Except for `super` in the `Core`, there are `arch_state` and `new_pc` as well. The `arch_state` contains two major components: 32 general purpose registers (GPRs) and the current Program Counter (PC), while the `new_pc` is a helper data which will be used in the function `Core_update_pc()`.
+
+After knowing the structures about `ISS` and `Core`, We can now try to break down the overall execution loop of the ISS.
 
 ```cpp
 void ISS_step(ISS *self, unsigned long n_step) {
@@ -276,7 +289,7 @@ static inst_fields_t Core_fetch(Core *self) {
     // fetch instruction according to self->arch_state.current_pc
     byte_t inst_in_bytes[4] = {};
     MemoryMap_generic_load(&self->mem_map, self->arch_state.current_pc, 4, inst_in_bytes);
-    // transformation
+    // transformation from byte array into single uint32_t
     inst_fields_t ret = {};
     ret.raw |= (reg_t)inst_in_bytes[0];
     ret.raw |= (reg_t)inst_in_bytes[1] << 8;
@@ -286,11 +299,16 @@ static inst_fields_t Core_fetch(Core *self) {
 }
 ```
 
-In the fetch stage, the *core* fetch the raw binary instruction via `MemoryMap_generic_load()` function which accesses to the one of the memory devices in memory map. (The core access to the main memory at here.)
+In the fetch stage, the *core* fetch the raw binary instruction via `MemoryMap_generic_load()` function which accesses to the one of the memory devices in memory map. (The core access to the main memory or ROM at here.)
+You can view the function `MemoryMap_generic_load()` as a normal function to access the memory at this point, and the concepts about memory map and its implementaton will be metioned at @sec-memory-map.
 
-#### Decode
+However, the unit of memory access for `MemoryMap_generic_load()` is a single byte, instead of a word (32-bits in RISC-V).
+Hence, we must perform the transformation from a `uint8_t array[4]` into a single `uint32_t` manually in the fetch stage.
 
-One can implement the decoding logic as following:
+#### Decode {#sec-iss-decode}
+
+As what we have metioned in @sec-iss-predefine, we can utilize `inst_fields_t` to decode instructions, and produces `inst_enum_t`.
+For example, one can implement the decoding logic as following:
 
 ```cpp
 inst_fields_t inst_fields = some_inst;
@@ -315,9 +333,32 @@ switch (inst_fields.R_TYPE.opcode) {
 }
 ```
 
-#### Execute
+Typically, it is common to scan the opcode firstly for decoding a RISC-V instruction, because the position of opcodes are always fixed in the RISC-V ISA.
+Next, we can scan the *function codes* such as *funct3* or *funct7* to further decode the raw binary into specific types of instruction.
+
+::: {.callout-caution}
+The decoding logic we metion above is only for the simple cases such as RV32I-only implementation.
+For more sophisticated scenarios, the way we decode instructions might be much more complex.
+:::
+
+#### Execute {#sec-iss-exe}
+
+After fetching and decoding a instruction, finally, we can now execute the instruction and **update architectural visible states**, and then update the **program counter**.
 
 TODO
+
+```cpp
+// ISS execution stage
+void Core_execute(Core *self, inst_fields_t inst_fields, inst_enum_t inst_enum) {
+    //
+}
+
+static void Core_update_pc(Core *self) {
+    self->arch_state.current_pc = self->new_pc;
+}
+```
+
+The reason why we separate PC updating and other execution logics into two functions `Core_update_pc()` and `Core_execute()` respectively is to make the implementation simpler.
 
 ### Object-Oriented in The ISS: `Tick` and `AbstractMem` {#sec-oop-in-iss}
 
@@ -369,11 +410,83 @@ void Tick_tick(Tick *const self) {
 }
 ```
 
+```{.cpp filename="abstract_mem.h"}
+#include "arch.h"
+
+struct AbstractMemVtbl; // forward declaration
+typedef struct {
+    struct AbstractMemVtbl const *vtbl; // vtable ptr
+} AbstractMem;
+
+// define virtual table attribute
+struct AbstractMemVtbl {
+    void (*load)(const AbstractMem *self, addr_t base_addr, unsigned length, byte_t *buffer);
+    void (*store)(AbstractMem *self, addr_t base_addr, unsigned length, const byte_t *ref_data);
+};
+
+// define public APIs
+extern void AbstractMem_ctor(AbstractMem *self);
+extern void
+AbstractMem_load(const AbstractMem *self, addr_t base_addr, unsigned length, byte_t *buffer);
+extern void
+AbstractMem_store(AbstractMem *self, addr_t base_addr, unsigned length, const byte_t *ref_data);
+
+// define helper macros
+#define SIGNATURE_ABSTRACT_MEM_LOAD(cls) cls##_AbstractMem_load
+#define DECLARE_ABSTRACT_MEM_LOAD(cls)                                          \
+    void (SIGNATURE_ABSTRACT_MEM_LOAD(cls))(const AbstractMem *self,            \
+                                           addr_t base_addr, unsigned length,   \
+                                           byte_t *buffer)
+#define SIGNATURE_ABSTRACT_MEM_STORE(cls) cls##_AbstractMem_store
+#define DECLARE_ABSTRACT_MEM_STORE(cls)                                         \
+    void (SIGNATURE_ABSTRACT_MEM_STORE(cls))(AbstractMem * self,                \
+                                            addr_t base_addr, unsigned length,  \
+                                            const byte_t *ref_data)
+```
+
+```{.cpp filename="abstract_mem.c"}
+#include "abstract_mem.h"
+
+#include <stdio.h>
+#include <assert.h>
+#include <stdbool.h>
+
+static void _load(const AbstractMem *self, addr_t base_addr, unsigned length, byte_t *buffer) {
+    assert(false);
+    fprintf(stderr, "%s\n", "Please implement the virtual function!");
+}
+
+static void _store(AbstractMem *self, addr_t base_addr, unsigned length, const byte_t *ref_data) {
+    assert(false);
+    fprintf(stderr, "%s\n", "Please implement the virtual function!");
+}
+
+void AbstractMem_ctor(AbstractMem *self) {
+    assert(self != NULL);
+    static struct AbstractMemVtbl const vtbl = { .load = &_load, .store = &_store };
+    self->vtbl = &vtbl;
+}
+
+void AbstractMem_load(const AbstractMem *self, addr_t base_addr, unsigned length, byte_t *buffer) {
+    assert((self != NULL) && (self->vtbl != NULL));
+    self->vtbl->load(self, base_addr, length, buffer);
+}
+
+void AbstractMem_store(AbstractMem *self, addr_t base_addr, unsigned length, const byte_t *ref_data) {
+    assert((self != NULL) && (self->vtbl != NULL));
+    self->vtbl->store(self, base_addr, length, ref_data);
+}
+```
+
 ::: {.callout-tip}
 If you are confused about the `const` keyword in C language, please refer to @const-keyword.
 :::
 
-### Generic Memory-Mapped Load/Store
+### Generic Memory-Mapped Load/Store {#sec-memory-map}
+
+The figure below shows the memory map of the ISS we implement. There are four **generic** memory devices inside the ISS: `ROM`, `MainMem`, `TextBuffer`, and `Halt`.
+
+![Memory Map of The ISS](images/iss-mmap.png){fig-align="center"}
 
 In order to make the ISS support ***Memory-Mapped I/O Control***, we implement a class called `MemoryMap` and some other helper data structures and functions.
 
@@ -409,6 +522,14 @@ extern void
 MemoryMap_generic_store(MemoryMap *self, addr_t base_addr, unsigned length, const byte_t *ref_data);
 ```
 
+In order to manipulate a generic memory device, the processor must know the folowing two things:
+
+1. Memory boundary of the device
+2. A pointer to the device (more specifically, a `AbstractMem *` to the device)
+
+As the result, we define `addr_pair_t` at the beginning, and then define `mmap_unit_t` which contains the two things we metion above.
+Finally, we can define the `MemoryMap` which has the number of generic memory devices and a **dynamically allocated** `mmap_unit_t` array.
+
 ## How To Build The Lab 1 Code Template
 
 After accepting Lab 1 on the **GitHub Classroom**, you should have your own repository which contains the code template for lab 1.
@@ -434,3 +555,4 @@ $ ctest
 ```
 
 ![Run CTest](images/ctest.png){width=75% fig-aligh="center"}
+

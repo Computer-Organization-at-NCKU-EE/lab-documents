@@ -1,1 +1,1 @@
-# Pipeline CPU Micro-Architecture Design
+# Pipeline CPU Micro-Architecture Design {#sec-pipeline-microarch}

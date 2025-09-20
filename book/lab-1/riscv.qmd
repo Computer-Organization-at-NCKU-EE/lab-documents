@@ -15,7 +15,12 @@ As stated in @sec-computer, the ISA serves as the interface between software and
 
 This abstraction allows both sides to evolve **independently**: new hardware implementations can be developed without requiring changes to existing software, and new software can run on different generations of hardware, provided they share the same ISA. Only when performance considerations or specialized optimizations are involved does a deeper cross-layer understanding become necessary.
 
-> We can solve any problem by introducing an extra level of indirection. <br>
+![Different Abstraction Levels](images/abstraction.png){width=30% fig-align="center"}
+
+Note: When we talk about ***Architecture*** in this context, we are referring to the *Instruction Set Architecture (ISA)*.
+By contrast, when discussing ***Micro-architecture***, the term refers to the hardware implementation details of a processor or other hardwares.
+
+> We can solve any problem by introducing an extra level of **indirection** (**abstraction layer**). <br>
 > --- The fundamental theorem of software engineering (FTSE)
 
 ## Introduction to RISC-V
@@ -146,7 +151,7 @@ We can divide instructions in RV32I base integer instruction set into several pa
 
 Before we go into the details about each instruction, let's take a look on ***opcode map***:
 
-![Opcode Map from @riscv-spec-unpriv](images/opcode-map.png){fig-align="center"}
+![Opcode Map in @riscv-spec-unpriv](images/opcode-map.png){fig-align="center"}
 
 For those instructions we must implement in the ISA Simulator, we have to recognize the following opcodes:
 
@@ -218,7 +223,13 @@ Third class of OP-IMM instructions are LUI and AUIPC instructions.
 
 ![](images/nop.png){fig-align="center"}
 
+The *NOP (No-operation)* instruction is actually the `ADDI x0, x0, 0`. The instruction will not change any **architectural visible state**, except for advancing the PC and some other related *performance counters*.
+
 ### Control Transfer Instructions
+
+::: {.callout-note title="Question on the encoding of the immediates for JAL and BRANCH instructions"}
+TODO
+:::
 
 #### Unconditional Jumps
 
@@ -235,6 +246,14 @@ Third class of OP-IMM instructions are LUI and AUIPC instructions.
 ![](images/load.png){fig-align="center"}
 
 ![](images/store.png){fig-align="center"}
+
+For load and store instructions, the most important *parameter* for these instruction is the **width**.
+
+::: {.callout-note title="Question about Load/Store"}
+What is the reason that there are no SBU (store-byte-unsigned) and SHU (store-half-word-unsigned) instructions?
+
+**Hint**: Do we actually need these instructions?
+:::
 
 ## RV32I Instruction List
 
@@ -262,25 +281,25 @@ For a given number (or register) `A`, it is unsigned number if it is annotated a
 | SB               | STORE      | `M[rs1+imm][0:7] = rs2[0:7]`                    |
 | SH               | STORE      | `M[rs1+imm][0:15] = rs2[0:15]`                  |
 | SW               | STORE      | `M[rs1+imm][0:31] = rs2[0:31]`                  |
-| ADDI             | OP-IMM     | TODO                       |
-| SLTI             | OP-IMM     | TODO                       |
-| SLTIU            | OP-IMM     | TODO                       |
-| XORI             | OP-IMM     | TODO                       |
-| ORI              | OP-IMM     | TODO                       |
-| ANDI             | OP-IMM     | TODO                       |
-| SLLI             | OP-IMM     | TODO                       |
-| SRLI             | OP-IMM     | TODO                       |
-| SRAI             | OP-IMM     | TODO                       |
-| ADD              | OP         | TODO                       |
-| SUB              | OP         | TODO                       |
-| SLL              | OP         | TODO                       |
-| SLT              | OP         | TODO                       |
-| SLTU             | OP         | TODO                       |
-| XOR              | OP         | TODO                       |
-| SRL              | OP         | TODO                       |
-| SRA              | OP         | TODO                       |
-| OR               | OP         | TODO                       |
-| AND              | OP         | TODO                       |
+| ADDI             | OP-IMM     | `rd = rs1 + imm`                                |
+| SLTI             | OP-IMM     | `rd = (rs1 < imm) ? 1 : 0`                      |
+| SLTIU            | OP-IMM     | `rd = (unsigned(rs1) < unsigned(imm)) ? 1 : 0` |
+| XORI             | OP-IMM     | `rd = rs1 ^ imm`                                |
+| ORI              | OP-IMM     | `rd = rs1 | imm`                                |
+| ANDI             | OP-IMM     | `rd = rs1 & imm`                                |
+| SLLI             | OP-IMM     | `rd = rs1 << imm[4:0]`                          |
+| SRLI             | OP-IMM     | `rd = rs1 >> imm[4:0]`                          |
+| SRAI             | OP-IMM     | `rd = unsigned(rs1) >> imm[4:0]`                |
+| ADD              | OP         | `rd = rs1 + rs2`                                |
+| SUB              | OP         | `rd = rs1 - rs2`                                |
+| SLL              | OP         | `rd = rs1 << rs2[4:0]`                          |
+| SLT              | OP         | `rd = (rs1 < rs2) ? 1 : 0`                      |
+| SLTU             | OP         | `rd = (unsigned(rs1) < unsigned(rs2)) ? 1 : 0`  |
+| XOR              | OP         | `rd = rs1 ^ rs2`                                |
+| SRL              | OP         | `rd = rs1 >> rs2[4:0]`                          |
+| SRA              | OP         | `rd = unsigned(rs1) >> rs2[4:0]`                |
+| OR               | OP         | `rd = rs1 | rs2`                                |
+| AND              | OP         | `rd = rs1 & rs2`                                |
 
 ::: {.callout-caution}
 We did not actually cover __all__ RV32I instructions in this lab. There are three instructions we do not cover: FENCE, EBREAK and ECALL instructions.

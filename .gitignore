@@ -2,3 +2,5 @@
 /_site/
 _book/
 build/
+
+**/*.quarto_ipynb
