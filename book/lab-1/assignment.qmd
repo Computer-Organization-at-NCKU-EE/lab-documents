@@ -1,0 +1,65 @@
+# Lab 1 Assignment
+
+## Steps To Prepare for Doing Lab 1 
+
+::: {.callout-caution}
+This part is only for students at NCKU.
+:::
+
+After accepting Lab 1 on the **GitHub Classroom**, you should have your own repository which contains the code template for lab 1.
+Please clone the owned repository into your docker development environment under the path `/home/ubuntu/workspace`.
+
+## After Completing Coding
+
+After complete the implementation of the ISS, you can then compile it and run the unit tests.
+To compile the ISS, please follow the commands below:
+
+::: {.callout-caution}
+It assumes that your code is placed inside the folder called `lab-1`.
+:::
+
+```{.shell}
+$ cd lab-1
+$ mkdir build
+$ cd build
+$ cmake ..
+$ make -j
+```
+
+After entering these commands, you should see something like:
+
+![Build the ISS](images/build.png){width=75% fig-align="center"}
+
+After building the code template TA provides, you can now run the unit tests by using the following command:
+
+```{.shell}
+$ ctest
+```
+
+![Run CTest](images/ctest.png){width=75% fig-aligh="center"}
+
+Run the command below if you want to run a specific test case (e.g., runs ADD instruction only):
+
+```{.shell}
+$ ctest -R "add\$"
+```
+
+[As the minimal requirement]{.mark}, you should pass the **37** unit tests for instructions we implement in the ISS.
+
+## What You Must Do To Complete The Assignment?
+
+There are two parts you must complete in the assignment:
+
+1. The program part (i.e., the ISS) --- **80%** of scores
+2. Assignment Report --- **20%** of scores
+
+In the program part, the score is further divided into two parts:
+
+1. ISS compilation test<br>
+   - You can get **10%** of scores if your ISS can be compiled without any error 
+2. Instruction unit tests with `riscv-tests`
+   - You can get **70%** of scores if you can pass all the 37 unit tests for the instructions we implement
+
+## How to Turn in Your Assignment Report
+
+TODO

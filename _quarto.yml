@@ -36,6 +36,7 @@ book:
         - book/lab-1/computer.qmd
         - book/lab-1/riscv.qmd
         - book/lab-1/iss.qmd
+        - book/lab-1/assignment.qmd
     # Lab 2 - Assembly Programming and Runtime
     - part: book/lab-2/index.qmd
       chapters:

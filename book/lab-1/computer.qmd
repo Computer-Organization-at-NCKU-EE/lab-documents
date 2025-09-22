@@ -2,29 +2,30 @@
 
 ## The General View
 
-So, what is a computer? There may be many different answers depending on who you ask.
-I would say that a computer is a kind of machine that [**can be programmed to perform tasks automatically**]{.mark}.
+Therefore, what is a computer? There may be many different answers depending on the person asked.
+I would say that a computer is a type of machine that [**can be programmed to perform tasks automatically**]{.mark}.
 
 ![Electronic Numerical Integrator And Computer (ENIAC), [Source](https://en.wikipedia.org/wiki/Computer)](images/ENIAC.jpg){width=80% fig-align="center"}
 
-Early computers were primarily designed for numerical computation tasks, such as calculating ballistic trajectories.
-In contrast, modern computers can carry out a wide variety of general-purpose tasks.
+Early computers were primarily designed for numerical computation tasks such as calculating ballistic trajectories.
+By contrast, modern computers can perform a wide variety of general-purpose tasks.
 If early computers behaved like pure calculators, I would describe modern computers as **automatic executors of algorithms**.
 
 This shift from specialized number crunching to versatile programmability marks the essence of the computer revolution.
-It is not only about speed, but also about flexibility --- the same machine can run entirely different programs, from scientific simulations to web browsing or gaming.
+It is not only about speed but also about flexibility --- the same machine can run entirely different programs, from scientific simulations to web browsing or gaming.
 
 ## The Abstract View
 
 ### The Software/Hardware Interface
 
-We can also view computers as one kind of machine whose mission is to execute the software we want.
+We can also view computers as a type of machine whose mission is to execute the desired software.
 
 ![](images/sw-hw-intf.png){width=50% fig-align="center"}
 
-One big questions is that how the computer *understand* different programs? Computer are only a set of transistors, and how could it know how to execute programs? The key idea is about the ***Instruction Set Architecture***, or ***ISA*** for short. ISA is one kind of **abstraction** (**indirection**) layer. ISA can be viewed as a [common language between software programs and hardware implementations]{.mark}. Furthermore, ISA also **decouples** the details about software and hardware.
+One big question is that how does a computer *interpret* or *execute* different programs? Computers are only a set of transistors, and how can they execute programs?
+The key idea is the ***Instruction Set Architecture*** or ***ISA***. The ISA is a type of **abstraction** (**indirection**) layer. ISA can be viewed as a [common language between software programs and hardware implementations]{.mark}. Furthermore, ISA also **decouples** the details of the software and hardware.
 
-In general, computers are often referred to as the hardware in the figure above. A computer is a kind of hardware implementation which can recognize one or more kinds of of ISA. With the power of ISA, the computer (hardware) can execute different programs and complete the specific tasks.
+In general, computers are often referred to as the hardware in the figure above. A computer is a kind of hardware implementation which can recognize one or more kinds of of ISA. With the power of ISA, the computer (hardware) can execute different programs and complete specific tasks.
 
 ![This figure is from @comporg-book](images/code-inst.png){width=50% fig-align="center"}
 
@@ -34,22 +35,22 @@ Therefore, assembly instructions must ultimately be converted into machine code,
 
 ### A Sophisticated Finite-State Machine (FSM)
 
-From another perspective, a computer can be viewed as a large and complex finite-state machine (FSM). Under this view, the two most important questions are:
+From another perspective, a computer can be viewed as a large and complex finite-state machine (FSM). From this perspective, the two most important questions are as follows:
 
-1. What is the current states of the computer?
-2. How does the state transition occur within the computer?
+1. What is the current state of computers?
+2. How does a state transition occur within a computer?
 
-By definition, the states of an FSM are stored in ***memory elements***.
-In a computer, these memory elements are the processor’s registers and memory devices (units).
+By definition, the state of an FSM are stored in ***memory elements***.
+In a computer, these memory elements are the processor registers and memory devices (units).
 
 ![The FSM point of view](images/computer-fsm.png){width=75% fig-align="center"}
 
-The ***state transition function*** for a processor implements specific ISA is the **rules** defined in the ISA specification.
+The ***state transition function*** for a processor implementing specific ISA is **rules** defined in the ISA specification.
 The term rule here is broad: it includes not only the semantics of individual instructions but also any other definitions provided in the ISA specification that govern state transitions.
 
 You may also notice a special trigger event in the figure above, labeled *other asynchronous events*.
-These refer to the ***traps*** in the RISC-V ISA, such as ***exceptions*** or ***interrupts***.
-While traps are crucial for real processors, we will not cover them in this lab.
+These refer to the ***traps*** in the RISC-V ISA, such as ***exceptions*** (synchronous) or ***interrupts*** (asynchronous).
+Although traps are crucial for real processors, they will not be covered in this lab.
 
 This FSM perspective also explains why an Instruction Set Simulator (ISS) only updates the architectural state during the Execute stage—it is simply applying the next-state transition function defined by the ISA.
 
@@ -78,7 +79,7 @@ A key feature of the Von Neumann Architecture is the unification of data and ins
 In other words, both program instructions and data are stored in the same memory unit, and they share the same communication pathways.
 This design greatly simplified early computer construction and programming, but it also introduced the so-called ***Von-Neumann bottleneck***, where the shared memory bus can become a performance limitation.
 
-In order to execute a program, the computer must read instructions from the unified memory, and the control unit (C.U.) will try to recognize what the memory is.
+In order to execute a program, the computer must read instructions from the unified memory, and the control unit (C.U.) will try to recognize what the instruction is.
 After decoding the instruction, the C.U. will try to control the arithmetic unit (A.U.) to perform specific operations and gives the calculation result.
 
 For a more general program, it is often that the program needs some input from the user and gives the output to the user/programmer.
@@ -97,7 +98,7 @@ In modern processors, you can find that the processor itself is hard to be defin
 
 ![The Alpha 21264 Microprocessor @alpha-21264](images/alpha-21264.png){width=80% fig-align="center"}
 
-Such as the microprocessor above, its has separated instruction memory and data memory, which is *Harvard Architecture*.
+Such as the microprocessor above, its has separated instruction and data memories, which is *Harvard Architecture*.
 However, it also has a unified memory as the **next-level memory** for first-level instruction memory and data memory. The scheme of the unified memory is like *Von-Nuemann Architecture*.
 
 ## Memory Map
@@ -122,36 +123,41 @@ From the processor’s perspective, such a device can be manipulated using stand
 
 ### Memory-Mapped Device (Memory-Mapped I/O, MMIO)
 
-At this point, we already understand what a computer is and how it works internally.
+At this point, we already understand what a computer is and how it operates internally.
 However, a big question remains: **how do the different components inside a computer communicate with each other?**
-To explore this, let’s consider a very simple embedded system, shown below.
+To explore this, let’s consider a very simple embedded system, as shown below.
 
 ![A Simple Computer System](images/simple-sys.png){width=50% fig-align="center"}
 
-How can the CPU control the LED light? One straightforward approach is to treat the LED as a type of [***memory-mapped device***]{.mark}.
-Suppose the LED is assigned a base memory address of 0x200, with a memory range of 4 bytes. Inside this device, there is a control register that can hold either the value 0 or 1.
+How can the CPU control LED lights? One straightforward approach is to treat the LED as a type of [***memory-mapped device***]{.mark}.
+Suppose the LED is assigned a base memory address of `0x200`, with a memory range of 4 bytes. Inside this device, there is a control register that can hold either the value 0 or 1.
 
 - When the control register holds **1**, the LED turns **on**.
 - When it holds **0**, the LED turns **off**.
 
-For the processor, it can turn on the LED light through the following instruction:
+For the processor, it can turn on the LED light by using the following instructions:
 
-```asm
+```{.asm}
 STORE 1 0x200
 ```
 
 Likewise, the processor can turn off the LED through the instruction below:
 
-```asm
+```{.asm}
 STORE 0 0x200
 ```
 
-Now suppose we want the processor to automatically turn off the LED whenever it is on. A simple program might look like this:
+Now, suppose that we want the processor to automatically turn off the LED whenever it is on. A simple program may look like this:
 
-```asm
+```{.asm}
 label_1:
     LOAD 0x200 into A
     IF (A == 0) -> Jump to label_1
     STORE 0 0x200
     END
 ```
+
+::: {.callout-tip title="What is the benefit of Memory-Mapped I/O Control?"}
+Why does not processors use **extra** instructions to control LED lights?
+What is the benifit for using MMIO to control LED lights?
+:::

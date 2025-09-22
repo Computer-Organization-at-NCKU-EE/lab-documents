@@ -29,7 +29,7 @@ In addition to the ISS itself, we also provide eight public APIs. These APIs mak
 
 ## Detailed Architecture of Example ISS
 
-### Definine Architectural States
+### Defining Architectural States
 
 For an ISA simulator, the most important task is to parse the input RISC-V instruction and then execute it.
 Here, execution specifically refers to the ability to modify the architectural state.
@@ -61,7 +61,7 @@ As for the main memory, we classify it into the generic memory map devices, and 
 
 To develop the ISS more effectively, we define several custom data types (i.e., user-defined data structures) that make the code cleaner, more elegant, and easier to read.
 
-Firstly, we define `inst_fields_t` by usgin `union` in C language to make the decoding of instruction more convinent.
+Firstly, we define `inst_fields_t` by using `union` in C language to make the decoding of instruction more convenient.
 
 ```{.cpp filename="inst.h"}
 /* define 6 (4 base + 2 extended) types of formats of instructions in RV64I */
@@ -119,7 +119,7 @@ typedef union {
 For example, there is a `add, x1, x2, x3` instruction, and we already know that it is a R-Type format instruction.
 We can decode the ADD instruction as following:
 
-```cpp
+```{.cpp}
 // set the inst to be `add x1, x2, x3`
 inst_fields_t inst = {};
 inst.raw = 0x003180b3;
@@ -190,19 +190,20 @@ typedef enum {
 } inst_enum_t;
 ```
 
-The reason to define `inst_enum_t` is that it can simplify the implementation of execute stage of the ISS.
-With `inst_enum_t`, the execute stage can be implemented with a large `case` statement in C language, which is straightforward and easy to understand.
-We will introduce how to implement decode logic with `inst_fields_t` and `inst_enum_t` in @sec-iss-decode.
-
-Furthermore, `inst_fields_t` and `inst_enum_t` also help us to implement execution stage in a more easy way, which will be introduced in @sec-iss-exe.
+With `inst_fields_t`, the way to decode a instruction becomes easier, which will be introduced in @sec-iss-decode in more detail. 
+Furthermore, `inst_enum_t` also helps us to implement the logic about execution stage in a more elegant way.
+For example, one might implement the execution stage in a large `switch-case` statement in C language with the presence of `inst_enum_t`.
+Examples about how to implement execution logic will be introduced in @sec-iss-exe as well.
 
 ### Break Down the ISS Implementation from A Top-Down Approach
 
 In order to better understand the structure of the ISS TA provides, we are going to examine codes of the ISS in a [**top-down approach**]{.mark}.
 
+![Another view point of ISS](images/iss-2.png){width=75% fig-align="center"}
+
 We must realize the definition of structure `ISS` and `Core` before we start to break down the execution loop of the ISS.
 
-```cpp
+```{.cpp}
 struct iss {
     // core part (RISC-V processor)
     Core core;
@@ -242,13 +243,13 @@ Next, let's look inside the struct `Core`. Inside `Core`, there are four compone
 3. `reg_t new_pc`
 4. `MemoryMap mem_map`
 
-The reason why we define `Tick super` inside `Core` is that we want to **mimics** the *inheritance* in OOP design paradigm in the ISS. In other words, we want `Core` to inherit from its parent class `Tick`. Inheriting from `Tick`, we can manipulate the struct `Core` like a clock-trigger component, which gives us more fine-grained control over the simulator.
+The reason why we define `Tick super` inside `Core` is that we want to **mimic** the *inheritance* in OOP design paradigm in the ISS. In other words, we want `Core` to inherit from its parent class `Tick`. Inheriting from `Tick`, we can manipulate the struct `Core` like a clock-trigger component, which gives us more fine-grained control over the simulator.
 
 Except for `super` in the `Core`, there are `arch_state` and `new_pc` as well. The `arch_state` contains two major components: 32 general purpose registers (GPRs) and the current Program Counter (PC), while the `new_pc` is a helper data which will be used in the function `Core_update_pc()`.
 
 After knowing the structures about `ISS` and `Core`, We can now try to break down the overall execution loop of the ISS.
 
-```cpp
+```{.cpp}
 void ISS_step(ISS *self, unsigned long n_step) {
     for (unsigned i = 0; i < n_step; i++) {
         // check halt flag
@@ -266,7 +267,7 @@ The ISS check the halt flag at the first to determine whether to stop the curren
 If the halt flag is false, the ISS will then try to *tick* one of its data member called `core` and `text_buffer_mmio`.
 Let's examine the implementation of tick function for `core`:
 
-```cpp
+```{.cpp}
 DECLARE_TICK_TICK(Core) {
     Core *self_               = container_of(self, Core, super);
     inst_fields_t inst_fields = Core_fetch(self_);
@@ -284,7 +285,7 @@ As for `container_of()` macro, you can refer to @sec-linux-oop-macro.
 
 #### Fetch
 
-```cpp
+```{.cpp}
 static inst_fields_t Core_fetch(Core *self) {
     // fetch instruction according to self->arch_state.current_pc
     byte_t inst_in_bytes[4] = {};
@@ -300,17 +301,17 @@ static inst_fields_t Core_fetch(Core *self) {
 ```
 
 In the fetch stage, the *core* fetch the raw binary instruction via `MemoryMap_generic_load()` function which accesses to the one of the memory devices in memory map. (The core access to the main memory or ROM at here.)
-You can view the function `MemoryMap_generic_load()` as a normal function to access the memory at this point, and the concepts about memory map and its implementaton will be metioned at @sec-memory-map.
+You can view the function `MemoryMap_generic_load()` as a normal function to access the memory at this point, and the concepts about memory map and its implementation will be mentioned at @sec-memory-map.
 
 However, the unit of memory access for `MemoryMap_generic_load()` is a single byte, instead of a word (32-bits in RISC-V).
 Hence, we must perform the transformation from a `uint8_t array[4]` into a single `uint32_t` manually in the fetch stage.
 
 #### Decode {#sec-iss-decode}
 
-As what we have metioned in @sec-iss-predefine, we can utilize `inst_fields_t` to decode instructions, and produces `inst_enum_t`.
+As what we have mentioned in @sec-iss-predefine, we can utilize `inst_fields_t` to decode instructions, and produces `inst_enum_t`.
 For example, one can implement the decoding logic as following:
 
-```cpp
+```{.cpp}
 inst_fields_t inst_fields = some_inst;
 inst_enum_t inst_enum = {};
 
@@ -345,12 +346,35 @@ For more sophisticated scenarios, the way we decode instructions might be much m
 
 After fetching and decoding a instruction, finally, we can now execute the instruction and **update architectural visible states**, and then update the **program counter**.
 
-TODO
+What the ISS must do at execution stage is quite simple: perform specific calculation according to the current instruction and update architectural visible states.
+We take ADD and SUB instructions as an example at here.
 
-```cpp
+```{.cpp}
 // ISS execution stage
 void Core_execute(Core *self, inst_fields_t inst_fields, inst_enum_t inst_enum) {
-    //
+    switch (inst_fields.R_TYPE.opcode) {
+        // OP type instructions 
+        case OP: {
+            switch (inst_fields.R_TYPE.func3) {
+                // for funct3 is equal to 0b000
+                case 0b000: {
+                    self->new_pc = self->arch_state.current_pc + 4;
+                    if (!inst_fields.R_TYPE.func7) {
+                        // if funct7 is 0b0000000 -> ADD instruction
+                        self->arch_state.gpr[inst_fields.R_TYPE.rd] = self->arch_state.gpr[inst_fields.R_TYPE.rs1] + self->arch_state.gpr[inst_fields.R_TYPE.rs2];
+                    } else {
+                        // if funct7 is 0b0100000 -> SUB instruction
+                        self->arch_state.gpr[inst_fields.R_TYPE.rd] = self->arch_state.gpr[inst_fields.R_TYPE.rs1] - self->arch_state.gpr[inst_fields.R_TYPE.rs2];
+                    }
+                    break;
+                }
+                ...
+                ...
+            }            
+        } 
+        ...
+        ...
+    }
 }
 
 static void Core_update_pc(Core *self) {
@@ -359,8 +383,20 @@ static void Core_update_pc(Core *self) {
 ```
 
 The reason why we separate PC updating and other execution logics into two functions `Core_update_pc()` and `Core_execute()` respectively is to make the implementation simpler.
+Let's consider how to implement **JALR** instruction.
 
-### Object-Oriented in The ISS: `Tick` and `AbstractMem` {#sec-oop-in-iss}
+TODO
+
+### Object-Oriented in The ISS
+
+::: {.callout-caution}
+In this section, we heavily use ***function pointers*** in C language.
+Please go to **STFW** (search the friendly web) and **RTFM** (read the friendly manual) if you are not familiar with it.
+
+Furthermore, we use `const` keyword as well. Please STFW for more information on how to use it.
+:::
+
+#### Tick Class
 
 In our ISS, we model the simulator as like a ***clock-trigger*** machine. Because of the OOP design paradigm, we want to utilize the capability of inheritance to express our code structure.
 Consequently, we define a base class which is called `Tick`, and the definition of `Tick` is as following:
@@ -386,6 +422,15 @@ extern void Tick_tick(Tick *const self);
 #define DECLARE_TICK_TICK(cls) void (SIGNATURE_TICK_TICK(cls))(Tick *const self)
 ```
 
+Inside `tick.h`, we define `struct TickVtbl` and the `Tick` class itself. 
+The intention to define `TickVtbl` is to **mimic** *polymorphism* in OOP paradigm.
+As you can see, `TickVtbl` contains a **function pointer** which has the *signature*: `void (*tick)(Tick *const self)`. 
+It behaves like a ***virtual function*** in a C++ class. When another class want to interit from `Tick` class, it must implement the function `tick` via assigning to the function pointer (actually, it must create the virtual table instead).
+
+::: {.callout-note title="The way to implement polymorphism"}
+For more information about how the C++ compiler implements polymorphism and virtual functions, you can google with the keyword: *virtual method table*.
+:::
+
 ```{.cpp filename="tick.c"}
 #include "tick.h"
 
@@ -409,6 +454,15 @@ void Tick_tick(Tick *const self) {
     self->vtbl->tick(self);
 }
 ```
+
+In order to produce runtime error when the children class does not define the `tick` function by itself, we put and `assert(false)` inside a static function `_tick` and assign it to the class `Tick` initially. By doing so, the parent class which inherits from `Tick` cannot call to the virtual function `tick` via `Tick_tick()` without override its definition.
+
+In C++, we often use the syntax `an_object.member_func()` to call the specific member function of an object. It is actually a *syntax sugar* and can be implemented in other ways. In order to mimic the syntax sugar in C++, we simply define a function with the signature `void Tick_tick(Tick *const self)`, and it just calls to the function pointer with the statement `self->vtbl->tick(self)`.
+
+#### Abstract Memory Class
+
+Like what we mentioned in @sec-memory-map, all the devices can be loaded/stored are a kind of generic memory device.
+To model such devices, we define the base class called `AbstractMem` as following.
 
 ```{.cpp filename="abstract_mem.h"}
 #include "arch.h"
@@ -444,6 +498,8 @@ AbstractMem_store(AbstractMem *self, addr_t base_addr, unsigned length, const by
                                             const byte_t *ref_data)
 ```
 
+Similar with `Tick` base class, we also define `AbstractMemVtbl` and `AbstractMem` at here. Inside `AbstractMemVtbl`, there are two function pointers: `load()` and `store()` which represent the load/store capabilities of a generic memory device.
+
 ```{.cpp filename="abstract_mem.c"}
 #include "abstract_mem.h"
 
@@ -478,8 +534,10 @@ void AbstractMem_store(AbstractMem *self, addr_t base_addr, unsigned length, con
 }
 ```
 
+Please note that `load` and `store` are also *virtual functions* for class `AbstractMem`. In other words, the children classes which interit from `ABstractMem` class must define it own `load` and `store` function before call to `AbstractMem_load()` and `AbstractMem_store()`.
+
 ::: {.callout-tip}
-If you are confused about the `const` keyword in C language, please refer to @const-keyword.
+If you are confused with the `const` keyword in C language, please refer to @const-keyword.
 :::
 
 ### Generic Memory-Mapped Load/Store {#sec-memory-map}
@@ -522,37 +580,79 @@ extern void
 MemoryMap_generic_store(MemoryMap *self, addr_t base_addr, unsigned length, const byte_t *ref_data);
 ```
 
-In order to manipulate a generic memory device, the processor must know the folowing two things:
+In order to manipulate a generic memory device, the processor must know the folowing two pices of information:
 
 1. Memory boundary of the device
 2. A pointer to the device (more specifically, a `AbstractMem *` to the device)
 
-As the result, we define `addr_pair_t` at the beginning, and then define `mmap_unit_t` which contains the two things we metion above.
+As the result, we define `addr_pair_t` at the beginning, and then define `mmap_unit_t` which contains the two pices we metion above.
 Finally, we can define the `MemoryMap` which has the number of generic memory devices and a **dynamically allocated** `mmap_unit_t` array.
 
-## How To Build The Lab 1 Code Template
+Next, let's examine how could we manage the `MamoryMap` via `MemoryMap_add_device(MemoryMap* self, mmap_unit_t new_device)`:
 
-After accepting Lab 1 on the **GitHub Classroom**, you should have your own repository which contains the code template for lab 1.
-Please clone the owned repository into your docker development environment.
+```{.cpp}
+int MemoryMap_add_device(MemoryMap *self, mmap_unit_t new_mem_map_unit) {
+    assert(self != NULL);
 
-For example, if my folder is called `lab-1`, then I can build the code template as following:
+    if (self->num_device == 0) {
+        if (NULL == (self->memory_map_arr = malloc(sizeof(mmap_unit_t)))) {
+            return -1;
+        }
+        self->num_device += 1;
+        self->memory_map_arr[0] = new_mem_map_unit;
+        return 0;
+    }
 
-```shell
-$ cd lab-1
-$ mkdir build && cd build
-$ cmake ..
-$ make -j
+    self->num_device += 1;
+    mmap_unit_t *old_arr = self->memory_map_arr;
+    if (NULL == (self->memory_map_arr = malloc(self->num_device * sizeof(mmap_unit_t)))) {
+        return -1;
+    }
+
+    // copy old devices
+    for (int i = 0; i < self->num_device - 1; i++) {
+        self->memory_map_arr[i] = old_arr[i];
+    }
+    self->memory_map_arr[self->num_device - 1] = new_mem_map_unit;
+    // release old array
+    free(old_arr);
+    return 0;
+}
 ```
 
-After entering these commands, you should see something like:
+Finally, we can see how the load/store functionalities of `MemoryMap` is implemented:
 
-![Build the ISS](images/build.png){width=75% fig-align="center"}
+::: {.callout-note}
+We only examine the code segment about load operations because the implementation for store is quite similar.
+:::
 
-After building the code template TA provides, you can now run the unit tests by using the following command:
+```{.cpp}
+void MemoryMap_generic_load(MemoryMap *self, addr_t base_addr, unsigned length, byte_t *buffer) {
+    // check whether the pointer self is not NULL
+    assert(self != NULL);
 
-```shell
-$ ctest
+    // search for the device we want in the memory map (self->memory_map_arr)
+    mmap_unit_t *mmap_unit_ptr = NULL;
+    for (int i = 0; i < self->num_device; i++) {
+        if ((base_addr >= self->memory_map_arr[i].addr_bound.first) &&
+            (base_addr + length <= self->memory_map_arr[i].addr_bound.second)) {
+            mmap_unit_ptr = &self->memory_map_arr[i];
+        }
+    }
+
+    // checks whether the device is found 
+    Assert(mmap_unit_ptr != NULL, "MMIO search failed! The requested address is: 0x%08x, length is: %d",
+           base_addr, length);
+
+    // call generic load function of the device (which is related to AbstractMem parent class and inheritance)
+    AbstractMem_load(mmap_unit_ptr->device_ptr,
+                     base_addr - mmap_unit_ptr->addr_bound.first, length, buffer);
+}
 ```
 
-![Run CTest](images/ctest.png){width=75% fig-aligh="center"}
+There are **three** steps in the `MemoryMap_generic_load()` function:
 
+1. Check whether the pointer `self` which points to the `MemoryMap` object we want to manipulate is `NULL`.
+2. Use linear search in the memory map to find the device we want to perform load operation.
+   It might lead to a runtime error because of the `assert()` statement if the device we want is not found.
+3. Call to the actual implementation of load function the device which interits from `AbstractMem` via `AbstractMem_load()` function.

@@ -1,4 +1,4 @@
-# RISC-V Assembly Programming
+# RISC-V Assembly Programming {#sec-riscv-asm}
 
 ::: {.callout-note}
 Please refer to @riscv-asm-manual and @riscv-asm-book for more information.
