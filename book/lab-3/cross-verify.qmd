@@ -1,1 +1,13 @@
-# Reference-Model-Based Verification
+# Reference-Model-Based Verification {#sec-cross-verify}
+
+## Why is verification important?
+
+## Common and Straightforward Verification Methods
+
+## Reference-Based Verification 
+
+## Implementation Details
+
+### SystemVerilog DPI-C
+
+### CrossVerify Framework

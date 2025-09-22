@@ -1,1 +1,1 @@
-# Fundamental and Motivation of Pipelining
+# Fundamental and Motivation of Pipelining {#sec-pipeline-basics}

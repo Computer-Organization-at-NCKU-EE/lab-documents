@@ -1,5 +1,72 @@
 # Pointers in C
 
+::: {.callout-tip title="Recommended by ChatGPRT"}
+1. Preamble
+    * Introduce the importance of pointers in C
+    * Highlight that pointers are used for:
+      * Dynamic memory management
+      * Function callbacks / OOP in C
+      * Low-level memory access (e.g., MMIO in system programming)
+2. Pointer basics
+    * Pointer declaration, initialization, and dereferencing (`*p`)
+    * `NULL` pointer and wild/invalid pointers
+    * Pointer arithmetic and relationship with arrays (`ptr[i] == *(ptr + i)`)
+    * `sizeof` and pointer types
+3. Functions and Function Pointers
+    - Passing-by-Value vs. Passing-by-Reference
+      * How C passes arguments by value
+      * Using pointers to modify caller variables
+      * Double pointers (`int **p`) for dynamic structures
+    - Function Pointer
+      * Declaration and initialization
+      * Invoking functions through pointers
+      * Use cases: callbacks, table-driven design, Linux Kernel hooks, OOP-like vtables
+4. Dynamic Memory Allocation
+    * `malloc`, `calloc`, `realloc`, `free`
+    * Pointer to allocated memory
+    * Pointer arrays vs pointer-to-pointer
+5. Pointer to Void (`void *`)
+    * Generic memory buffers
+    * Casting to proper type for access
+6. Pointer with `volatile` keyword
+    * Purpose: prevent compiler optimization on memory-mapped hardware or shared memory
+    * Examples: MMIO, flags in embedded systems
+7. Common Pitfalls about Pointers
+    - Dangling Pointer
+        * Definition and causes (e.g., freed memory, local variable address)
+        * How to avoid
+
+    - Double-Free and Use-After-Free
+        * Examples and consequences
+        * Best practices for safe memory management
+    - Indexing Overflow / Buffer Overflow
+        * Pointer arithmetic mistakes
+        * Array bounds violations
+        * Tools for detection: Valgrind, ASAN
+:::
+
 ## Preamble
 
-在這個章節裡面，我們主要探討 C 語言中關於指標的基本用法，這涵蓋了一般指向資料的 ***Data Pointer*** 和指向函式（Function）的 ***Function Pointer***。
+In this chapter, we focus on the basic usages of pointers in C language, including normal pointer to data and function pointers.
+
+## Pointer Basics
+
+## Functions and Function Pointer
+
+### Passing-by-Value vs. Passing-by-Reference
+
+### Function Pointer
+
+## Dynamic Memory Allocation
+
+## Pointer to Void
+
+## Pointer with `volatile` keyword
+
+## Common Pitfalls about Pointer
+
+### Dangling Pointer
+
+### Double-Free and Use-After-Free
+
+### Indexing Overflow
