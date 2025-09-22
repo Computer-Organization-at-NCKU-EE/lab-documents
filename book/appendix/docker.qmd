@@ -91,7 +91,6 @@ Docker 是容器化技術（Containerization）的一種實作，而容器化又
   ```
 3. 如果你有看到一個小視窗出現，代表 X11 功能正常運作！
   <!-- ![](https://hedgedoc.course.aislab.ee.ncku.edu.tw/uploads/28367fa9-1f23-485b-9d49-3f99f2a2e170.png) -->
-4. 請執行 `run.sh` 進入 container 之後，一樣執行 `xclock` 看看是否也有正常出現小時鐘視窗
 
 ### Install OrbStack on MacOS
 

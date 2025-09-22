@@ -25,7 +25,7 @@ We can also view computers as a type of machine whose mission is to execute the 
 One big question is that how does a computer *interpret* or *execute* different programs? Computers are only a set of transistors, and how can they execute programs?
 The key idea is the ***Instruction Set Architecture*** or ***ISA***. The ISA is a type of **abstraction** (**indirection**) layer. ISA can be viewed as a [common language between software programs and hardware implementations]{.mark}. Furthermore, ISA also **decouples** the details of the software and hardware.
 
-In general, computers are often referred to as the hardware in the figure above. A computer is a kind of hardware implementation which can recognize one or more kinds of of ISA. With the power of ISA, the computer (hardware) can execute different programs and complete specific tasks.
+In general, computers are often referred to as the hardware in the figure above. A computer is a kind of hardware implementation which can recognize one or more kinds of ISA. With the power of ISA, the computer (hardware) can execute different programs and complete specific tasks.
 
 ![This figure is from @comporg-book](images/code-inst.png){width=50% fig-align="center"}
 
@@ -56,7 +56,7 @@ This FSM perspective also explains why an Instruction Set Simulator (ISS) only u
 
 ::: {.callout-warning title="Finite-State Machine in Different Views"}
 In the **narrow sense**, a finite-state machine (FSM) usually refers to a very simple model you may have seen in textbooks: it has a small number of states (e.g., S0, S1, S2) and transitions defined by a few simple rules.
-These FSMs are easy to draw on paper and are often used to describe control logics.
+These FSMs are easy to draw on paper and are often used to describe control logic.
 
 In the **broad sense**, a computer itself can also be described as a finite-state machine.
 The difference is that the “state” here is enormous --- it includes the contents of all registers and memory.
@@ -98,7 +98,7 @@ In modern processors, you can find that the processor itself is hard to be defin
 
 ![The Alpha 21264 Microprocessor @alpha-21264](images/alpha-21264.png){width=80% fig-align="center"}
 
-Such as the microprocessor above, its has separated instruction and data memories, which is *Harvard Architecture*.
+Such as the microprocessor above, it has separated instruction and data memories, which is *Harvard Architecture*.
 However, it also has a unified memory as the **next-level memory** for first-level instruction memory and data memory. The scheme of the unified memory is like *Von-Nuemann Architecture*.
 
 ## Memory Map

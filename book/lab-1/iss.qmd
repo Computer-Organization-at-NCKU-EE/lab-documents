@@ -21,7 +21,7 @@ The overall execution flow of an ISS can be abstracted into three main steps: **
 - The fetched instruction is then processed in the decode stage, which produces an `inst_enum_t` indicating the type of instruction.
 - Finally, both the `inst_fields_t` (instruction fields) and `inst_enum_t` are passed to the execution stage, where the instruction is carried out.
 
-A key point to note is that updates to the ***architectural state*** occur only during the execution stage. Neither the fetch stage nor the decode stage modifies the architectural state.
+A keypoint to note is that updates to the ***architectural state*** occur only during the execution stage. Neither the fetch stage nor the decode stage modifies the architectural state.
 
 ![](images/iss.png){fig-align="center"}
 
@@ -116,7 +116,7 @@ typedef union {
 } inst_fields_t;
 ```
 
-For example, there is a `add, x1, x2, x3` instruction, and we already know that it is a R-Type format instruction.
+For example, there is a `add, x1, x2, x3` instruction, and we already know that it is R-Type format instruction.
 We can decode the ADD instruction as following:
 
 ```{.cpp}
@@ -344,7 +344,7 @@ For more sophisticated scenarios, the way we decode instructions might be much m
 
 #### Execute {#sec-iss-exe}
 
-After fetching and decoding a instruction, finally, we can now execute the instruction and **update architectural visible states**, and then update the **program counter**.
+After fetching and decoding an instruction, finally, we can now execute the instruction and **update architectural visible states**, and then update the **program counter**.
 
 What the ISS must do at execution stage is quite simple: perform specific calculation according to the current instruction and update architectural visible states.
 We take ADD and SUB instructions as an example at here.
@@ -382,7 +382,7 @@ static void Core_update_pc(Core *self) {
 }
 ```
 
-The reason why we separate PC updating and other execution logics into two functions `Core_update_pc()` and `Core_execute()` respectively is to make the implementation simpler.
+The reason why we separate PC updating and other execution logic into two functions `Core_update_pc()` and `Core_execute()` respectively is to make the implementation simpler.
 Let's consider how to implement **JALR** instruction.
 
 TODO
@@ -580,12 +580,12 @@ extern void
 MemoryMap_generic_store(MemoryMap *self, addr_t base_addr, unsigned length, const byte_t *ref_data);
 ```
 
-In order to manipulate a generic memory device, the processor must know the folowing two pices of information:
+In order to manipulate a generic memory device, the processor must know the following two pieces of information:
 
 1. Memory boundary of the device
 2. A pointer to the device (more specifically, a `AbstractMem *` to the device)
 
-As the result, we define `addr_pair_t` at the beginning, and then define `mmap_unit_t` which contains the two pices we metion above.
+As the result, we define `addr_pair_t` at the beginning, and then define `mmap_unit_t` which contains the two pieces we mention above.
 Finally, we can define the `MemoryMap` which has the number of generic memory devices and a **dynamically allocated** `mmap_unit_t` array.
 
 Next, let's examine how could we manage the `MamoryMap` via `MemoryMap_add_device(MemoryMap* self, mmap_unit_t new_device)`:
@@ -655,4 +655,4 @@ There are **three** steps in the `MemoryMap_generic_load()` function:
 1. Check whether the pointer `self` which points to the `MemoryMap` object we want to manipulate is `NULL`.
 2. Use linear search in the memory map to find the device we want to perform load operation.
    It might lead to a runtime error because of the `assert()` statement if the device we want is not found.
-3. Call to the actual implementation of load function the device which interits from `AbstractMem` via `AbstractMem_load()` function.
+3. Call to the actual implementation of load function the device which inherits from `AbstractMem` via `AbstractMem_load()` function.
