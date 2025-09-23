@@ -44,7 +44,18 @@ Run the command below if you want to run a specific test case (e.g., runs ADD in
 $ ctest -R "add\$"
 ```
 
+Furthermore, you can also run tests in the unit of a opcode-type (e.g., runs OP-IMM opcode-type instructions only):
+
+```{.shell}
+$ ctest -R "^OPIMM_[a-z]+"
+```
+
 [As the minimal requirement]{.mark}, you should pass the **37** unit tests for instructions we implement in the ISS.
+
+::: {.callout-note}
+The expressions `add\$` and `^OPIMM_[a-z]+` are related to [*regular expression*](https://en.wikipedia.org/wiki/Regular_expression) and [*escape character*](https://en.wikipedia.org/wiki/Escape_character).
+If you are interested in regular expression, you can use the website [regex101](https://regex101.com/) to test and verify the regex patterns you write.
+:::
 
 ## What You Must Do To Complete The Assignment?
 
@@ -57,9 +68,21 @@ In the program part, the score is further divided into two parts:
 
 1. ISS compilation test<br>
    - You can get **10%** of scores if your ISS can be compiled without any error 
-2. Instruction unit tests with `riscv-tests`
-   - You can get **70%** of scores if you can pass all the 37 unit tests for the instructions we implement
+2. Instruction unit tests with [`riscv-tests`](https://github.com/Computer-Organization-at-NCKU-EE/riscv-tests/tree/no-priv)
+   - TA divides the 37 instruction unit tests into **9** parts according to the opcode map, and the division of scores is related to the number of instructions for each opcode-type.
+      - OP,  (15 pts)
+      - OP-IMM (15 pts)
+      - LOAD (8 pts)
+      - STORE (8 pts)
+      - BRANCH (8 pts)
+      - JAL (4 pts)
+      - JALR (4 pts)
+      - LUI (4 pts)
+      - AUIPC (4 pts)
+   - You will get 70 pts if you pass all the 9 groups of test mentioned above.
 
 ## How to Turn in Your Assignment Report
 
-TODO
+You should see a file called `report.md` inside your homework repository.
+Please complete the report **in plcae**, commit it, and push the commit to your remote repository on GitHub.
+

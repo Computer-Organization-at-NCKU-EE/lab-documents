@@ -347,31 +347,22 @@ For more sophisticated scenarios, the way we decode instructions might be much m
 After fetching and decoding an instruction, finally, we can now execute the instruction and **update architectural visible states**, and then update the **program counter**.
 
 What the ISS must do at execution stage is quite simple: perform specific calculation according to the current instruction and update architectural visible states.
-We take ADD and SUB instructions as an example at here.
+We take ADD and SUB instructions as examples at here.
 
 ```{.cpp}
 // ISS execution stage
 void Core_execute(Core *self, inst_fields_t inst_fields, inst_enum_t inst_enum) {
-    switch (inst_fields.R_TYPE.opcode) {
-        // OP type instructions 
-        case OP: {
-            switch (inst_fields.R_TYPE.func3) {
-                // for funct3 is equal to 0b000
-                case 0b000: {
-                    self->new_pc = self->arch_state.current_pc + 4;
-                    if (!inst_fields.R_TYPE.func7) {
-                        // if funct7 is 0b0000000 -> ADD instruction
-                        self->arch_state.gpr[inst_fields.R_TYPE.rd] = self->arch_state.gpr[inst_fields.R_TYPE.rs1] + self->arch_state.gpr[inst_fields.R_TYPE.rs2];
-                    } else {
-                        // if funct7 is 0b0100000 -> SUB instruction
-                        self->arch_state.gpr[inst_fields.R_TYPE.rd] = self->arch_state.gpr[inst_fields.R_TYPE.rs1] - self->arch_state.gpr[inst_fields.R_TYPE.rs2];
-                    }
-                    break;
-                }
-                ...
-                ...
-            }            
-        } 
+    switch (inst_enum) {
+        case inst_add:{
+            self->arch_state.gpr[inst_fields.R_TYPE.rd] = self->arch_state.gpr[inst_fields.R_TYPE.rs1] + self->arch_state.gpr[inst_fields.R_TYPE.rs2];
+            self->new_pc = self.arch_state.current_pc + 4;
+            break;
+        }
+        case inst_sub: {
+            self->arch_state.gpr[inst_fields.R_TYPE.rd] = self->arch_state.gpr[inst_fields.R_TYPE.rs1] - self->arch_state.gpr[inst_fields.R_TYPE.rs2];
+            self->new_pc = self.arch_state.current_pc + 4;
+            break;
+        }
         ...
         ...
     }
@@ -382,10 +373,7 @@ static void Core_update_pc(Core *self) {
 }
 ```
 
-The reason why we separate PC updating and other execution logic into two functions `Core_update_pc()` and `Core_execute()` respectively is to make the implementation simpler.
-Let's consider how to implement **JALR** instruction.
-
-TODO
+As what we stated in @sec-iss-predefine, we can now implement the execution logic by simply using `switch-case` statement with the power of `inst_enum_t`, which is simple and straightforward.
 
 ### Object-Oriented in The ISS
 

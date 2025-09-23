@@ -7,7 +7,7 @@ The two slides can be downloaded via the links, and the video links are provided
 1. [Assembly Lab I](https://drive.google.com/file/d/1sjMVnieVqZ5p3ELE5b4MbKYQG5vMpuPR/view?usp=drive_link)
 2. [Assembly Lab II](https://drive.google.com/file/d/1tiXsvmGgUZCx0tjqrPuZEUCUxg5Os7OK/view?usp=drive_link)
 
-These teaching materials were prepared by the **former Head TA, Po-Wei Lin**, who is currently pursuing his Ph.D. in Electrical Engineering at National Cheng Kung University.
+These teaching materials were prepared by the **former Head TA, Bo-Wei Lin**, who is currently pursuing his Ph.D. in Electrical Engineering at National Cheng Kung University.
 :::
 
 ::: {.callout-tip}

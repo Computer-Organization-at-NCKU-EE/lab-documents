@@ -20,18 +20,25 @@ It is not only about speed but also about flexibility --- the same machine can r
 
 We can also view computers as a type of machine whose mission is to execute the desired software.
 
-![](images/sw-hw-intf.png){width=50% fig-align="center"}
+![](images/sw-hw-intf.png){width=75% fig-align="center"}
 
 One big question is that how does a computer *interpret* or *execute* different programs? Computers are only a set of transistors, and how can they execute programs?
 The key idea is the ***Instruction Set Architecture*** or ***ISA***. The ISA is a type of **abstraction** (**indirection**) layer. ISA can be viewed as a [common language between software programs and hardware implementations]{.mark}. Furthermore, ISA also **decouples** the details of the software and hardware.
 
 In general, computers are often referred to as the hardware in the figure above. A computer is a kind of hardware implementation which can recognize one or more kinds of ISA. With the power of ISA, the computer (hardware) can execute different programs and complete specific tasks.
 
-![This figure is from @comporg-book](images/code-inst.png){width=50% fig-align="center"}
+![This figure is from @comporg-book](images/code-inst.png){width=75% fig-align="center"}
 
 The programs we write must first be translated into instructions defined by a specific ISA.
 However, processors can only understand binary representations—sequences of 0s and 1s.
 Therefore, assembly instructions must ultimately be converted into machine code, which is the actual binary encoding executed by the processor.
+Please note that the binaray represenation of each instruction are also defined by ISA.
+
+In summary, an ISA can be regarded as a formal specification that defines:
+
+1. The instruction set and its encoding formats
+2. The execution semantics of each instruction
+3. Additional rules governing program behavior (e.g., traps, exceptions, memory model)
 
 ### A Sophisticated Finite-State Machine (FSM)
 
@@ -89,7 +96,7 @@ Hence, the input/output units are also necessary parts.
 
 ***Harvard Architecture*** is firstly introduced in the early mainframe called **Harvard Mark I**.
 
-![Harvard Architecture, [Source](https://en.wikipedia.org/wiki/Harvard_architecture)](images/harvard-arch.png){width=50% fig-align="center"}
+![Harvard Architecture, [Source](https://en.wikipedia.org/wiki/Harvard_architecture)](images/harvard-arch.png){width=75% fig-align="center"}
 
 The main difference between Von-Neumann Architecture and Harvard Architecture is that the specification of memory unit.
 With Harvard Architecture, the *Von-Neumann Bottleneck* can be solved with separated data and instruction bus, while the hardware cost increases.
@@ -102,6 +109,8 @@ Such as the microprocessor above, it has separated instruction and data memories
 However, it also has a unified memory as the **next-level memory** for first-level instruction memory and data memory. The scheme of the unified memory is like *Von-Nuemann Architecture*.
 
 ## Memory Map
+
+> What is the essence of *memory*?
 
 ### Physical Memory Space
 
@@ -127,7 +136,7 @@ At this point, we already understand what a computer is and how it operates inte
 However, a big question remains: **how do the different components inside a computer communicate with each other?**
 To explore this, let’s consider a very simple embedded system, as shown below.
 
-![A Simple Computer System](images/simple-sys.png){width=50% fig-align="center"}
+![A Simple Computer System](images/simple-sys.png){width=75% fig-align="center"}
 
 How can the CPU control LED lights? One straightforward approach is to treat the LED as a type of [***memory-mapped device***]{.mark}.
 Suppose the LED is assigned a base memory address of `0x200`, with a memory range of 4 bytes. Inside this device, there is a control register that can hold either the value 0 or 1.
