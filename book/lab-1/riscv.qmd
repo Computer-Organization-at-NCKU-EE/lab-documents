@@ -1,5 +1,15 @@
 # Introduction to RISC-V ISA
 
+::: {.callout-tip title="Additional resources"}
+Before reading the document below, you may first refer to the following two slides which contain explanatory videos as well.
+The two slides can be downloaded via the links, and the video links are provided on the first page of each slide.
+
+1. [Assembly Lab I](https://drive.google.com/file/d/1sjMVnieVqZ5p3ELE5b4MbKYQG5vMpuPR/view?usp=drive_link)
+2. [Assembly Lab II](https://drive.google.com/file/d/1tiXsvmGgUZCx0tjqrPuZEUCUxg5Os7OK/view?usp=drive_link)
+
+These teaching materials were prepared by the **former Head TA, Po-Wei Lin**, who is currently pursuing his Ph.D. in Electrical Engineering at National Cheng Kung University.
+:::
+
 ::: {.callout-tip}
 If you are interested in how RISC-V is developed and the art of RISC-V, you can read the book @riscv-reader.
 :::

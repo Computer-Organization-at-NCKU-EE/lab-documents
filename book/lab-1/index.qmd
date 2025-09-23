@@ -4,7 +4,7 @@ In Lab 1, our mission is to build a ***functional simulator*** that can emulate 
 To understand how to construct such a simulator, we must examine three key concepts:
 
 - What a computer is
-- What so clled Software/Hardware Interface --- ISA is, and what RISC-V is
+- What so called Software/Hardware Interface --- ISA is, and what RISC-V is
 - How to use C language to build a simple RISC-V ***simulator***
 
 By the end of this lab, you should be able to implement a simulator capable of decoding and executing most of the basic *RV32I* instructions.
