@@ -9,7 +9,19 @@ This part is only for students at NCKU.
 After accepting Lab 1 on the **GitHub Classroom**, you should have your own repository which contains the code template for lab 1.
 Please clone the owned repository into your docker development environment under the path `/home/ubuntu/workspace`.
 
+```{.shell}
+$ git clone <link_to_your_own_repo>
+$ cd <your_folder>
+$ git submodule update --init --recursive
+$ pre-commit install
+```
+
 ## After Completing Coding
+
+::: {.callout-tip}
+In most cases, **the only file you must modify is `src/core.c`**.
+More precisely, you should complte the missing parts of the two functions `Core_decode()` and `Core_execute()`.
+:::
 
 After complete the implementation of the ISS, you can then compile it and run the unit tests.
 To compile the ISS, please follow the commands below:
