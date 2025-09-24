@@ -16,41 +16,48 @@ $ git submodule update --init --recursive
 $ pre-commit install
 ```
 
-## After Completing Coding
+## How to Start to Write Codes?
 
-::: {.callout-tip}
 In most cases, **the only file you must modify is `src/core.c`**.
 More precisely, you should complte the missing parts of the two functions `Core_decode()` and `Core_execute()`.
-:::
 
-After complete the implementation of the ISS, you can then compile it and run the unit tests.
-To compile the ISS, please follow the commands below:
+## After Completing Coding
 
-::: {.callout-caution}
-It assumes that your code is placed inside the folder called `lab-1`.
-:::
+After finishing the implementation of the ISS, you can now compile it and run the unit tests.
+There are a few steps to do to run unit tests:
 
-```{.shell}
-$ cd lab-1
-$ mkdir build
-$ cd build
-$ cmake ..
-$ make -j
-```
+1. Compile the unit tests itself
 
-After entering these commands, you should see something like:
+   ```{.shell}
+   $ cd riscv-tests/isa
+   $ make -j
+   # go back to root path of lab-1
+   $ cd ../.. 
+   ```
 
-![Build the ISS](images/build.png){width=75% fig-align="center"}
+2. Compile the ISS you implement
 
-After building the code template TA provides, you can now run the unit tests by using the following command:
+   ```shell
+   $ mkdir build && cd build   
+   $ cmake ..
+   $ make -j
+   ```
 
-```{.shell}
-$ ctest
-```
+   ![Build the ISS](images/build.png){fig-align="center"}
 
-![Run CTest](images/ctest.png){width=75% fig-aligh="center"}
+3. Execute `ctest` to run all the 37 instruction unit tests
 
-Run the command below if you want to run a specific test case (e.g., runs ADD instruction only):
+   ::: {.callout-caution}
+   Please make sure that you are inside the folder `build`.
+   :::
+
+   ```shell
+   $ ctest
+   ```
+
+   ![Run CTest](images/ctest.png){fig-aligh="center"}
+
+Besides, you can run the command below if you want to run a specific test case (e.g., runs ADD instruction only):
 
 ```{.shell}
 $ ctest -R "add\$"
