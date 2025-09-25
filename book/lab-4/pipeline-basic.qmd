@@ -8,8 +8,40 @@
 - Low maximum clock rate
 - Not compatible with non-ideal memory where the access latency is not zero
   
+## The Fundamental
+
 ### How to shorten the critical path?
 
 - The essence of pipeline design 
   (Try to calculate the time need to complete a LOAD instruction w/ single-cycle design and w/ pipeline design (demo example))
 - The micro-architecture of a classic five stages pipeline CPU
+
+### What is the problem about pipeline CPU?
+- Structural Hazard (resource contention)
+- Control Hazard
+- - Branch and Jump Instructions with pipeline CPU
+- - Branch Prediction
+  
+::: {.callout-tip title="How to predict future branches"}
+- Static approach
+- - Always predict not-taken
+- Dynamic approach
+- - 2-bits saturated counter predictor
+:::
+
+
+::: {.callout-tip title="The architecture of a complete branch predictor"}
+- The essence of predicting a branch
+- - Direction
+- - Target PC
+- Branch Direction Predictor
+- Branch Target Buffer (BTB)
+:::
+
+- Data Hazard
+- - What is the essence of data hazard? What is the root cause for it? (ans: the limited number of architectural registers)
+- - 4 types of data hazards
+1. RAW Hazard (true dependency)
+2. WAR Hazard (anti-dependency)
+3. WAW Hazard (output dependency)
+4. RAR hazard (false dependency)
