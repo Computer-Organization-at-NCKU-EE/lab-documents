@@ -19,29 +19,29 @@
 ### What is the problem about pipeline CPU?
 - Structural Hazard (resource contention)
 - Control Hazard
-- - Branch and Jump Instructions with pipeline CPU
-- - Branch Prediction
+  - Branch and Jump Instructions with pipeline CPU
+  - Branch Prediction
   
 ::: {.callout-tip title="How to predict future branches"}
 - Static approach
-- - Always predict not-taken
+  - Always predict not-taken
 - Dynamic approach
-- - 2-bits saturated counter predictor
+  - 2-bits saturated counter predictor
 :::
 
 
 ::: {.callout-tip title="The architecture of a complete branch predictor"}
 - The essence of predicting a branch
-- - Direction
-- - Target PC
+  - Direction
+  - Target PC
 - Branch Direction Predictor
 - Branch Target Buffer (BTB)
 :::
 
 - Data Hazard
-- - What is the essence of data hazard? What is the root cause for it? (ans: the limited number of architectural registers)
-- - 4 types of data hazards
-1. RAW Hazard (true dependency)
-2. WAR Hazard (anti-dependency)
-3. WAW Hazard (output dependency)
-4. RAR hazard (false dependency)
+  - What is the essence of data hazard? What is the root cause for it? (ans: the limited number of architectural registers)
+  - 4 types of data hazards
+  1. RAW Hazard (true dependency)
+  2. WAR Hazard (anti-dependency)
+  3. WAW Hazard (output dependency)
+  4. RAR hazard (false dependency)
