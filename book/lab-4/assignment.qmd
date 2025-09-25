@@ -1,8 +1,0 @@
-# Lab 4 Assignment
-
-Extend previous reference-model-based verification framework to adapt to pipeline CPU
-
-- The problem about pipeline bubbles
-- The pipeline bubble will lead to the synchronization issue between ISS (which can be viewed as a single-cycle CPU) and pipeline CPU
-- We might have to add some check flags to notify the verification framework to stop ISS and wait for the completion of Pipeline CPU
-- Hence, the main problem is how to extend the existed framework we have done in Lab 3 to address the synchronization problem between C model and RTL model
