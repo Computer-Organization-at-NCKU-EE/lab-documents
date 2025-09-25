@@ -1,3 +1,9 @@
 # Pipeline CPU Micro-Architecture Design
-# lab-4
-# lab-4 branch check
+
+In Lab 4, our mission is to explore pipeline CPU micro-architecture and understand the synchronization issues that arise in simulation. To achieve this, we must investigate two key aspects:
+
+The limitations and impractical aspects of a Single-Cycle CPU, including its Critical Timing Path
+
+Additional issues to be determined (TBD) as we progress
+
+By the end of this lab, you should be able to analyze why a single-cycle CPU design is inefficient in practice and recognize the challenges related to timing and synchronization. This will deepen your understanding of CPU micro-architecture, the pipeline design trade-offs, and real-world hardware constraints.
