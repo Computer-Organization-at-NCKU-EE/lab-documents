@@ -41,7 +41,7 @@
 - Data Hazard
   - What is the essence of data hazard? What is the root cause for it? (ans: the limited number of architectural registers)
   - 4 types of data hazards
-  1. RAW Hazard (true dependency)
-  2. WAR Hazard (anti-dependency)
-  3. WAW Hazard (output dependency)
-  4. RAR hazard (false dependency)
+   1. RAW Hazard (true dependency)
+   2. WAR Hazard (anti-dependency)
+   3. WAW Hazard (output dependency)
+   4. RAR hazard (false dependency)
