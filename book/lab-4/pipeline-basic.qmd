@@ -1,1 +1,15 @@
 # Fundamental and Motivation of Pipelining {#sec-pipeline-basics}
+
+## The Motivation
+
+### What is ***disadvantages*** of the single-cycle design?
+
+- Critical Path is too long
+- Low maximum clock rate
+- Not compatible with non-ideal memory where the access latency is not zero
+  
+### How to shorten the critical path?
+
+- The essence of pipeline design 
+  (Try to calculate the time need to complete a LOAD instruction w/ single-cycle design and w/ pipeline design (demo example))
+- The micro-architecture of a classic five stages pipeline CPU
