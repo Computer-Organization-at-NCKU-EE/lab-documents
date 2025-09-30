@@ -1,4 +1,4 @@
-# Introduction to RISC-V ISA
+# Introduction to RISC-V ISA {#sec-riscv-intro}
 
 ::: {.callout-tip title="Additional resources"}
 Before reading the document below, you may first refer to the following two slides which contain explanatory videos as well.

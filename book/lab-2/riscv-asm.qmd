@@ -4,29 +4,47 @@
 Please refer to @riscv-asm-manual and @riscv-asm-book for more information.
 :::
 
+## Revision of RV32I Instructions
+
+## Common Pesudo-Instructions
+
+- Basic pseudo-instructions (`li`, `mv`, `nop`)
+- Control flow pseudo-instructions (`call`, `ret`, `beqz`)
+- How assembler expands pseudo-instructions
+
 ## Assembly Programming Basics
 
-### Registers and Instructions
+### Waht is Label?
 
-### If-Else Statements
+### Addressing for Wide Immediates and Addresses
+
+### If-Else Statement
 
 ### For-Loops
 
 ### While-Loops
 
-## Application-Binary Interface (ABI) {#sec-riscv-abi}
+### Switch-Case Statement
+
+## Supporting Procedure in Hardware
+
+### What is ABI, and Why does ABI matter?
+
+### RISC-V ABI {#sec-riscv-abi}
 
 ::: {.callout-note}
 Please refer to @riscv-abi-repo for more information about RISC-V ABI.
 :::
 
-### Why ABI Matters?
+### Supporting Procedure Calling
 
-### Function Call Convention
+> introduce prologue and epilogue as well
 
-### Stack Allocation and Stack Pointer
+#### Function Call Convention
 
-### Example Workaround For Using ABI
+#### Stack Allocation and Stack Pointer
+
+#### Example Workaround For Using ABI
 
 ## Advanced Examples
 
@@ -36,11 +54,10 @@ Please refer to @riscv-abi-repo for more information about RISC-V ABI.
 
 ## C-Assembly Hrbrid Programming
 
+> This is the best "show-case" for applying ABI.
+
 - Calling C from assembly
 - Calling assembly from C
- 
-## Some Common Pesudo-Instructions
 
-- Basic pseudo-instructions (`li`, `mv`, `nop`)
-- Control flow pseudo-instructions (`call`, `ret`, `beqz`)
-- How assembler expands pseudo-instructions
+## Fallacies and Pitfalls
+

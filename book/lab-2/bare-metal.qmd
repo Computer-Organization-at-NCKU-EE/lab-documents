@@ -1,1 +1,3 @@
-# Bare-metal Programming and Runtime Environment
+# Bare-metal Programming and Runtime Environment {#sec-bare-metal}
+
+## What is Bare-Metal Environment and Runtime?
