@@ -1,3 +1,15 @@
 # Lab 2 Assignment
 
-TBD
+## Preamble
+
+## RISC-V Assembly Programs Assignment
+
+### Quick Sort
+
+### 2x2 Sudoku Solver
+
+## Runtime Environment Assignment
+
+## Assignment Report
+
+## Conclusion

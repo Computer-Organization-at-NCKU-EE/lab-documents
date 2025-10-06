@@ -6,23 +6,161 @@ Please refer to @riscv-asm-manual and @riscv-asm-book for more information.
 
 ## Revision of RV32I Instructions
 
+In order to write assembly programs, we must get familiar with basic RV32I instructions.
+
 ## Common Pesudo-Instructions
 
 - Basic pseudo-instructions (`li`, `mv`, `nop`)
 - Control flow pseudo-instructions (`call`, `ret`, `beqz`)
 - How assembler expands pseudo-instructions
 
+To write RISC-V assembly code more conveniently, there are some of instructions have their own *alias*, or so called ***pseudo-instruction***.
+Typically, for example, we would write `addi x1, x0, 0xFF` when we want to load a immediate into register *x1* with the value `0xFF`.
+With the power of pesudo-instructions, however, we can simply write `li x1, 0xFF` to do the same thing.
+
+For assembler, it will convert the pseudo-instructions into ***base instruction(s)*** before converting them into machine code.
+
+The list below contains the common pseudo-instructions which might be useful when writing assembly programs.
+
+| Pseudo-Instructions | Base Instruction(s) | Meaning |
+|---------------------|---------------------|---------|
+| ...                 | ...                 | ...     |
+
 ## Assembly Programming Basics
 
-### Waht is Label?
+### Symbols and Labels
+
+::: {.callout-tip}
+For more information about symbols and labels, please refer to @symbol-gnu-as.
+Furthermore, chapter 7 in the book @csapp-3e is also a good reference.
+:::
+
+According to @symbol-gnu-as:
+
+> Symbols are a central concept: the programmer uses symbols to name things, the linker uses symbols to link, and the debugger uses symbols to debug.
+
+TBD
+
+In the perspective of binary representation for instructions, the jump/branch target addresses are just memory addresses, while we can write ***labels*** in the assembly program with jump/branch instructions.
+There are two type of labels, ***text label*** and ***numeric label***.
+
+We often use text labels when writing if-else statement and loops. According to @riscv-asm-manual:
+
+> Text labels are used as branch, unconditional jump targets and symbol offsets.
+> Text labels are added to the symbol table of the compiled module.
+>
+> ```{.asm}
+> loop:
+>     j loop
+> ```
+
+The *symbol* `loop` above is exactly the text label we just mentioned. 
+
+Besides, the other type of label is called ***numeric label***. According to @riscv-asm-manual as well:
+
+> Numeric labels are used for local references.
+> References to local labels are suffixed with 'f' for a forward reference or 'b' for a backwards reference.
+> ```{.asm}
+> 1:
+>     j 1b
+> ```
 
 ### Addressing for Wide Immediates and Addresses
 
 ### If-Else Statement
 
+Before we go deep into how to implement if-else statement in assembly language, we must recall some basic logic operations for number comparison and ***De Morgan's Laws*** at first.
+
+For number comparison within two numbers, we have the following properties:
+
+$$
+\neg (A > B) \equiv A \leq B
+$$
+
+$$
+\neg (A < B) \equiv A \geq B
+$$
+
+$$
+\neg (A \geq B) \equiv A < B
+$$
+
+$$
+\neg (A \leq B) \equiv A > B
+$$
+
+
+$$
+\neg (A == B) \equiv A \ne B
+$$
+
+$$
+\neg (A \ne B) \equiv A == B
+$$
+
+Besides, according to De Morgan's Laws:
+
+$$
+\neg (A \wedge B) = \neg A \vee \neg B, \space and
+$$
+
+$$
+\neg (A \vee B) = \neg A \wedge \neg B
+$$
+
+These useful logical properties might help us to write more concise and straightforward assembly codes if we can use them wisely.
+
+Among RV32I instructions, there are **six** different conditional branch instructions we can use to implement the if-else statement in C language.
+The main decision point to choose which branch instruction to use is that the condition(s) in if-else statements.
+
+For example, consider the following if-else:
+
+```{.cpp}
+// suppose that a is stored in x1, and b is stored in x2
+if (a > b) {
+    // do job 1
+} else {
+    // do job 2
+}
+// exit
+```
+
+Intuitively, we would like to use *branch greater than* (bgt) instruction to implement this if-else statement.
+In RV32I, howerver, there is no suck instruction called *bgt*. Instead, we should perform some transformation on the if-else statement by using basic logic operations.
+For $a > b$, we know that $\neg (a > b) \equiv (a \leq b)$. Hence, we can rewrite the if-else statement in the following fashio.
+
+```{.cpp}
+if (a <= b) {
+    // do job 2
+} else {
+    // do job 1
+}
+// exit
+```
+
+Finally, we can implement the transformated if-else statement by using *blt* or *bltu* instructions in RV32I, which depends on whether the number comparison is signed or unsigned.
+
+```{.asm}
+    blt x1, x2, job_2
+job_1:
+    ...
+    j exit
+job_2:
+    ...
+exit:
+    ...
+```
+
+Let's consider a more complicated example with ***if-then-else*** statement.
+
 ### For-Loops
 
+To implement for-loops, we can use a counter with conditional branch instructions.
+TODO
+
 ### While-Loops
+
+While-loop can be converted into for-loops seamless. TODO
 
 ### Switch-Case Statement
 
@@ -61,3 +199,7 @@ Please refer to @riscv-abi-repo for more information about RISC-V ABI.
 
 ## Fallacies and Pitfalls
 
+1. ***Fallacy: More powerful instructions mean higher performance.***
+2. ***Fallacy: Write in assembly language to obtain the highest performance.***
+3. ***Pitfall: Forgetting that sequential word addresses in machines with byte addressing do not difer by one.***
+4. ***Pitfall: Using a pointer to an automatic variable outside its defning procedure.***
