@@ -67,9 +67,9 @@ Besides, the other type of label is called ***numeric label***. According to @ri
 
 ### Addressing for Wide Immediates and Addresses
 
-### If-Else Statement
+### If-Then-Else Statement
 
-Before we go deep into how to implement if-else statement in assembly language, we must recall some basic logic operations for number comparison and ***De Morgan's Laws*** at first.
+Before we go deep into how to implement *if-then-else* statement in assembly language, we must recall some basic logic operations for number comparison and ***De Morgan's Laws*** at first.
 
 For number comparison within two numbers, we have the following properties:
 
@@ -113,7 +113,7 @@ These useful logical properties might help us to write more concise and straight
 Among RV32I instructions, there are **six** different conditional branch instructions we can use to implement the if-else statement in C language.
 The main decision point to choose which branch instruction to use is that the condition(s) in if-else statements.
 
-For example, consider the following if-else:
+For example, consider the following if-then-else statement:
 
 ```{.cpp}
 // suppose that a is stored in x1, and b is stored in x2
@@ -126,22 +126,95 @@ if (a > b) {
 ```
 
 Intuitively, we would like to use *branch greater than* (bgt) instruction to implement this if-else statement.
-In RV32I, howerver, there is no suck instruction called *bgt*. Instead, we should perform some transformation on the if-else statement by using basic logic operations.
-For $a > b$, we know that $\neg (a > b) \equiv (a \leq b)$. Hence, we can rewrite the if-else statement in the following fashio.
+In RV32I, howerver, there is no suck instruction called *bgt*. Instead, we should simply rewrite the statement by changing the order. 
 
 ```{.cpp}
-if (a <= b) {
-    // do job 2
-} else {
+if (b < a) {
     // do job 1
+} else {
+    // do job 2
 }
 // exit
 ```
 
-Finally, we can implement the transformated if-else statement by using *blt* or *bltu* instructions in RV32I, which depends on whether the number comparison is signed or unsigned.
+Hence, we can implement the if-then-else statement by using *blt* or *bltu* instructions in RV32I, which depends on whether the number comparison is signed or unsigned.
+
+```{.asm}
+    blt x2, x1, job_1
+job_2:
+    ...
+    j exit
+job_1:
+    ...
+exit:
+    ...
+```
+
+Let's consider a more complicated example with ***if-then-else-if-then-else*** statement.
+
+```{.cpp}
+if (a > b) {
+    // do job 1
+} else if (c > b) {
+    // do job 2 
+} else {
+    // do job 3
+}
+// exit
+```
+
+Assume that `a` is stored in register *x1*, `b` is stored in *x2*, and `c` is stored in *x3*. We can implement this *if-then-else* statement as following:
+
+```{.asm}
+    blt x2, x1, job_1
+    blt x2, x3, job_2
+job_3:
+    ...
+    j exit
+job_2:
+    ...
+    j exit
+job_1:
+    ...
+exit:
+    ...
+```
+
+FInally, let's consider another example which has complex condition guard:
+
+```{.cpp}
+if (!(a < b && a < c)) {
+    // do job 1
+} else {
+    // do job 2
+}
+```
+
+We can apply De Morgan's Laws to get $\neg ((a < b) \land (a < c)) \equiv (a \geq b) \lor (a \geq c)$.
+
+```{.cpp}
+if (a >= b && a >= c) {
+    // do job 1
+} else {
+    // do job 2
+}
+```
+
+We can view this version of C code as the code below:
+
+```{.cpp}
+if (cond_1 && cond_2) {
+    // do job 1
+} else {
+    // do job 2
+}
+```
+
+For if-else statements with multiple conditions in a row, we can use multiple branch instructions to implement it.
 
 ```{.asm}
     blt x1, x2, job_2
+    blt x1, x3, job_2
 job_1:
     ...
     j exit
@@ -151,22 +224,26 @@ exit:
     ...
 ```
 
-Let's consider a more complicated example with ***if-then-else*** statement.
+::: {.callout-tip}
+:::
 
 ### For-Loops
 
-To implement for-loops, we can use a counter with conditional branch instructions.
+To implement for-loops, we can use one register as a **counter** with conditional branch instructions.
 TODO
 
 ### While-Loops
 
-While-loop can be converted into for-loops seamless. TODO
+Basically, while-loops can be converted into for-loops seamless.
 
 ### Switch-Case Statement
 
 ## Supporting Procedure in Hardware
 
 ### What is ABI, and Why does ABI matter?
+
+***Application Binary Interface***, or ***ABI*** for short, is a core concept in Operating System Design, Compiler Designs, as well as writing assembly programs.
+The main factor why ABI was developed is **interoperability** and **portability** accoss computers. 
 
 ### RISC-V ABI {#sec-riscv-abi}
 
