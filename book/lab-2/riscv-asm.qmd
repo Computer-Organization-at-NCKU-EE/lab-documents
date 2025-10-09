@@ -245,7 +245,7 @@ Basically, while-loops can be converted into for-loops seamless.
 ***Application Binary Interface***, or ***ABI*** for short, is a core concept in Operating System Design, Compiler Designs, as well as writing assembly programs.
 The main factor why ABI was developed is **interoperability** and **portability** accoss computers. 
 
-### RISC-V ABI {#sec-riscv-abi}
+### Brief Introduction to RISC-V ABI {#sec-riscv-abi}
 
 ::: {.callout-note}
 Please refer to @riscv-abi-repo for more information about RISC-V ABI.
@@ -255,19 +255,25 @@ Please refer to @riscv-abi-repo for more information about RISC-V ABI.
 
 > introduce prologue and epilogue as well
 
-#### Function Call Convention
+### RISC-V Calling Convention (Part of ABI)
 
-#### Stack Allocation and Stack Pointer
+#### Integer Register Convention
 
-#### Example Workaround For Using ABI
+#### Procedure Calling Convention for Integer
+
+#### C/C++ Type Details
 
 ## Advanced Examples
 
-- strlen
-- array_sum
-- recursion (factorial, fibonacci)
+### Bubble Sort
+
+### Factorial
+
+### Fibonacci Sequence
 
 ## C-Assembly Hrbrid Programming
+
+In my opinion, I think C-Assembly Programming is the best **show case** for why ABI matters.
 
 > This is the best "show-case" for applying ABI.
 
