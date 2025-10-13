@@ -22,9 +22,34 @@ For assembler, it will convert the pseudo-instructions into ***base instruction(
 
 The list below contains the common pseudo-instructions which might be useful when writing assembly programs.
 
-| Pseudo-Instructions | Base Instruction(s) | Meaning |
-|---------------------|---------------------|---------|
-| ...                 | ...                 | ...     |
+| Pseudo-Instructions | Base Instruction(s) | Meaning        |
+|---------------------|---------------------|----------------|
+| nop                 | addi, x0, x0, 0     | No operation   |
+| li rd, immediate    | *Myriad sequence    | Load Immediate |
+| mv rd, rs           | addi rd, rs, 0      | Copy register  |
+| not rd, rs          | xori, rd, rs, -1    | **One's** complement |
+| neg rd, rs          | sub rd, x0, rs      | **Two's** complement |
+| seqz rd, rs         | sltiu rd, rs, 1     | Set if == zero  |
+| snez rd, rs         | sltu rd, x0, rs     | Set if != zero  |
+| sltz rd, rs         | slt rd, rs, x0      | Set if < zero   |
+| sgtz rd, rs         | slt rd, x0, rs      | Set if > zero   |
+| beqz rs, offset     | beq rs, x0, offset  | Branch if == zero |
+| bnez rs, offset     | bne rs, x0, offset  | Branch if != zero |
+| blez rs, offset     | bge x0, rs, offset  | Branch if <= zero |
+| bgez rs, offset     | bge rs, x0, offset  | Branch if >= zero |
+| bltz rs, offset     | blt rs, x0, offset  | Branch if < zero  |
+| bgtz rs, offset     | blt x0, rs, offset  | Branch if > zero  |
+| bgt rs, rt, offset  | blt rt, rs, offset  | Branch if >       |
+| ble rs, rt, offset  | bge rt, rs, offset  | Branch if <=      |
+| bgtu rs, rt, offset | bltu rt, rs, offset | Branch if >, unsigned  |
+| bleu rs, rt, offset | bgeu rt, rs, offset | Branch if <=, unsigned |
+| j offset            | jal x0, offset      | Jump          |
+| jal offset          | jal, **ra**, offset | Jump and link |
+| jr rs               | jalr x0, rs, 0      | Jump register |
+| jalr rs             | jalr **ra**, rs, 0  | Jump and link register |
+| ret                 | jalr x0, **ra**, 0  | Return from subroutine |
+| call offset         | auipc ra, offset[31:12] <br> jalr ra, ra, offset[11:0] | Call far-away subroutine      |
+| tail offset         | auipc x6, offset[31:12] <br> jalr x0, x6, offset[11:0] | Tail call far-away subroutine |
 
 ## Assembly Programming Basics
 
@@ -230,7 +255,33 @@ exit:
 ### For-Loops
 
 To implement for-loops, we can use one register as a **counter** with conditional branch instructions.
-TODO
+
+For example, we would like to implement the for-loop below in RISC-V Assembly.
+
+```{.cpp}
+int a = 0;
+for (int i = 0; i < 100; i++) {
+    a++;
+}
+```
+
+The corresponding RISC-V assembly can be implemented as the code segment below if we follow the two assumptions:
+
+1. The value of variable a is stored in register *s0*
+2. The value of for-loop local variable is stored in register *s1*
+
+```{.asm}
+    li s0, 0 # initialize variable a
+    li s1, 0 # initialize for-loop local variable i in register s0
+    li t0, 100
+for_label:
+    bge s1, t0, exit
+    addi s0, s0, 1
+    addi s1, s1, 1
+    j for_label
+exit:
+    ...
+```
 
 ### While-Loops
 
@@ -259,9 +310,88 @@ Please refer to @riscv-abi-repo for more information about RISC-V ABI.
 
 #### Integer Register Convention
 
+|*Register*  | *ABI [Mnemonic]{.mark}*       | *Use by convention*                   | *Preserved?*|
+|------------|-------------|---------------------------------------|-------------|
+|x0          | zero        | hardwired to 0, ignores writes        | _n/a_       |
+|x1          | ra          | return address for jumps              | no          |
+|x2          | sp          | stack pointer                         | yes         |
+|x3          | gp          | global pointer                        | _n/a_       |
+|x4          | tp          | thread pointer                        | _n/a_       |
+|x5          | t0          | temporary register 0                  | no          |
+|x6          | t1          | temporary register 1                  | no          |
+|x7          | t2          | temporary register 2                  | no          |
+|x8          | s0 _or_ fp  | saved register 0 _or_ frame pointer   | yes         |
+|x9          | s1          | saved register 1                      | yes         |
+|x10         | a0          | return value _or_ function argument 0 | no          |
+|x11         | a1          | return value _or_ function argument 1 | no          |
+|x12         | a2          | function argument 2                   | no          |
+|x13         | a3          | function argument 3                   | no          |
+|x14         | a4          | function argument 4                   | no          |
+|x15         | a5          | function argument 5                   | no          |
+|x16         | a6          | function argument 6                   | no          |
+|x17         | a7          | function argument 7                   | no          |
+|x18         | s2          | saved register 2                      | yes         |
+|x19         | s3          | saved register 3                      | yes         |
+|x20         | s4          | saved register 4                      | yes         |
+|x21         | s5          | saved register 5                      | yes         |
+|x22         | s6          | saved register 6                      | yes         |
+|x23         | s7          | saved register 7                      | yes         |
+|x24         | s8          | saved register 8                      | yes         |
+|x25         | s9          | saved register 9                      | yes         |
+|x26         | s10         | saved register 10                     | yes         |
+|x27         | s11         | saved register 11                     | yes         |
+|x28         | t3          | temporary register 3                  | no          |
+|x29         | t4          | temporary register 4                  | no          |
+|x30         | t5          | temporary register 5                  | no          |
+|x31         | t6          | temporary register 6                  | no          |
+|pc          | _(none)_    | program counter                       | _n/a_       |
+
 #### Procedure Calling Convention for Integer
 
 #### C/C++ Type Details
+
+There are two conventions for C/C++ type sizes and alignments.
+
+##### ILP32, ILP32F, ILP32D, and ILP32E
+
+| Type                 | Size (Bytes)  | Alignment (Bytes) |
+|----------------------|---------------|-------------------|
+| bool/_Bool           |  1            |  1                |
+| char                 |  1            |  1                |
+| short                |  2            |  2                |
+| int                  |  4            |  4                |
+| long                 |  4            |  4                |
+| long long            |  8            |  8                |
+| void *               |  4            |  4                |
+| +++__bf16+++         |  2            |  2                |
+| _Float16             |  2            |  2                |
+| float                |  4            |  4                |
+| double               |  8            |  8                |
+| long double          | 16            | 16                |
+| float _Complex       |  8            |  4                |
+| double _Complex      | 16            |  8                |
+| long double _Complex | 32            | 16                |
+
+##### LP64, LP64F, LP64D, and LP64Q
+
+| Type                 | Size (Bytes)  | Alignment (Bytes) |
+|----------------------|---------------|-------------------|
+| bool/_Bool           |  1            |  1                |
+| char                 |  1            |  1                |
+| short                |  2            |  2                |
+| int                  |  4            |  4                |
+| long                 |  8            |  8                |
+| long long            |  8            |  8                |
+| +++__int128+++       | 16            | 16                |
+| void *               |  8            |  8                |
+| +++__bf16+++         |  2            |  2                |
+| _Float16             |  2            |  2                |
+| float                |  4            |  4                |
+| double               |  8            |  8                |
+| long double          | 16            | 16                |
+| float _Complex       |  8            |  4                |
+| double _Complex      | 16            |  8                |
+| long double _Complex | 32            | 16                |
 
 ## Advanced Examples
 
