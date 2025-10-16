@@ -4,7 +4,7 @@
 
 ![RISC-V Software Stacks](images/riscv-software-stack.png){fig-align="center" width=85%}
 
-## Hardware Abstraction Layer (HAL)
+## Hardware Abstraction Layer (HAL) {#sec-hal}
 
 > introduce hardware-dependent/independent library as well
 

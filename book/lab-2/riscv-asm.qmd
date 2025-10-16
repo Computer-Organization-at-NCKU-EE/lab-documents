@@ -401,7 +401,7 @@ There are two conventions for C/C++ type sizes and alignments.
 
 ### Fibonacci Sequence
 
-## C-Assembly Hrbrid Programming
+## C-Assembly Hrbrid Programming {#sec-c-asm-hybrid-programming}
 
 In my opinion, I think C-Assembly Programming is the best **show case** for why ABI matters.
 
@@ -410,9 +410,9 @@ In my opinion, I think C-Assembly Programming is the best **show case** for why 
 - Calling C from assembly
 - Calling assembly from C
 
-## Fallacies and Pitfalls
+<!-- ## Fallacies and Pitfalls -->
 
-1. ***Fallacy: More powerful instructions mean higher performance.***
-2. ***Fallacy: Write in assembly language to obtain the highest performance.***
-3. ***Pitfall: Forgetting that sequential word addresses in machines with byte addressing do not difer by one.***
-4. ***Pitfall: Using a pointer to an automatic variable outside its defning procedure.***
+<!-- 1. ***Fallacy: More powerful instructions mean higher performance.*** -->
+<!-- 2. ***Fallacy: Write in assembly language to obtain the highest performance.*** -->
+<!-- 3. ***Pitfall: Forgetting that sequential word addresses in machines with byte addressing do not difer by one.*** -->
+<!-- 4. ***Pitfall: Using a pointer to an automatic variable outside its defning procedure.*** -->

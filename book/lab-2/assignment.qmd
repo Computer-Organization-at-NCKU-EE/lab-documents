@@ -2,14 +2,23 @@
 
 ## Preamble
 
+In the assignment part for Lab 2, you must write **two** assembly programs by yourself.
+The goal of this assignment is to examine whether you possess the comprehensive understanding of basic RISC-V assembly programming concepts,
+which includes usages of instructions and the rule of RISC-V calling convention.
+
+In order to complete the two assembly programs, you must understand the algorithms to solve the problems at the first, then try to implement them in C language.
+After completing C codes, you can finally translate them into actual RISC-V assembly.
+
 ## RISC-V Assembly Programs Assignment
 
-### Quick Sort
+### Integer Array Sorter with Merge Sort
 
 ### 2x2 Sudoku Solver
 
-## Runtime Environment Assignment
-
 ## Assignment Report
 
-## Conclusion
+## Tips for Debugging Your Assembly Programs
+
+Recall what we mention in @sec-c-asm-hybrid-programming and @sec-hal, the TA has implemented a simpler version of `printf` function which is called `my_printf` for you.
+Hence, you can call `my_printf` directly in your assembly programs with the power of *C-Assembly Hybrid Programming*.
+
