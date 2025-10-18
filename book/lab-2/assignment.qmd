@@ -11,11 +11,53 @@ After completing C codes, you can finally translate them into actual RISC-V asse
 
 ## RISC-V Assembly Programs Assignment
 
-### Integer Array Sorter with Merge Sort
+### Problem 1 - Integer Array Sorter with Merge Sort Algorithm
 
-### 2x2 Sudoku Solver
+::: {.callout-note}
+Reference: [Wikipedia - Merge Sort](https://en.wikipedia.org/wiki/Merge_sort)
+:::
+
+### Problem 2 - 2x2 Sudoku Solver
+
+::: {.callout-note}
+Reference: [Leetcode - 37. Sudoku Solver](https://leetcode.com/problems/sudoku-solver/description/)
+:::
+
+Basically, to solve the sudoku problem in the perspective of algorithm, you can implement a **backtracking algorithm**. The core idea is about **trial and error**.
+For example, consider the following 2x2 sudoku problem:
+
+![An example 2x2 sudoku problem]()
+
+Imagine we are computers now, we have to solve the problem with a particular set of rules. The most intuitive way is starting from the upper left cell at row 0, column 0.
 
 ## Assignment Report
+
+The assignment report is divided into two parts. The first part is a question set which contains **five questions**, and the second part contains two syntesis questions which will ask you to exaplin how you implement the two assembly programming problems.
+
+### Question Set
+
+The question set contains **five questions**, and it is **2 pts for each question**.
+
+1. Why does RV32I base integer instruction set only has `beq`, `bne`, `blt(u)`, and `bge(u)` instructions for integer number comparison? Is it sufficent for all conditions?
+2. Why does ABI matter? Please use an example to explain it.
+3. ...
+4. ...
+5. ...
+
+### Synthesis Questions
+
+In the second part, it contains **two synthesis questions**, and it is **5 pts for each question**.
+
+1. How do you implement **merge sort** in RISC-V assembly instructions? PLease explain it **in detail**.
+2. How do you implement **a 2x2 sudoku solver** in RISC-V assembly instructions? Please explain it **in detail**.
+
+## How to Compile and Run
+
+### Prepare Your Local Repository
+
+### Compile
+
+### Run CTest
 
 ## Tips for Debugging Your Assembly Programs
 
