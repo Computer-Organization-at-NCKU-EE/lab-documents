@@ -9,15 +9,19 @@ which includes usages of instructions and the rule of RISC-V calling convention.
 In order to complete the two assembly programs, you must understand the algorithms to solve the problems at the first, then try to implement them in C language.
 After completing C codes, you can finally translate them into actual RISC-V assembly.
 
-## RISC-V Assembly Programs Assignment
+## RISC-V Assembly Programs Assignment (60 pts)
 
-### Problem 1 - Integer Array Sorter with Merge Sort Algorithm
+### Problem 0 - Compilation Test (10 pts)
+
+**Notice: You must pass the complation phase for your programs to get 10 pts.**
+
+### Problem 1 - Integer Array Sorter with Merge Sort Algorithm (25 pts)
 
 ::: {.callout-note}
 Reference: [Wikipedia - Merge Sort](https://en.wikipedia.org/wiki/Merge_sort)
 :::
 
-### Problem 2 - 2x2 Sudoku Solver
+### Problem 2 - 2x2 Sudoku Solver (25 pts)
 
 ::: {.callout-note}
 Reference: [Leetcode - 37. Sudoku Solver](https://leetcode.com/problems/sudoku-solver/description/)
@@ -30,11 +34,11 @@ For example, consider the following 2x2 sudoku problem:
 
 Imagine we are computers now, we have to solve the problem with a particular set of rules. The most intuitive way is starting from the upper left cell at row 0, column 0.
 
-## Assignment Report
+## Assignment Report (40 pts)
 
 The assignment report is divided into two parts. The first part is a question set which contains **five questions**, and the second part contains two syntesis questions which will ask you to exaplin how you implement the two assembly programming problems.
 
-### Question Set
+### Question Set (10 pts)
 
 The question set contains **five questions**, and it is **2 pts for each question**.
 
@@ -44,9 +48,9 @@ The question set contains **five questions**, and it is **2 pts for each questio
 4. ...
 5. ...
 
-### Synthesis Questions
+### Synthesis Questions (30 pts)
 
-In the second part, it contains **two synthesis questions**, and it is **5 pts for each question**.
+In the second part, it contains **two synthesis questions**, and it is **15 pts for each question**.
 
 1. How do you implement **merge sort** in RISC-V assembly instructions? PLease explain it **in detail**.
 2. How do you implement **a 2x2 sudoku solver** in RISC-V assembly instructions? Please explain it **in detail**.
@@ -55,9 +59,63 @@ In the second part, it contains **two synthesis questions**, and it is **5 pts f
 
 ### Prepare Your Local Repository
 
+First of all, you have to clone your own remote repository for assignment 2.
+
+```{.shell}
+$ git clone <ssh_link_to_your_own_repo>
+```
+
+Different from assignment 1, you now **must** add your own ISA Simulator as a git submodle which is called `iss` in assignment 2.
+For example, the directory name for my assignment 2 is called `lab-2-Haouo` and the ssh link to my asignment 1 repository is `git@github.com:Computer-Organization-at-NCKU-EE/lab-1-Haouo.git`, then I need to type the commands below.
+
+```{.shell}
+$ cd lab-2-Haouo
+$ git submodule add git@github.com:Computer-Organization-at-NCKU-EE/lab-1-Haouo.git iss
+$ git submodule update --init --recursive
+```
+
+[**Please noet that you must change the commands above to use your own folder name and ssh link for your own remote repostory, instead of using the commands directly without any modification.**]{.mark}
+
 ### Compile
 
+In order yo keep the directory for our project clean and readable, we would like to create a directory called `build` at the first and perform the whole building process inside `build` directory.
+
+```{.shell}
+$ mkdir build
+```
+
+After creating `build`, we can now enter the directory and prepare for generating the Makefiles we need by using cmake.
+
+```{.shell}
+$ cd build
+$ cmake ..
+```
+
+When the generating of Makefiles is done, we can then compile the programs with `make`.
+
+```{.shell}
+$ make -j
+```
+
+The only thing you must do is to `make` it again when modifying source files, and `cmake ..` again is redundant and not necessary.
+When to `cmake` again depends on whether the `CMakeLists.txt`(s) are modified.
+
 ### Run CTest
+
+To run unit tests, you have to enter the `build` directory at the first, and then type `ctest` to run all test cases.
+There are **two test cases**, corresponding to problem 1 and 2 respectively.
+
+Furthermore, you can also run a single test only at a time by using the following commands:
+
+```{.shell}
+ctest -R "MergeSort"
+```
+
+or
+
+```{.shell}
+ctest -R "Sudoku"
+```
 
 ## Tips for Debugging Your Assembly Programs
 
