@@ -21,16 +21,103 @@ After completing C codes, you can finally translate them into actual RISC-V asse
 Reference: [Wikipedia - Merge Sort](https://en.wikipedia.org/wiki/Merge_sort)
 :::
 
+In problem 1, our mission is to implement the ***Merge Sort*** algorithm in pure RV32I instructions.
+The core idea of *merge sort* follows the concepts about ***divide-and-conqure***.
+
+> The merge sort algorithm closely follows the divide-and-conquer method.
+> In each step, it sorts a subarray `A[p:r]`, starting with the entire array `A[1:n]` and recursing down to smaller and smaller subarrays. Here is how merge sort operates:
+>
+> **Divide** the subarray `A[p:r]` to be sorted into two adjacent subarrays, each of half the size. To do so, compute the midpoint q of `A[p:r]` (taking the average of p and r), and divide `A[p:r]` into subarrays `A[p:q]` and `A[q + 1:r]`. <br>
+> **Conqure** by sorting each of the two subarrays `A[p:q]` and `A[q + 1:r]` recursively using merge sort. <br>
+> **Combine** by merging the two sorted subarrays `A[p:q]` and `A[q + 1:r]` back into `A[p:r]`, producing the sorted answer.
+>
+> The key operation of the merge sort algorithm occurs in the “combine” step, which merges two adjacent, sorted subarrays.
+> The merge operation is performed by the auxiliary procedure `MERGE(A, p, q, r)` on the following page, where A is an array and p, q, and r are indices into the array such that $p \le q < r$.
+> The procedure assumes that the adjacent subarrays `A[p:q]` and `A[q + 1:r]` were already recursively sorted.
+> It merges the two sorted subarrays to form a single sorted subarray that replaces the current subarray `A[p:r]`.
+>
+> ![The operation of the **while** loop in lines 8-18 in the call `MERGE(A, 9, 12, 16)`, when the subarray `A[9:16]` contains the values `<2, 4, 6, 7, 1, 2, 3, 5>`.](images/merge.png){align="center" width=80%}
+>
+> ![The operation of merge sort on the array A with length 8 that initially contains the sequence `<12, 3, 7, 9, 14, 6, 11, 2>`.](images/merge-sort.png){width=50% align="center"}
+>
+> --- From chapter 2.3 in @clrs-4e
+
+In order to implement merge sort, we have firstly introduce a auxiliary function called *MERGE*. The function *MERGE* is used to **combine** two sorted array into one sorted array.
+
+```{.plain}
+MERGE(A, p, q, r)
+    nL = q − p + 1          // length of A[p : q]
+    nR = r − q              // length of A[q + 1 : r]
+    let L[0 : nL − 1] and R[0 : nR − 1] be new arrays
+    for i = 0 to nL − 1     // copy A[p : q] into L[0 : nL − 1]
+        L[i] = A[p + i]
+    for j = 0 to nR − 1     // copy A[q + 1 : r] into R[0 : nR − 1]
+        R[j] = A[q + j + 1]
+    i = 0                   // i indexes the smallest remaining element in L
+    j = 0                   // j indexes the smallest remaining element in R
+    k = p                   // k indexes the location in A to fill
+
+    // As long as each of the arrays L and R contains an unmerged element,
+    // copy the smallest unmerged element back into A[p : r].
+    while i < nL and j < nR
+        if L[i] ≤ R[j]
+            A[k] = L[i]
+            i = i + 1
+        else
+            A[k] = R[j]
+            j = j + 1
+        k = k + 1
+
+    // Having gone through one of L and R entirely, copy the
+    // remainder of the other to the end of A[p : r].
+    while i < nL
+        A[k] = L[i]
+        i = i + 1
+        k = k + 1
+    while j < nR
+        A[k] = R[j]
+        j = j + 1
+        k = k + 1
+```
+
+With theauxiliary function *MERGE*, we can now implement *MERGE-SORT* as following:
+
+```{.plain}
+MERGE-SORT(A, p, r)
+    if p ≥ r                  // zero or one element?
+        return
+    q = ⌊(p + r)/2⌋           // midpoint of A[p : r]
+    MERGE-SORT(A, p, q)       // recursively sort A[p : q]
+    MERGE-SORT(A, q + 1, r)   // recursively sort A[q + 1 : r]
+    // Merge A[p : q] and A[q + 1 : r] into A[p : r].
+    MERGE(A, p, q, r)
+```
+
 ### Problem 2 - 2x2 Sudoku Solver (25 pts)
 
-::: {.callout-note}
-Reference: [Leetcode - 37. Sudoku Solver](https://leetcode.com/problems/sudoku-solver/description/)
+::: {.callout-note title="References"}
+1. [Leetcode - 37. Sudoku Solver](https://leetcode.com/problems/sudoku-solver/description/)
+2. [Leetcode - 36. Valid Sudoku](https://leetcode.com/problems/valid-sudoku/description/)
+:::
+
+In problem 2, you need to write a function called `sudoku_solver()` to solve a **2-by-2** Sudoku puzzle **by filling the empty cells in the given 1D array**.
+
+A Sudoku solution must satisfy **all** of the following rules:
+
+1. Each of the digits `1-4` must occur exactly once in each **row**.
+2. Each of the digits `1-4` must occur exactly once in each **column**.
+3. Each of the digits `1-4` must occur exactly once in each of the 4 `2x2` sub-boxes of the grid.
+
+The integer `-1` in the array indicates empty cells.
+
+::: {layout-ncol=2}
+![An example Sudoku puzzle with empty cells](images/sudoku-1.png){width=60%}
+
+![An example Sudoku puzzle with its solution](images/sudoku-2.png){width=60%}
 :::
 
 Basically, to solve the sudoku problem in the perspective of algorithm, you can implement a **backtracking algorithm**. The core idea is about **trial and error**.
 For example, consider the following 2x2 sudoku problem:
-
-![An example 2x2 sudoku problem]()
 
 Imagine we are computers now, we have to solve the problem with a particular set of rules. The most intuitive way is starting from the upper left cell at row 0, column 0.
 
