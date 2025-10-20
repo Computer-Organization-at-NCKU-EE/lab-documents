@@ -36,9 +36,9 @@ The core idea of *merge sort* follows the concepts about ***divide-and-conqure**
 > The procedure assumes that the adjacent subarrays `A[p:q]` and `A[q + 1:r]` were already recursively sorted.
 > It merges the two sorted subarrays to form a single sorted subarray that replaces the current subarray `A[p:r]`.
 >
-> ![The operation of the **while** loop in lines 8-18 in the call `MERGE(A, 9, 12, 16)`, when the subarray `A[9:16]` contains the values `<2, 4, 6, 7, 1, 2, 3, 5>`.](images/merge.png){align="center" width=80%}
+> ![The operation of the **while** loop in lines 8-18 in the call `MERGE(A, 9, 12, 16)`, when the subarray `A[9:16]` contains the values `<2, 4, 6, 7, 1, 2, 3, 5>`.](images/merge.png){align="center" width=75%}
 >
-> ![The operation of merge sort on the array A with length 8 that initially contains the sequence `<12, 3, 7, 9, 14, 6, 11, 2>`.](images/merge-sort.png){width=50% align="center"}
+> ![The operation of merge sort on the array A with length 8 that initially contains the sequence `<12, 3, 7, 9, 14, 6, 11, 2>`.](images/merge-sort.png){width=75% align="center"}
 >
 > --- From chapter 2.3 in @clrs-4e
 
@@ -129,11 +129,14 @@ The assignment report is divided into two parts. The first part is a question se
 
 The question set contains **five questions**, and it is **2 pts for each question**.
 
-1. Why does RV32I base integer instruction set only has `beq`, `bne`, `blt(u)`, and `bge(u)` instructions for integer number comparison? Is it sufficent for all conditions?
-2. Why does calling convention matter? Please use an example to explain it.
-3. ...
-4. ...
-5. ...
+1. Why does RV32I base integer instruction set only has `beq`, `bne`, `blt(u)`,
+    and `bge(u)` instructions for integer signed/unsigned comparison? Is it sufficent for expressing all possible conditions?
+2. Why does *calling concention* matter when writing assembly programs?
+    Please give a concrete example to illustrate what might go wrong if it is not followed.
+3. When implementing a function in RISC-V assembly, how can you **allocate** and **access** a *function local array*?
+4. When writing a function in pure assembly code, it is important to distinguish between *caller* and *callee*, because they have different responsibilities. (e.g., caller-saved/callee-saved registers)
+    In the case of **recursive function**, however, it is hard to distinguish between caller and callee. How do you solve the problem? Please explain it briefly.
+5. Refer to this [video](https://www.youtube.com/watch?v=ioJkA7Mw2-U), please state the difference between *stack* and *heap* memory.
 
 ### Synthesis Questions (30 pts)
 
