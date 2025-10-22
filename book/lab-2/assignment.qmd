@@ -117,9 +117,34 @@ The integer `-1` in the array indicates empty cells.
 :::
 
 Basically, to solve the sudoku problem in the perspective of algorithm, you can implement a **backtracking algorithm**. The core idea is about **trial and error**.
-For example, consider the following 2x2 sudoku problem:
+The pesudocode below is the **general** version of backtracking algorithm.
 
-Imagine we are computers now, we have to solve the problem with a particular set of rules. The most intuitive way is starting from the upper left cell at row 0, column 0.
+```{.plain}
+function backtrack(partial_solution):
+    // 1. Check if 'partial_solution' is a complete solution (Base Case)
+    if is_complete_solution(partial_solution):
+        process_solution(partial_solution)  // e.g., add to results list, print it
+        return // Backtrack from this complete solution (or continue if finding all solutions)
+
+    // 2. Iterate over all possible choices for the next step
+    for each choice in possible_choices(partial_solution):
+        // 3. Check if the current 'choice' is valid (Pruning)
+        if is_valid(choice, partial_solution):
+            // 4. Make the choice (Apply the choice to the partial solution)
+            make_choice(choice, partial_solution)
+            
+            // 5. Recurse: explore further
+            backtrack(partial_solution)
+            
+            // 6. Undo the choice (The "Backtrack" step)
+            // This is necessary so the loop can try the next 'choice'
+            // when returning from the recursive call.
+            unmake_choice(choice, partial_solution)
+
+// Initial call to start the process
+initial_solution = create_empty_solution()
+backtrack(initial_solution)
+```
 
 ## Assignment Report (40 pts)
 
@@ -130,8 +155,8 @@ The assignment report is divided into two parts. The first part is a question se
 The question set contains **five questions**, and it is **2 pts for each question**.
 
 1. Why does RV32I base integer instruction set only has `beq`, `bne`, `blt(u)`,
-    and `bge(u)` instructions for integer signed/unsigned comparison? Is it sufficent for expressing all possible conditions?
-2. Why does *calling concention* matter when writing assembly programs?
+    and `bge(u)` instructions for integer signed/unsigned comparison? Is it sufficient for expressing all possible conditions?
+2. Why does *calling convention* matter when writing assembly programs?
     Please give a concrete example to illustrate what might go wrong if it is not followed.
 3. When implementing a function in RISC-V assembly, how can you **allocate** and **access** a *function local array*?
 4. When writing a function in pure assembly code, it is important to distinguish between *caller* and *callee*, because they have different responsibilities. (e.g., caller-saved/callee-saved registers)
@@ -142,7 +167,7 @@ The question set contains **five questions**, and it is **2 pts for each questio
 
 In the second part, it contains **two synthesis questions**, and it is **15 pts for each question**.
 
-1. How do you implement **merge sort** in RISC-V assembly instructions? PLease explain it **in detail**.
+1. How do you implement **merge sort** in RISC-V assembly instructions? Please explain it **in detail**.
 2. How do you implement **a 2x2 sudoku solver** in RISC-V assembly instructions? Please explain it **in detail**.
 
 ## How to Compile and Run
