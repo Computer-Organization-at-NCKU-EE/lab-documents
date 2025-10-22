@@ -1,1 +1,7 @@
-# RISC-V Assembly and Bare-metal Programming
+# RISC-V Assembly and Bare-Metal Programming
+
+In Lab 2, we are going to learn how to write assembly programs in RISC-V assembly, and the concepts about *Bare-metal programming* and *Runtime*.
+
+The document for Lab 2 is divided into two parts: RISV-V Assembly and Bare-metal programming.
+In the first part, we will revisit the instructions for RV32I which was introduced in @sec-riscv-intro.
+Next, we will learn how to write a program in pure assembly or C-Assembly hybrid fashion by using these instructions we have already learned.
