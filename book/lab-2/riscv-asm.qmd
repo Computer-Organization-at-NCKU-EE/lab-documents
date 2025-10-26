@@ -79,7 +79,7 @@ We often use text labels when writing if-else statement and loops. According to 
 >     j loop
 > ```
 
-The *symbol* `loop` above is exactly the text label we just mentioned. 
+The *symbol* `loop` above is exactly the text label we just mentioned.
 
 Besides, the other type of label is called ***numeric label***. According to @riscv-asm-manual as well:
 
@@ -151,7 +151,7 @@ if (a > b) {
 ```
 
 Intuitively, we would like to use *branch greater than* (bgt) instruction to implement this if-else statement.
-In RV32I, howerver, there is no suck instruction called *bgt*. Instead, we should simply rewrite the statement by changing the order. 
+In RV32I, howerver, there is no suck instruction called *bgt*. Instead, we should simply rewrite the statement by changing the order.
 
 ```{.cpp}
 if (b < a) {
@@ -181,7 +181,7 @@ Let's consider a more complicated example with ***if-then-else-if-then-else*** s
 if (a > b) {
     // do job 1
 } else if (c > b) {
-    // do job 2 
+    // do job 2
 } else {
     // do job 3
 }
@@ -294,7 +294,7 @@ Basically, while-loops can be converted into for-loops seamless.
 ### What is ABI, and Why does ABI matter?
 
 ***Application Binary Interface***, or ***ABI*** for short, is a core concept in Operating System Design, Compiler Designs, as well as writing assembly programs.
-The main factor why ABI was developed is **interoperability** and **portability** accoss computers. 
+The main factor why ABI was developed is **interoperability** and **portability** accoss computers.
 
 ### Brief Introduction to RISC-V ABI {#sec-riscv-abi}
 
@@ -401,7 +401,7 @@ There are two conventions for C/C++ type sizes and alignments.
 
 ### Fibonacci Sequence
 
-## C-Assembly Hrbrid Programming {#sec-c-asm-hybrid-programming}
+## C-Assembly Hybrid Programming {#sec-c-asm-hybrid-programming}
 
 In my opinion, I think C-Assembly Programming is the best **show case** for why ABI matters.
 
