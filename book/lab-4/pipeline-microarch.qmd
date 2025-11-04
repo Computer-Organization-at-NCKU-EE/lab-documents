@@ -13,3 +13,5 @@ Extend previous reference-model-based verification framework to adapt to pipelin
 - The pipeline bubble will lead to the synchronization issue between ISS (which can be viewed as a single-cycle CPU) and pipeline CPU
 - We might have to add some check flags to notify the verification framework to stop ISS and wait for the completion of Pipeline CPU
 - Hence, the main problem is how to extend the existed framework we have done in Lab 3 to address the 
+  
+要跟同學說 DiffTest 怎麼改才可以銜接到 Pipeline CPU 上面繼續使用（基本上就是講 ISS 如何 Skip Pipeline Bubbles 以達成 RTL-ISS Synchronization）

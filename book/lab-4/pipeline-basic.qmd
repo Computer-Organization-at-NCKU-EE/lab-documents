@@ -5,23 +5,62 @@
 ### What is ***disadvantages*** of the single-cycle design?
 
 - Critical Path is too long
-- Low maximum clock rate
+- Low maximum clock frequency 
 - Not compatible with non-ideal memory where the access latency is not zero
-  
+
+The overriding motivation for pipelining is to raise the maximum clock frequency: because the clock period is ultimately set by the [**critical path period**]{.mark}, breaking the work into stages shortens that delay per stage and lets the design run faster.
+ 
 ## The Fundamental
 
 ### How to shorten the critical path?
+> What is the essence of *pipeline* design?
 
-- The essence of pipeline design 
-  (Try to calculate the time need to complete a LOAD instruction w/ single-cycle design and w/ pipeline design (demo example))
+- Visualization of pipeline design
+
+  Picture a CPU as a water pipe: single-cycle is one long pipe where the slowest section sets the pace, while pipelining slices it with “tanks” so packets flow concurrently—shortening per-stage delay and raising the maximum clock frequency.
+
+![Visualization of pipeline design](images/pipeline.png){width=80% fig-align="center"}
+
 - The micro-architecture of a classic five stages pipeline CPU
 
+  Focusing on the datapath: before pipelining, a `LOAD` goes through 10+6+6+10+3 = 35 units of delay, so the overall critical path is 35. With one instruction completed per clock, the clock period must be ≥ 35. 
+
+  After pipelining, if we set the stage period by the longest stage—here, the MEM stage at 10—the critical path per stage drops to 10, so the required clock period becomes 10 (ignoring pipeline-register overhead).
+
+![abstracted pipeline](images/abstracted_pipeline_time.png){width=70% fig-align="center"}
+
+
 ### What is the problem about pipeline CPU?
+
+::: {.callout-warning}
+What’s the catch with a pipelined CPU? Hazards introduce pipeline bubbles, which lower the instructions-per-cycle (IPC). And even if you pipeline, if the core is scalar rather than superscalar, [**the ideal maximum IPC is still 1—this point is crucial**]{.mark}.
+:::
+
 - Structural Hazard (resource contention)
+
+
 - Control Hazard
   - Branch and Jump Instructions with pipeline CPU
   - Branch Prediction
+
+- Data Hazard
+  - What is the essence of data hazard? What is the root cause for it? (ans: the limited number of architectural registers)
+  - 4 types of data hazards
+    1. Read-After-Write (true dependency)
+    2. Write-After-Read (anti-dependency)
+    3. Write-After-Write (output dependency)
+    4. Read-After-Read (false dependency)//這個有嗎
+   
+  ::: {.callout-note}
+  In essence, both false dependencies and anti-dependencies stem from the ISA’s limited set of architectural registers. By providing more physical registers and using register renaming, we can eliminate these constraints and enable out-of-order execution.
+  :::
   
+- Load-Use Hazard(Special Case)
+  
+  Fundamentally, it’s about memory latency: if you force the pipeline to wait for each memory request to complete, you lengthen the critical path and drag down overall performance—so even with a higher IPC, the machine can end up slower. This is a good reminder that in quantitative analysis we must avoid the pitfall of optimizing for a single metric.
+
+
+
 ::: {.callout-tip title="How to predict future branches"}
 - Static approach
   - Always predict not-taken
@@ -38,10 +77,3 @@
 - Branch Target Buffer (BTB)
 :::
 
-- Data Hazard
-  - What is the essence of data hazard? What is the root cause for it? (ans: the limited number of architectural registers)
-  - 4 types of data hazards
-    1. RAW Hazard (true dependency)
-    2. WAR Hazard (anti-dependency)
-    3. WAW Hazard (output dependency)
-    4. RAR hazard (false dependency)

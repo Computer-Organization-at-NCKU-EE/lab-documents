@@ -7,3 +7,5 @@ In Lab 4, the goal of this lab is to examine:
 
 To overcome these problems, we will explore and design a pipelined CPU micro-architecture. 
 By the end of this lab, you will gain a deeper understanding of CPU micro-architecture design, the pipelining process, and the data hazard issues that may arise.
+
+![This figure is from @baer2009microprocessor](images/pipeline_architecture.png){width=80% fig-align="center"}
