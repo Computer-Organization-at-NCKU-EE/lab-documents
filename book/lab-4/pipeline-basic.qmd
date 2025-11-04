@@ -33,18 +33,35 @@ The overriding motivation for pipelining is to raise the maximum clock frequency
 ### What is the problem about pipeline CPU?
 
 ::: {.callout-warning}
-What’s the catch with a pipelined CPU? Hazards introduce pipeline bubbles, which lower the instructions-per-cycle (IPC). And even if you pipeline, if the core is scalar rather than superscalar, [**the ideal maximum IPC is still 1—this point is crucial**]{.mark}.
+What’s the catch with a pipelined CPU? Hazards introduce pipeline bubbles, which lower the instructions-per-cycle (IPC). And even if you pipeline, if the core is scalar rather than superscalar, *the ideal maximum IPC is still 1—this point is crucial*.
 :::
 
 - Structural Hazard (resource contention)
+  
+  Problem : Hardware resources are not enough.
 
+  Problem in Pipeline CPU : Accessing memory at the same time by fetching instructions and loading data.
+
+  Solution : We duplicate SRAM as im & dm to solve memory access problem of simultaneous instruction fetch and load data.
 
 - Control Hazard
+  
+  Problem : There is an indeterminate instruction flow in the pipeline.
+
+  Problem in Pipeline CPU : The subsequent instructions have entered the pipeline before the jump or branch is determined.
+  
+  Solution : We implement a flush signal in the Controller to flush the wrong instructions in pipeline registers.
+
   - Branch and Jump Instructions with pipeline CPU
   - Branch Prediction
 
 - Data Hazard
-  - What is the essence of data hazard? What is the root cause for it? (ans: the limited number of architectural registers)
+  Problem : Unable to get the latest data for calculations.
+  
+  Problem in Pipeline CPU : If the result data of an instruction needs to be writeback, subsequent instructions cannot get it until it completes.The root cause is [**the limited number of architectural registers**]{.mark}.
+  
+  Solution : We forwards the writeback data from MEM stage & WB stage to ID stage & EX stage
+
   - 4 types of data hazards
     1. Read-After-Write (true dependency)
     2. Write-After-Read (anti-dependency)
@@ -55,9 +72,11 @@ What’s the catch with a pipelined CPU? Hazards introduce pipeline bubbles, whi
   In essence, both false dependencies and anti-dependencies stem from the ISA’s limited set of architectural registers. By providing more physical registers and using register renaming, we can eliminate these constraints and enable out-of-order execution.
   :::
   
-- Load-Use Hazard(Special Case)
+- Load-Use Hazard (Special Case)
   
-  Fundamentally, it’s about memory latency: if you force the pipeline to wait for each memory request to complete, you lengthen the critical path and drag down overall performance—so even with a higher IPC, the machine can end up slower. This is a good reminder that in quantitative analysis we must avoid the pitfall of optimizing for a single metric.
+  Fundamentally, it’s about memory latency: if you force the pipeline to wait for each memory request to complete, you lengthen the critical path and drag down overall performance—so even with a higher IPC, the machine can end up slower. 
+  
+  This is a good reminder that in quantitative analysis we must avoid the pitfall of optimizing for a single metric.
 
 
 
