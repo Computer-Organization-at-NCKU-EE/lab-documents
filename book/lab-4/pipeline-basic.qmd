@@ -43,6 +43,13 @@ The overriding motivation for pipelining is to raise the maximum clock frequency
 ::: {.callout-warning}
 What’s the catch with a pipelined CPU? Hazards introduce pipeline bubbles, which lower the instructions-per-cycle (IPC). And even with pipelining, if the core is scalar rather than superscalar, *the ideal maximum IPC is still 1—this point is crucial*.
 :::
+In a pipelined CPU, hazards (data and control) can make one stage interfere with the next.
+
+So we put pipeline registers between every stage to latch results each clock.These registers give clear 1-cycle boundaries and let us stall, insert bubbles, or flush safely—and support forwarding for dependencies.
+
+Result: hazards are controlled and the pipeline can run at the chosen stage period.
+
+![pipeline registers](images/pipeline_reg.png){width=70% fig-align="center"}
 
 - Structural Hazard (resource contention)
   
@@ -58,11 +65,31 @@ What’s the catch with a pipelined CPU? Hazards introduce pipeline bubbles, whi
 
   Problem in Pipeline CPU : The subsequent instructions have entered the pipeline before the jump or branch is determined.
   
-  Solution : We implement a flush signal in the Controller to flush the wrong instructions in pipeline registers.
+  Solution : We implement a `flush` signal in the Controller to flush the wrong instructions in pipeline registers.
 
   - Branch and Jump Instructions with pipeline CPU
+  
+    Below is an example of a control hazard caused by branch and jump instructions; the instruction sequence is as follows.
     
-  - Branch Prediction
+    |    *PC*    |*instructions*     | *explanation*                     |
+    |------------|-------------------|-----------------------------------|
+    |0           | li t0, 1          | t0 = 1                            |
+    |4           | li t1, 1          | t1 = 1                            |
+    |8           | beq t0, t1, equal | 1 == 1 branch taken to equal      |
+    |c           | li s0, 4          | skipped                           |
+    |10          | jal x0, exit      | skipped                           |
+    |equal:14    | li t2, 3          | t2 = 3                            |
+    |18          | li t3, 4          | t3 = 4                            |
+    |1c          | beq t2, t3, end   | 3 == 4? No, branch not taken      |
+    |20          | li s0, 5          | s0 = 5                            |
+    |24          | jal x0, exit      | jump to exit                      |
+    |end:28      | li s0, 6          | skipped                           |
+    |exit:2c     | ret               | return to caller                  |
+
+    
+  ::: {.callout-tip title="Branch Prediction"}
+    
+  :::
 
 - Data Hazard
   Problem : Unable to get the latest data for calculations.
