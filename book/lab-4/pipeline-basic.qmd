@@ -21,13 +21,21 @@ The overriding motivation for pipelining is to raise the maximum clock frequency
 
 ![Visualization of pipeline design](images/pipeline.png){width=80% fig-align="center"}
 
+
+
+
 - The micro-architecture of a classic five stages pipeline CPU
+  
+  A classic 5-stage pipeline (IF, ID, EX, MEM, WB) is spread across clock cycles, and each stage takes exactly one clock. An instruction needs 5 cycles of latency to pass all stages, but once the pipe is full, a new instruction completes every clock. 
+
+  ![This figure is from @baer2009microprocessor](images/pipeline_architecture.png){width=80% fig-align="center"}
+
 
   Focusing on the datapath: before pipelining, a `LOAD` goes through 10+6+6+10+3 = 35 units of delay, so the overall critical path is 35. With one instruction completed per clock, the clock period must be ≥ 35. 
+  
+  With pipelining, we choose the clock period to match the slowest stage—in this case, MEM. That makes the per-stage critical path 10, so the design can run with a 10-unit clock period, ignoring pipeline-register overhead.
 
-  After pipelining, if we set the stage period by the longest stage—here, the MEM stage at 10—the critical path per stage drops to 10, so the required clock period becomes 10 (ignoring pipeline-register overhead).
-
-![abstracted pipeline](images/abstracted_pipeline_time.png){width=70% fig-align="center"}
+  ![abstracted pipeline](images/abstracted_pipeline_time.png){width=70% fig-align="center"}
 
 
 ### What is the problem about pipeline CPU?
@@ -53,6 +61,7 @@ What’s the catch with a pipelined CPU? Hazards introduce pipeline bubbles, whi
   Solution : We implement a flush signal in the Controller to flush the wrong instructions in pipeline registers.
 
   - Branch and Jump Instructions with pipeline CPU
+    
   - Branch Prediction
 
 - Data Hazard
@@ -80,19 +89,5 @@ What’s the catch with a pipelined CPU? Hazards introduce pipeline bubbles, whi
 
 
 
-::: {.callout-tip title="How to predict future branches"}
-- Static approach
-  - Always predict not-taken
-- Dynamic approach
-  - 2-bits saturated counter predictor
-:::
 
-
-::: {.callout-tip title="The architecture of a complete branch predictor"}
-- The essence of predicting a branch
-  - Direction
-  - Target PC
-- Branch Direction Predictor
-- Branch Target Buffer (BTB)
-:::
 

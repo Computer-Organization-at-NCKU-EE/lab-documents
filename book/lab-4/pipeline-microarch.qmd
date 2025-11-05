@@ -5,6 +5,22 @@ Each component in out pipeline CPU design
 
 ## TBD
 
+::: {.callout-tip title="How to predict future branches"}
+- Static approach
+  - Always predict not-taken
+- Dynamic approach
+  - 2-bits saturated counter predictor
+:::
+
+
+::: {.callout-tip title="The architecture of a complete branch predictor"}
+- The essence of predicting a branch
+  - Direction
+  - Target PC
+- Branch Direction Predictor
+- Branch Target Buffer (BTB)
+:::
+
 ## Lab 4 Assignment
 
 Extend previous reference-model-based verification framework to adapt to pipeline CPU
