@@ -1,17 +1,44 @@
 # Pipeline CPU Micro-Architecture Design {#sec-pipeline-microarch}
 Each component in our pipeline CPU design
 
-## Pipeline Registers: Control Policy 
+## Pipeline Registers: 
 
-![pipeline_register](images/pipeline_register.png){width=90% fig-align="center"}
+![pipeline_register](images/pipeline_reg.png){width=90% fig-align="center"}
 
-### Learning goals
-By the end of this section you should be able to:
+### Why do we need Pipeline Registers? 
 
-- Explain what **stall** and **redirect (jb)** mean in a 5-stage scalar pipeline.
-- State the **control policy** for each pipeline register (PC, IF/ID, ID/EX, EX/MEM, MEM/WB).
-- Implement the policy in RTL (keep, flush, bubble) and reason about its effect on timing.
-- Diagnose common bugs caused by incorrect stall/flush handling.
+#### Core idea  
+
+Pipeline registers are the *boundaries* that [**split a long combinational datapath into stages (IF/ID/EX/MEM/WB)**]{.mark}. Each register latches data and control between stages so multiple instructions can **overlap in time** while preserving correct program order.
+
+#### What they carry  
+
+source operands (or store data), immediates, `rd/rs1/rs2`, `PC/PC+4` (as needed), and **all control bits** required later (e.g., `RegWrite`, `MemRead/Write`, `MemToReg`, ALU-op). Carrying control forward lets a younger instruction act correctly several cycles after decode.
+
+#### Frequency benefit 
+By cutting the path, the clock period becomes
+
+$$
+T_{\mathrm{clk}} \approx \max(\text{stage delays}) + t_{\mathrm{reg}},
+$$
+
+where $t_{\mathrm{reg}}$ is the register overhead (clk-to-Q, setup, clock skew).
+Staging **raises the maximum clock frequency** (throughput $\uparrow$) even
+though a single instruction’s **latency** increases to
+$N_{\text{stages}} \times T_{\mathrm{clk}}$.
+
+
+#### Control point for correctness
+
+[**Pipeline registers are where we apply hazard control**]{.mark}:
+
+- **stall**: hold **PC** and **IF/ID** (keep = `output ≤ output`) to wait for data;
+- **bubble / flush**: write a **NOP** into **ID/EX** (bubble) or into **IF/ID** and **ID/EX** (flush on redirect) so wrong-path or too-early work has **no architectural effects**.
+
+::: {.callout-warning title="Trade-offs to remember"}
+- Registers are not free: $t_{\mathrm{reg}}$ and extra power/area are the price for higher frequency.
+- A scalar pipeline’s **ideal IPC is still 1**; bubbles from hazards (RAW load–use, mispredicted branches, etc.) reduce the realized IPC below 1.
+:::
 
 ---
 
