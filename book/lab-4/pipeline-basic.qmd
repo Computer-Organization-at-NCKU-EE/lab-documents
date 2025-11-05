@@ -89,10 +89,10 @@ Result: hazards are controlled and the pipeline can run at the chosen stage peri
 
     Below is what each stage does in each clock cycle.
     
-    ![control hazard](images/control_hazard.png){width=80% fig-align="center"}
+    ![control hazard](images/control_hazard.png){width=100% fig-align="center"}
     
   ::: {.callout-tip title="Branch Prediction"}
-    
+  Branch prediction is also a form of control hazard. In Lab 4 we’ll introduce only the concept later; implementation is a *bonus*. There’s no prescribed solution—if you want the bonus, describe your own approach in the bonus section.
   :::
 
 - Data Hazard
@@ -105,8 +105,41 @@ Result: hazards are controlled and the pipeline can run at the chosen stage peri
 
   - 4 types of data hazards
     1. Read-After-Write (true dependency)
+   
+       Below is an example of a Read-After-Write hazard; the instruction sequence is as follows.
+
+      |    *PC*    |*instructions*     | *explanation*                         |
+      |------------|-------------------|---------------------------------------|
+      |0           | li t0, 1          | t0 = 1                                |
+      |4           | li t1, 1          | t1 = 1                                |
+      |8           | add t2, t0, t1    | t2 = t0 + t1                          |
+      |c           | li t2, 3          | t2 = 3                                |
+      |10          | add t3, t2, t1    | t3 = t2 + t1                          |
+      |14          | lw t4, 0(t3)      | Load a word at address t3 + 0 into t4 |
+      |18          | addi t5, t4, 1    | t5 = t4 + 1                           |
+      |1c          | ret               | return to caller                      |
+
+      `add t2,t0,t1` depends on `li t0,1` and `li t1,1` (resolved by forwarding).
+
+      `add t3,t2,t1` depends on `li t2,3` (also resolved by forwarding).
+
+      `addi t5,t4,1` immediately after `lw t4,0(t3)` , the load’s data isn’t ready until the MEM/WB boundary, so this pair needs a 1-cycle stall even with forwarding.
+
+      
+
+
+
+
+
+
     2. Write-After-Read (anti-dependency)
+   
+       Below is an example of a Write-After-Read hazard; the instruction sequence is as follows.
+
     3. Write-After-Write (output dependency)
+   
+       Below is an example of a Write-After-Write hazard; the instruction sequence is as follows.
+       
     4. Read-After-Read (false dependency)//這個有嗎
    
   ::: {.callout-note}
