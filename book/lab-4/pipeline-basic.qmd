@@ -41,7 +41,7 @@ The overriding motivation for pipelining is to raise the maximum clock frequency
 ### What is the problem about pipeline CPU?
 
 ::: {.callout-warning}
-What’s the catch with a pipelined CPU? Hazards introduce pipeline bubbles, which lower the instructions-per-cycle (IPC). And even if you pipeline, if the core is scalar rather than superscalar, *the ideal maximum IPC is still 1—this point is crucial*.
+What’s the catch with a pipelined CPU? Hazards introduce pipeline bubbles, which lower the instructions-per-cycle (IPC). And even with pipelining, if the core is scalar rather than superscalar, *the ideal maximum IPC is still 1—this point is crucial*.
 :::
 
 - Structural Hazard (resource contention)

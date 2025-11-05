@@ -1,5 +1,5 @@
 # Pipeline CPU Micro-Architecture Design {#sec-pipeline-microarch}
-Each component in out pipeline CPU design
+Each component in our pipeline CPU design
 
 ## Program Counter
 
