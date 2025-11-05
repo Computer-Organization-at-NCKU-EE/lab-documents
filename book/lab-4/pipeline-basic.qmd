@@ -41,11 +41,10 @@ The overriding motivation for pipelining is to raise the maximum clock frequency
 ### What is the problem about pipeline CPU?
 
 ::: {.callout-warning}
-What’s the catch with a pipelined CPU? Hazards introduce pipeline bubbles, which lower the instructions-per-cycle (IPC). And even with pipelining, if the core is scalar rather than superscalar, *the ideal maximum IPC is still 1—this point is crucial*.
+What’s the catch with a pipelined CPU? Hazards introduce pipeline bubbles, which lower the instructions-per-cycle (IPC). And even if you pipeline, if the core is scalar rather than superscalar, *the ideal maximum IPC is still 1—this point is crucial*.
 :::
-In a pipelined CPU, hazards (data and control) can make one stage interfere with the next.
 
-So we put pipeline registers between every stage to latch results each clock.These registers give clear 1-cycle boundaries and let us stall, insert bubbles, or flush safely—and support forwarding for dependencies.
+In a pipelined CPU, hazards (data and control) can make one stage interfere with the next.So we put pipeline registers between every stage to latch results each clock.These registers give clear 1-cycle boundaries and let us stall, insert bubbles, or flush safely—and support forwarding for dependencies.
 
 Result: hazards are controlled and the pipeline can run at the chosen stage period.
 
@@ -86,12 +85,18 @@ Result: hazards are controlled and the pipeline can run at the chosen stage peri
     |end:28      | li s0, 6          | skipped                           |
     |exit:2c     | ret               | return to caller                  |
 
+    In this design, the branch outcome is known in EX. If the branch is taken, then on the next clock we must flush the ID and EX stages and insert a NOP `addi x0, x0, 0` so nothing executes. Therefore, reg_D and reg_E must accept the jb (jump/branch) signal as a flush input, and the IF stage must load jb_pc as the next PC.
+
+    Below is what each stage does in each clock cycle.
+    
+    ![control hazard](images/control_hazard.png){width=80% fig-align="center"}
     
   ::: {.callout-tip title="Branch Prediction"}
     
   :::
 
 - Data Hazard
+  
   Problem : Unable to get the latest data for calculations.
   
   Problem in Pipeline CPU : If the result data of an instruction needs to be writeback, subsequent instructions cannot get it until it completes.The root cause is [**the limited number of architectural registers**]{.mark}.
