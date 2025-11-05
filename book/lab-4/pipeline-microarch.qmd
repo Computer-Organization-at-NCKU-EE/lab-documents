@@ -1,7 +1,83 @@
 # Pipeline CPU Micro-Architecture Design {#sec-pipeline-microarch}
 Each component in our pipeline CPU design
 
-## Program Counter
+## Pipeline Registers: Control Policy 
+
+![pipeline_register](images/pipeline_register.png){width=90% fig-align="center"}
+
+### Learning goals
+By the end of this section you should be able to:
+
+- Explain what **stall** and **redirect (jb)** mean in a 5-stage scalar pipeline.
+- State the **control policy** for each pipeline register (PC, IF/ID, ID/EX, EX/MEM, MEM/WB).
+- Implement the policy in RTL (keep, flush, bubble) and reason about its effect on timing.
+- Diagnose common bugs caused by incorrect stall/flush handling.
+
+---
+
+### Terminology
+- **stall**: a one-cycle *hold* (typically the **load–use RAW** case). Pause the front end until data can be forwarded.
+- **jb (redirect)**: control-flow change (taken branch/jump or misprediction). Flush younger wrong-path ops.
+- **others**: normal operation (no stall, no redirect).
+- **keep (`output ≤ output`)**: hold the register value; do not advance this stage.
+- **flush (`output ≤ nop`)**: convert this stage to a **NOP** (no architectural effects).
+- **bubble (`output ≤ nop`)**: intentionally *insert* a NOP at this stage so older stages can drain.
+
+---
+
+### Control policy (summary table)
+
+| Register | stall                               | jb (redirect)                  | others              |
+|:--------:|:------------------------------------|:-------------------------------|:--------------------|
+| **Reg_PC** | **keep** *(output ≤ output)*         | **output ≤ input** *(next_pc)* | **output ≤ input**  |
+| **Reg_D**  | **keep** *(output ≤ output)*         | **flush** *(output ≤ nop)*     | **output ≤ input**  |
+| **Reg_E**  | **bubble** *(output ≤ nop)*          | **flush** *(output ≤ nop)*     | **output ≤ input**  |
+| **Reg_M**  | **output ≤ input**                   | **output ≤ input**             | **output ≤ input**  |
+| **Reg_W**  | **output ≤ input**                   | **output ≤ input**             | **output ≤ input**  |
+
+---
+
+### Worked timelines
+
+#### (A) Load–Use stall (classic 1-bubble case)
+
+| Cycle                | IF                 | ID                  | EX                         | MEM | WB |
+|:---------------------|:-------------------|:--------------------|:---------------------------|:----|:---|
+| t (before stall)     | `I3`               | `I2 (use x1)`       | `I1 (LOAD x1)`             | `I0`| `-`|
+| t+1 (after control)  | `I3`               | `I2 (use x1)`       | `bubble`                   | `I1`| `I0`|
+| t+2                  | `I4`               | `I3`                | `I2 (fwd from MEM/WB)`     | `I1`| `I0`|
+
+: **Load–use stall timeline** {#tbl-loaduse}
+
+::: {.callout-tip title="Stall control for Table \\@tbl-loaduse"}
+On a **stall**, fetching/decoding new instructions would push wrong content forward, so **Reg_PC** and **Reg_D** must **keep**. 
+To avoid blocking the back end, **Reg_E** emits a **bubble** so MEM/WB can continue and free space.
+
+- `PC`: **keep** (hold)
+- `IF/ID`: **keep**
+- `ID/EX`: **bubble** (insert NOP)
+:::
+
+
+#### (B) Branch redirect (mispredicted not-taken, actually taken)
+
+| Cycle                   | IF        | ID     | EX                     | MEM | WB |
+|:------------------------|:----------|:-------|:-----------------------|:----|:---|
+| t (resolve taken in EX) | `I_wrong2`| `I_wrong1` | `Branch (taken)`   | `I1`| `I0`|
+| t+1 (after redirect)    | `T0`      | `nop`  | `nop`                  | `I1`| `I0`|
+
+: **Branch redirect timeline** {#tbl-redirect}
+
+::: {.callout-tip title="Redirect control for Table \\@tbl-redirect"}
+On a **redirect (jb)**, younger wrong-path instructions must be discarded: **Reg_D** and **Reg_E** **flush**. 
+**Reg_PC** loads the **next_pc** (branch/jump target). Older instructions in M/W should finish normally.
+
+- `IF/ID`: **flush** (NOP)
+- `ID/EX`: **flush** (NOP)
+- `PC`: load **`next_pc`** (the branch target)
+:::
+
+
 
 ## TBD
 
