@@ -167,7 +167,11 @@ Result: hazards are controlled and the pipeline can run at the chosen stage peri
   In essence, both false dependencies and anti-dependencies stem from the ISA’s limited set of architectural registers. By providing more physical registers and using register renaming, we can eliminate these constraints and enable out-of-order execution.
   :::
 
-  //處理fully stall邊際效應
+  ::: {.callout-tip title="Diminishing returns"}
+   //處理fully stall邊際效應
+  :::
+
+  
   
 - Load-Use Hazard (Special Case)
   
