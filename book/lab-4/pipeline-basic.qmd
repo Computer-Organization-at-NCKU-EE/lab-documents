@@ -104,6 +104,7 @@ Result: hazards are controlled and the pipeline can run at the chosen stage peri
   Solution : We forwards the writeback data from MEM stage & WB stage to ID stage & EX stage
 
   - 4 types of data hazards
+
     1. Read-After-Write (true dependency)
    
        Below is an example of a Read-After-Write hazard; the instruction sequence is as follows.
@@ -129,26 +130,44 @@ Result: hazards are controlled and the pipeline can run at the chosen stage peri
 
       ![RAW data hazard](images/RAW_hazard.png){width=100% fig-align="center"}
 
-
-
-
-
-
-
-
     2. Write-After-Read (anti-dependency)
    
        Below is an example of a Write-After-Read hazard; the instruction sequence is as follows.
 
+      |    *PC*    |*instructions*     | *explanation*                         |
+      |------------|-------------------|---------------------------------------|
+      |0           | add  t2, t1, t3   | t2 = t1 + t3                          |
+      |4           | li   t1, 5        | t1 = 5                                |
+
+      WAR hazard occurs when an earlier instruction must read a register (or memory location) before a later instruction writes that same name. The hazard is: if the later write happens too early, the earlier read could see the wrong (new) value.
+
+      If *I2* writes t1 before *I1* has read it, that’s a WAR hazard.
+
+      In a classic 5-stage, single-issue, in-order pipeline (in Lab4), WAR doesn’t occur because reads happen in ID, writes happen in WB, and everything retires in program order. A younger instruction can’t write before an older one has already read. Hence, register WAR needs no stalls or forwarding here; it shows up only with out-of-order/multi-issue designs or with memory reordering.
+
     3. Write-After-Write (output dependency)
    
        Below is an example of a Write-After-Write hazard; the instruction sequence is as follows.
+
+      |    *PC*    |*instructions*     | *explanation*                         |
+      |------------|-------------------|---------------------------------------|
+      |0           | li   t1, 5        | t1 = 5                                |
+      |4           | addi t1, t1,1     | t1 = t1 + 1                           |
+
+      WAW hazard occurs when two instructions write the same destination; the hazard is that the younger write could reach the writeback point before the older write, corrupting the intended final value/order.
+
+      If *I2* were to write t1 before *I1*, that’s a WAW hazard.
+
+      In a classic 5-stage, single-issue, in-order pipeline (in Lab4), WAW doesn’t occur because all writes happen in WB and instructions retire strictly in program order. A younger instruction cannot reach WB before the older one, so WAW cannot arise (no stalls/forwarding needed). WAW shows up in out-of-order or superscalar designs, where multiple instructions can progress and write out of order unless renaming enforces unique physical destinations.
+
        
     4. Read-After-Read (false dependency)//這個有嗎
    
   ::: {.callout-note}
   In essence, both false dependencies and anti-dependencies stem from the ISA’s limited set of architectural registers. By providing more physical registers and using register renaming, we can eliminate these constraints and enable out-of-order execution.
   :::
+
+  //處理fully stall
   
 - Load-Use Hazard (Special Case)
   
