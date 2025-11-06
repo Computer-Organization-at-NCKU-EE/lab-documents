@@ -9,24 +9,40 @@ Each component in our pipeline CPU design
 
 #### Core idea  
 
-Pipeline registers are the *boundaries* that [**split a long combinational datapath into stages (IF/ID/EX/MEM/WB)**]{.mark}. Each register latches data and control between stages so multiple instructions can **overlap in time** while preserving correct program order.
+Pipeline registers are the boundaries that [**split a long combinational datapath into stages (IF/ID/EX/MEM/WB)**]{.mark}. Each register latches data and control between stages so multiple instructions can **overlap in time** while preserving correct program order.
 
 #### What they carry  
 
-source operands (or store data), immediates, `rd/rs1/rs2`, `PC/PC+4` (as needed), and **all control bits** required later (e.g., `RegWrite`, `MemRead/Write`, `MemToReg`, ALU-op). Carrying control forward lets a younger instruction act correctly several cycles after decode.
+source operands (or store data), immediates, `rd/rs1/rs2`, `PC/PC+4` (as needed), and **all control bits** required later (e.g., `RegWrite`, `MemRead/Write`, `MemToReg`, ALU-op). Carrying control forward lets a younger instruction act correctly several cycles after decode. (設計完再改變數名)
 
-#### Frequency benefit 
-By cutting the path, the clock period becomes
+#### Frequency benefit and cost
 
+By cutting the path into stages, the clock period becomes
 $$
-T_{\mathrm{clk}} \approx \max(\text{stage delays}) + t_{\mathrm{reg}},
+T_{\mathrm{clk}} \approx \max_i D_i \;+\; t_{\mathrm{reg}},
 $$
+where $D_i$ is the delay of stage $i$ and $t_{\mathrm{reg}}$ is the register overhead
+(clk-to-Q, setup, clock skew). Staging **raises the maximum clock frequency**
+(throughput $\uparrow$), but the **latency per instruction** becomes
+$$
+L_{\mathrm{pipe}} = N \cdot T_{\mathrm{clk}},
+$$
+which is typically larger than the single-cycle latency
+$L_{\mathrm{single}} = \sum_i D_i$.
 
-where $t_{\mathrm{reg}}$ is the register overhead (clk-to-Q, setup, clock skew).
-Staging **raises the maximum clock frequency** (throughput $\uparrow$) even
-though a single instruction’s **latency** increases to
-$N_{\text{stages}} \times T_{\mathrm{clk}}$.
+::: {.callout-warning title="What you pay"}
+- Higher **latency** for one instruction ($N$ stages × $T_{\mathrm{clk}}$)
+- Extra register overhead $t_{\mathrm{reg}}$ per stage
+- More power/area and control complexity (stall/flush/forward)
+- Deeper pipelines → larger **misprediction penalty** (more bubbles on redirect)
+:::
 
+**Example:**  Stage delays = [10, 6, 6, 10, 3] ns, and $t_{\mathrm{reg}}=1$ ns.
+
+- Single-cycle:  $T_{\mathrm{single}} = 35$ ns → throughput = 1/35 ins/ns, latency = 35 ns.
+- 5-stage pipe:  $T_{\mathrm{clk}} = \max = 10 + 1 = 11$ ns  
+  Latency per instruction $L_{\mathrm{pipe}} = 5 \times 11 = 55$ ns (↑),  
+  Throughput ≈ 1/11 ins/ns (↑).
 
 #### Control point for correctness
 
@@ -42,17 +58,16 @@ $N_{\text{stages}} \times T_{\mathrm{clk}}$.
 
 ---
 
-### Terminology
+### Control policy
 - **stall**: a one-cycle *hold* (typically the **load–use RAW** case). Pause the front end until data can be forwarded.
 - **jb (redirect)**: control-flow change (taken branch/jump or misprediction). Flush younger wrong-path ops.
 - **others**: normal operation (no stall, no redirect).
 - **keep (`output ≤ output`)**: hold the register value; do not advance this stage.
 - **flush (`output ≤ nop`)**: convert this stage to a **NOP** (no architectural effects).
 - **bubble (`output ≤ nop`)**: intentionally *insert* a NOP at this stage so older stages can drain.
-
+  
 ---
 
-### Control policy (summary table)
 
 | Register | stall                               | jb (redirect)                  | others              |
 |:--------:|:------------------------------------|:-------------------------------|:--------------------|
