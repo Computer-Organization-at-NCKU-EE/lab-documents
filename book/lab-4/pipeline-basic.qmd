@@ -66,9 +66,9 @@ Result: hazards are controlled and the pipeline can run at the chosen stage peri
   
   Solution : We implement a `flush` signal in the Controller to flush the wrong instructions in pipeline registers.
 
-  - Branch and Jump Instructions with pipeline CPU
+  - Jump and Branch Instructions with pipeline CPU
   
-    Below is an example of a control hazard caused by branch and jump instructions; the instruction sequence is as follows.
+    Below is an example of a control hazard caused by jump and branch instructions; the instruction sequence is as follows.
     
     |    *PC*    |*instructions*     | *explanation*                     |
     |------------|-------------------|-----------------------------------|
@@ -89,7 +89,7 @@ Result: hazards are controlled and the pipeline can run at the chosen stage peri
 
     Below is what each stage does in each clock cycle.
     
-    ![control hazard](images/control_hazard.png){width=100% fig-align="center"}
+    ![jb control hazard](images/control_hazard.png){width=100% fig-align="center"}
     
   ::: {.callout-tip title="Branch Prediction"}
   Branch prediction is also a form of control hazard. In Lab 4 we’ll introduce only the concept later; implementation is a *bonus*. There’s no prescribed solution—if you want the bonus, describe your own approach in the bonus section.
@@ -124,8 +124,12 @@ Result: hazards are controlled and the pipeline can run at the chosen stage peri
       `add t3,t2,t1` depends on `li t2,3` (also resolved by forwarding).
 
       `addi t5,t4,1` immediately after `lw t4,0(t3)` , the load’s data isn’t ready until the MEM/WB boundary, so this pair needs a 1-cycle stall even with forwarding.
-
       
+      Below is what each stage does in each clock cycle.
+
+      ![RAW data hazard](images/RAW_hazard.png){width=100% fig-align="center"}
+
+
 
 
 
