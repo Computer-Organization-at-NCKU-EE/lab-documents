@@ -165,7 +165,9 @@ Result: hazards are controlled and the pipeline can run at the chosen stage peri
   :::
 
   ::: {.callout-tip title="Diminishing returns"}
-   //處理fully stall邊際效應
+  As you add more pipeline stages, the forwarding/bypass network grows rapidly (roughly with depth and width), adding long wires and big muxes that eat into the clock gains—classic *diminishing returns*. 
+
+  Deeper pipelines also amplify branch penalties and expose memory latency, so IPC doesn’t rise proportionally. A simple alternative is a *fully-stall* policy: omit long-distance bypasses and insert bubbles until the producer value is written back—less hardware, easier timing, predictable behavior (at the cost of higher CPI).
   :::
 
   
