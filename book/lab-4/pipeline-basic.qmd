@@ -103,7 +103,7 @@ Result: hazards are controlled and the pipeline can run at the chosen stage peri
   
   Solution : We forwards the writeback data from MEM stage & WB stage to ID stage & EX stage
 
-  - 4 types of data hazards
+  - 3 types of data hazards
 
     1. Read-After-Write (true dependency)
    
@@ -159,12 +159,9 @@ Result: hazards are controlled and the pipeline can run at the chosen stage peri
         If *I2* were to write t1 before *I1*, that’s a WAW hazard.
 
         In a classic 5-stage, single-issue, in-order pipeline (in Lab4), WAW doesn’t occur because all writes happen in WB and instructions retire strictly in program order. A younger instruction cannot reach WB before the older one, so WAW cannot arise (no stalls/forwarding needed). WAW shows up in out-of-order or superscalar designs, where multiple instructions can progress and write out of order unless renaming enforces unique physical destinations.
-
-     
-    4. Read-After-Read (false dependency)//這個有嗎
    
   ::: {.callout-note}
-  In essence, both false dependencies and anti-dependencies stem from the ISA’s limited set of architectural registers. By providing more physical registers and using register renaming, we can eliminate these constraints and enable out-of-order execution.
+  In essence, anti-dependencies stem from the ISA’s limited set of architectural registers. By providing more physical registers and using register renaming, we can eliminate these constraints and enable out-of-order execution.
   :::
 
   ::: {.callout-tip title="Diminishing returns"}
