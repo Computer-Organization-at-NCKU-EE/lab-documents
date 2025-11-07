@@ -141,11 +141,30 @@ On a **redirect (jb)**, younger wrong-path instructions must be discarded: **Reg
 
 ## Lab 4 Assignment
 
-Extend previous reference-model-based verification framework to adapt to pipeline CPU
+Based on the Lab 3 single-cycle CPU, the following Verilog files are required to implement the Lab 4 pipelined CPU architecture:
+
+• Top.v(CPU.v)
+    • ALU.v
+    • Decoder.v
+    • Imme_Ext.v
+    • JB_Unit.v
+    • LD_Filter.v
+    • RegFile.v
+    • Adder.v
+    • Reg_PC.v 
+    • Mux2.v 
+    • Mux3.v 
+    • SRAM.v
+    • Controller.v 
+    • Reg_D.v 
+    • Reg_E.v 
+    • Reg_M.v 
+    • Reg_W.v 
 
 - The problem about pipeline bubbles
-- The pipeline bubble will lead to the synchronization issue between ISS (which can be viewed as a single-cycle CPU) and pipeline CPU
-- We might have to add some check flags to notify the verification framework to stop ISS and wait for the completion of Pipeline CPU
-- Hence, the main problem is how to extend the existed framework we have done in Lab 3 to address the 
+
+  The pipeline bubble will lead to the synchronization issue between ISS (which can be viewed as a single-cycle CPU) and pipeline CPU.
   
-要跟同學說 DiffTest 怎麼改才可以銜接到 Pipeline CPU 上面繼續使用（基本上就是講 ISS 如何 Skip Pipeline Bubbles 以達成 RTL-ISS Synchronization）
+  We might have to extend previous reference-model-based verification framework to adapt to pipeline CPU and add some check flags to notify the verification framework to stop ISS and wait for the completion of Pipeline CPU. 
+  
+  要跟同學說 DiffTest 怎麼改才可以銜接到 Pipeline CPU 上面繼續使用（基本上就是講 ISS 如何 Skip Pipeline Bubbles 以達成 RTL-ISS Synchronization）
