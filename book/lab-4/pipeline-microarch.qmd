@@ -66,78 +66,199 @@ $L_{\mathrm{single}} = \sum_i D_i$.
 - **flush (`output ≤ nop`)**: convert this stage to a **NOP** (no architectural effects).
 - **bubble (`output ≤ nop`)**: intentionally *insert* a NOP at this stage so older stages can drain.
   
----
-
-
-| Register | stall                               | jb (redirect)                  | others              |
-|:--------:|:------------------------------------|:-------------------------------|:--------------------|
-| **Reg_PC** | **keep** *(output ≤ output)*         | **output ≤ input** *(next_pc)* | **output ≤ input**  |
-| **Reg_D**  | **keep** *(output ≤ output)*         | **flush** *(output ≤ nop)*     | **output ≤ input**  |
-| **Reg_E**  | **bubble** *(output ≤ nop)*          | **flush** *(output ≤ nop)*     | **output ≤ input**  |
-| **Reg_M**  | **output ≤ input**                   | **output ≤ input**             | **output ≤ input**  |
-| **Reg_W**  | **output ≤ input**                   | **output ≤ input**             | **output ≤ input**  |
+![Control policy](images/control_policy.png){width=90% fig-align="center"}
 
 ---
 
-### Worked timelines
+---
+title: "A Tutorial on Branch Predictors"
+format:
+  html:
+    toc: true
+    toc-location: left
+    theme: cosmo
+    code-fold: true
+---
 
-#### (A) Load–Use stall (classic 1-bubble case)
+## The Essence of Predicting a Branch
 
-| Cycle                | IF                 | ID                  | EX                         | MEM | WB |
-|:---------------------|:-------------------|:--------------------|:---------------------------|:----|:---|
-| t (before stall)     | `I3`               | `I2 (use x1)`       | `I1 (LOAD x1)`             | `I0`| `-`|
-| t+1 (after control)  | `I3`               | `I2 (use x1)`       | `bubble`                   | `I1`| `I0`|
-| t+2                  | `I4`               | `I3`                | `I2 (fwd from MEM/WB)`     | `I1`| `I0`|
+In a pipelined processor, the Fetch stage must know the address of the *next* instruction to fetch in the very next cycle.
 
-: **Load–use stall timeline** {#tbl-loaduse}
+* For sequential instructions, this is simple: `Next PC = Current PC + Instruction Size`.
+* For control-flow instructions (like branches), the next PC is not sequential. It could be the next sequential instruction (if **Not-Taken**) or a new **Target PC** (if **Taken**).
 
-::: {.callout-tip title="Stall control for Table \\@tbl-loaduse"}
-On a **stall**, fetching/decoding new instructions would push wrong content forward, so **Reg_PC** and **Reg_D** must **keep**. 
-To avoid blocking the back end, **Reg_E** emits a **bubble** so MEM/WB can continue and free space.
+This is the **Control Dependence** problem. Waiting for the branch to execute (many cycles later) to know the correct address would cause the pipeline to stall, severely hurting performance.
 
-- `PC`: **keep** (hold)
-- `IF/ID`: **keep**
-- `ID/EX`: **bubble** (insert NOP)
+A complete branch prediction mechanism must therefore guess two key things *before* the branch is even decoded:
+
+1.  **Branch Direction:** Will the branch be **Taken** or **Not-Taken**?
+2.  **Branch Target PC:** If it is Taken, what is the target address it will jump to?
+
+Implicitly, it must also guess if the fetched instruction is a branch at all.
+
+
+### Types of Branches
+
+Different branch types resolve their next fetch address at different times:
+
+![Branch types](images/branch_types.png){width=90% fig-align="center"}
+
+---
+
+### The Cost of a Misprediction
+
+The penalty for a wrong guess is high. If a processor has **N** pipeline stages and can fetch **W** instructions per cycle (a "W-wide" superscalar processor), a single misprediction wastes **$N \times W$** instruction slots.
+
+---
+
+## How to Predict Future Branches
+
+We can broadly categorize prediction strategies into two types: Static and Dynamic.
+
+### Static Approach
+
+Static prediction strategies are fixed, either hardwired into the processor or determined by the compiler. They do not adapt to the program's runtime behavior.
+
+* **Always Predict Not-Taken:**
+    * This is the simplest possible strategy. The hardware always assumes the branch will not be taken and continues fetching sequentially at `PC + Instruction Size`.
+    * **Advantage:** Extremely simple. No hardware is needed to store history.
+    * **Disadvantage:** Accuracy is very low (around 30-40% for typical programs).
+
+* **Other Static Approaches:**
+    * **Always Predict Taken:** This is slightly more accurate, as loop branches are very common and are "Taken" most of the time.
+    * **BTFN (Backward Taken, Forward Not-Taken):** A simple heuristic. Most backward-pointing branches are part of loops (so predict Taken). Most forward-pointing branches are for `if-then-else` logic (so predict Not-Taken). This is more accurate than the other simple static methods.
+    * **Profile-Based:** The compiler runs the program once with a sample input to "profile" its behavior. It then adds a "hint" bit to the branch instruction in the final code to tell the hardware which direction is more likely.
+
+The main weakness of all static approaches is their inability to adapt. If a branch's behavior changes, the static prediction will be consistently wrong.
+
+### Dynamic Approach
+
+Dynamic predictors use hardware to store the recent history of branches and adapt their predictions based on that history.
+
+### The Last-Time Predictor (1-bit Predictor)
+
+The "Last-Time Predictor" is a simple dynamic predictor that uses a **single bit** for each branch. This bit is often stored in a structure called a Branch History Table (BHT) or as part of a Branch Target Buffer (BTB) entry.
+
+* **Mechanism:** The single bit indicates which direction the branch went the *last time* it was executed.
+* **Prediction:** The predictor guesses the branch will go in the same direction it went last time.
+* **Update:** After the branch executes, the 1-bit entry is updated with the correct outcome.
+
+::: {.panel-tabset}
+#### State Machine
+
+The logic for a 1-bit predictor can be represented by a simple 2-state state machine.
+
+![1_bit predictor](images/1_bit_predictor.png){width=90% fig-align="center"}
+
+* **Predict Not Taken State (0):**
+    * If the branch is *actually not taken*, it stays in this state.
+    * If the branch is *actually taken*, it transitions to the "Predict Taken" state.
+* **Predict Taken State (1):**
+    * If the branch is *actually taken*, it stays in this state.
+    * If the branch is *actually not taken*, it transitions to the "Predict Not Taken" state.
+
+#### Performance
+
+* **Good Case:** For a branch with a stable, repetitive pattern like `TTNNNNNNNNNN` (Taken twice, then Not-Taken 10 times), this predictor is highly accurate (e.g., 90% in this case).
+* **Bad Case (Loops):** The predictor *always* mispredicts the first and last iteration of a loop. For a loop with N iterations, its accuracy is **(N-2) / N**.
+* **Worst Case:** For an alternating pattern like `TNTNTNTNT...`, the 1-bit predictor will achieve **0% accuracy** because it is always predicting based on the previous outcome, which is always different.
+
+#### The Problem
+
+The main issue with the Last-Time Predictor is that it changes its prediction too quickly. A single different outcome (like the last iteration of a loop) can flip the prediction, even if the branch is "mostly taken" or "mostly not-taken".
+:::
+
+---
+
+### Two-Bit Counter Based Prediction
+
+To solve the problem of the 1-bit predictor changing too quickly, we can add **hysteresis**.
+
+* **Idea:** Use two bits to track the history for a branch instead of just one. This allows the predictor to have "strong" and "weak" states.
+* **Mechanism:** Each branch is associated with a two-bit counter. This counter uses **saturating arithmetic**, meaning it stops at maximum (11) and minimum (00) values.
+* **Hysteresis:** The extra bit provides hysteresis. A "strong" prediction (like `11` - Strongly Taken) will not be changed by a single different outcome. It requires two consecutive mistakes to flip the prediction from Taken to Not-Taken (or vice-versa).
+
+::: {.panel-tabset}
+#### State Machine
+
+This predictor uses a 4-state state machine. The prediction is based on the most significant bit.
+
+![2_bit predictor](images/2_bit_predictor.png){width=90% fig-align="center"}
+
+* **States:**
+    * `11`: Strongly Taken (Predict Taken)
+    * `10`: Weakly Taken (Predict Taken)
+    * `01`: Weakly Not-Taken (Predict Not-Taken)~
+    * `00`: Strongly Not-Taken (Predict Not-Taken)
+* **Transitions (Example from `11`):**
+    * If the branch is *actually taken*, the state remains `11` (saturating).
+    * If the branch is *actually not taken*, the state changes to `10` (Weakly Taken). The prediction is still "Taken" but is now "Weak". It takes another "Not-Taken" outcome to move to state `01` and change the prediction.
+
+#### Performance
+
+* **Good Case (Loops):** For a loop with N iterations, the accuracy improves to **(N-1) / N**. It only mispredicts the final exit.
+* **Bad Case:** For the alternating `TNTNTNT...` pattern, the accuracy is **50%** (assuming it starts in a weak state). This is much better than 0%.
+* **Overall:** This predictor (also called a "bimodal predictor") provides better accuracy than the 1-bit scheme.
+
+#### Tradeoffs
+
+* **Advantage:** Better prediction accuracy.
+* **Disadvantage:** Higher hardware cost (e.g., more bits in the BTB entry).
 :::
 
 
-#### (B) Branch redirect (mispredicted not-taken, actually taken)
+## The Architecture of a Complete Branch Predictor
 
-| Cycle                   | IF        | ID     | EX                     | MEM | WB |
-|:------------------------|:----------|:-------|:-----------------------|:----|:---|
-| t (resolve taken in EX) | `I_wrong2`| `I_wrong1` | `Branch (taken)`   | `I1`| `I0`|
-| t+1 (after redirect)    | `T0`      | `nop`  | `nop`                  | `I1`| `I0`|
+A real predictor must solve all parts of the problem simultaneously. It does this with two main hardware structures.
 
-: **Branch redirect timeline** {#tbl-redirect}
+### Branch Target Buffer (BTB)
 
-::: {.callout-tip title="Redirect control for Table \\@tbl-redirect"}
-On a **redirect (jb)**, younger wrong-path instructions must be discarded: **Reg_D** and **Reg_E** **flush**. 
-**Reg_PC** loads the **next_pc** (branch/jump target). Older instructions in M/W should finish normally.
+* **Purpose:** To answer the questions: "Is this a branch?" and "If so, what is its target address?"
+* **How it works:** The BTB is a small, fast cache.
+    * **Indexing:** It is indexed by the `PC` of the instruction being fetched.
+    * **Entry:** Each entry in the BTB stores:
+        1.  The `Target PC` (the address to jump to).
+        2.  The direction prediction bits (e.g., the 2-bit counter).
+* **In Operation (at Fetch stage):**
+    1.  The `Current PC` is sent to the BTB.
+    2.  **If it's a BTB Hit:** The hardware predicts this is a branch. It reads the `Target PC` and the 2-bit counter from the BTB entry.
+    3.  **If it's a BTB Miss:** The hardware predicts this is not a branch and sets the Next PC to `PC + Instruction Size`.
 
-- `IF/ID`: **flush** (NOP)
-- `ID/EX`: **flush** (NOP)
-- `PC`: load **`next_pc`** (the branch target)
-:::
+### Branch Direction Predictor
+
+* **Purpose:** To answer the question: "Taken or Not-Taken?"
+* **How it works:** As described above, this is the set of **2-bit saturated counters**. In a common design, these counters are stored inside the BTB. When the BTB hits, the 2-bit counter is provided along with the target address.
+
+### Putting It All Together: The Full Flow
+
+1.  The `Current PC` is sent to the BTB.
+2.  The BTB is checked for a matching entry (a "hit").
+3.  **Case 1: BTB Miss**
+    * Prediction: Not a branch.
+    * Next Fetch PC = `Current PC + Instruction Size`.
+4.  **Case 2: BTB Hit**
+    * Prediction: This is a branch.
+    * The `Target PC` and the `2-bit counter` are read from the BTB entry.
+    * The 2-bit counter's state (e.g., `11`, `10`, `01`, `00`) determines the **Direction Prediction** (Taken or Not-Taken).
+    * **If (Predicted Taken):** Next Fetch PC = `Target PC`.
+    * **If (Predicted Not-Taken):** Next Fetch PC = `Current PC + Instruction Size`.
+
+![Complete Branch Predictor](images/predictor.png){width=100% fig-align="center"}
 
 
+## How to Handle Control Dependences?
 
-## TBD
+[**Branch prediction is not the only solution.**]{.mark}
+We have several strategies to handle branches:
 
-::: {.callout-tip title="How to predict future branches"}
-- Static approach
-  - Always predict not-taken
-- Dynamic approach
-  - 2-bits saturated counter predictor
-:::
+1.  **Stall**: Pause the pipeline until the branch is resolved. (Very poor performance)
+2.  **Guess**: This is **Branch Prediction**.
+3.  **Delayed Branching**: The N instructions after a branch (in the "delay slot") are always executed.
+4.  **Predicated Execution**: Convert the control dependence into a data dependence.
+5.  **Multi-Path Execution**: Fetch from both possible paths.
+6.  **Fine-Grained Multithreading**: Switch to another thread.
 
-
-::: {.callout-tip title="The architecture of a complete branch predictor"}
-- The essence of predicting a branch
-  - Direction
-  - Target PC
-- Branch Direction Predictor
-- Branch Target Buffer (BTB)
-:::
+---
 
 ## Lab 4 Assignment
 
