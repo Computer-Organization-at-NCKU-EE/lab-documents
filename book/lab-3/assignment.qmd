@@ -1,0 +1,5 @@
+# Lab 3 Assignment
+
+## Single-Cycle CPU Implementation (80 pts)
+
+## Assignment Report (20 pts)

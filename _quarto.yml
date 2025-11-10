@@ -48,6 +48,7 @@ book:
       chapters: 
         - book/lab-3/single-cycle-cpu.qmd
         - book/lab-3/cross-verify.qmd
+        - book/lab-3/assignment.qmd
     # Lab 4 - Pipeline CPU
     - part: book/lab-4/index.qmd
       chapters: 
