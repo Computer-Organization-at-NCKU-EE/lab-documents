@@ -93,32 +93,35 @@ First, we will provide the RV32I instructions along with the corresponding type 
 
 Since the branch predictor is a bonus feature, it is not included in the CPU block diagram.
 
+
+![CPU Block Diagram](images/.png){width=100% fig-align="center"}
+
 ### Control Signal
 
 Need add some registers to keep instruction info in each stage and use the instruction info kept in each stages to get the control signals in each stages.
 
 The number in parentheses represents the bit-width of the signal.
 
-|   *Signal* |*Usage*     |
-|------------|-------------------|
-|F_im_w_en (4)           | Prevent writing data into im         | 
-|D_rs1_data_sel (1)           | Immediately Read the Writeback rs1 data         | 
-|D_rs2_data_sel (1)            | Immediately Read the Writeback rs2 data        | 
-|E_rs1_data_sel (2)           | Get the newest rs1 data         | 
-|E_rs2_data_sel (2)           | Get the newest rs2 data         | 
-|E_alu_op1_sel (1)            | Select alu op1 (rs1 / pc)        | 
-|E_alu_op2_sel (1)            | Select alu op2 (rs2 / imm)         | 
-|E_jb_op1_sel (1)           | Select jb_unit op1 (rs1 / pc)        | 
-|E_op_out (5)       | Output the opcode in E stage to ALU             | 
-|E_f3_out (3)           | Output the func3 in E stage to ALU        | 
-|E_f7_out (1)         | Output the func7 in E stage to ALU |
-|M_dm_w_en (4)            | Store [ byte / halfword / word ] into dm       | 
-|W_wb_en (1)           | Whether write back data into RegFile         | 
-|W_rd_index (5)           | Write back register destination index         | 
-|W_f3 (3)            | Output the func3 in W stage to LD_Filter       | 
-|W_wb_data_sel (1)            | Select writeback data(ALU Result / Extended Load Data)       | 
-|stall (1)       | Set when there is a Load instruction in E stage and there is an instruction in D stage that uses the Load’s writeback data        | 
-|next_pc_sel (1)    | Set when a jump or branch is established in E stage            | 
+|       *Signal*     |           *Usage*                                              |
+|--------------------|----------------------------------------------------------------|
+|F_im_w_en (4)       | Prevent writing data into im                                   | 
+|D_rs1_data_sel (1)  | Immediately Read the Writeback rs1 data                        | 
+|D_rs2_data_sel (1)  | Immediately Read the Writeback rs2 data                        | 
+|E_rs1_data_sel (2)  | Get the newest rs1 data                                        | 
+|E_rs2_data_sel (2)  | Get the newest rs2 data                                        | 
+|E_alu_op1_sel (1)   | Select alu op1 (rs1 / pc)                                      | 
+|E_alu_op2_sel (1)   | Select alu op2 (rs2 / imm)                                     | 
+|E_jb_op1_sel (1)    | Select jb_unit op1 (rs1 / pc)                                  | 
+|E_op_out (5)        | Output the opcode in E stage to ALU                            | 
+|E_f3_out (3)        | Output the func3 in E stage to ALU                             | 
+|E_f7_out (1)        | Output the func7 in E stage to ALU                             |
+|M_dm_w_en (4)       | Store [ byte / halfword / word ] into dm                       | 
+|W_wb_en (1)         | Whether write back data into RegFile                           | 
+|W_rd_index (5)      | Write back register destination index                          | 
+|W_f3 (3)            | Output the func3 in W stage to LD_Filter                       | 
+|W_wb_data_sel (1)   | Select writeback data(ALU Result / Extended Load Data)         | 
+|stall (1)           | Set when there is a Load instruction in E stage and there is an instruction in D stage that uses the Load’s writeback data                            | 
+|next_pc_sel (1)    | Set when a jump or branch is established in E stage             | 
 
 The following code from `Controller.v` is provided to help explain the control signals.
 
