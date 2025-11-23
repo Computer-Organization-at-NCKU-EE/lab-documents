@@ -1,6 +1,6 @@
 # Pipeline CPU Micro-Architecture Design {#sec-pipeline-microarch}
 Each component in our pipeline CPU design .
-## test 
+
 ## Pipeline Registers: 
 
 ![pipeline_register](images/pipeline_reg.png){width=90% fig-align="center"}
@@ -71,7 +71,7 @@ $L_{\mathrm{single}} = \sum_i D_i$.
 ---
 
 ---
-title: "A Tutorial on Branch Predictors"
+title: "Pipeline CPU Micro-Architecture Design"
 format:
   html:
     toc: true
@@ -79,6 +79,17 @@ format:
     theme: cosmo
     code-fold: true
 ---
+## Controller
+
+First, we will provide the RV32I instructions along with the corresponding type table for students to reference, followed by a presentation of the overall CPU block diagram. After that, we will introduce the purposes of the control signals.
+
+### RV32I Instructions
+
+### CPU Block Diagram
+
+Since the branch predictor is a bonus feature, it is not included in the CPU block diagram.
+
+### Control Signal
 
 ## The Essence of Predicting a Branch
 
