@@ -86,6 +86,7 @@ First, we will provide the RV32I instructions along with the corresponding type 
 ### RV32I Instructions
 
 ![inst](images/inst.png){width=100% fig-align="center"}
+
 ![inst type](images/inst_type.png){width=100% fig-align="center"}
 
 ### CPU Block Diagram
@@ -93,6 +94,86 @@ First, we will provide the RV32I instructions along with the corresponding type 
 Since the branch predictor is a bonus feature, it is not included in the CPU block diagram.
 
 ### Control Signal
+
+Need add some registers to keep instruction info in each stage and use the instruction info kept in each stages to get the control signals in each stages.
+
+The number in parentheses represents the bit-width of the signal.
+
+|   *Signal* |*Usage*     |
+|------------|-------------------|
+|F_im_w_en (4)           | Prevent writing data into im         | 
+|D_rs1_data_sel (1)           | Immediately Read the Writeback rs1 data         | 
+|D_rs2_data_sel (1)            | Immediately Read the Writeback rs2 data        | 
+|E_rs1_data_sel (2)           | Get the newest rs1 data         | 
+|E_rs2_data_sel (2)           | Get the newest rs2 data         | 
+|E_alu_op1_sel (1)            | Select alu op1 (rs1 / pc)        | 
+|E_alu_op2_sel (1)            | Select alu op2 (rs2 / imm)         | 
+|E_jb_op1_sel (1)           | Select jb_unit op1 (rs1 / pc)        | 
+|E_op_out (5)       | Output the opcode in E stage to ALU             | 
+|E_f3_out (3)           | Output the func3 in E stage to ALU        | 
+|E_f7_out (1)         | Output the func7 in E stage to ALU |
+|M_dm_w_en (4)            | Store [ byte / halfword / word ] into dm       | 
+|W_wb_en (1)           | Whether write back data into RegFile         | 
+|W_rd_index (5)           | Write back register destination index         | 
+|W_f3 (3)            | Output the func3 in W stage to LD_Filter       | 
+|W_wb_data_sel (1)            | Select writeback data(ALU Result / Extended Load Data)       | 
+|stall (1)       | Set when there is a Load instruction in E stage and there is an instruction in D stage that uses the Load’s writeback data        | 
+|next_pc_sel (1)    | Set when a jump or branch is established in E stage            | 
+
+The following code from `Controller.v` is provided to help explain the control signals.
+
+#### D_rs1_data_sel & D_rs2_data_sel
+
+`用已經寫好的code檢查以下程式!!!!!!!!!!!!`
+
+```{.verilog filename="Controller.v "}
+D_rs1_data_sel = is_D_rs1_W_rd_overlap ? 1’d1 : 1’d0;
+
+is_D_rs1_W_rd_overlap = is_D_use_rs1 & is_W_use_rd & (dc_rs1 == W_rd) & W_rd != 0
+is_D_use_rs1 = ?
+is_W_use_rd = ?
+```
+```{.verilog filename="Controller.v "}
+D_rs2_data_sel = is_D_rs2_W_rd_overlap ? 1’d1 : 1’d0;
+
+is_D_rs2_W_rd_overlap = is_D_use_rs2 & is_W_use_rd & (dc_rs2 == W_rd) & W_rd != 0
+is_D_use_rs2 = ?
+is_W_use_rd = ?
+```
+#### E_rs1_data_sel & E_rs2_data_sel
+
+```{.verilog filename="Controller.v "}
+E_rs1_data_sel = is_E_rs1_M_rd_overlap ? 2’d1 :
+                          is_E_rs1_W_rd_overlap ? 2’d0 : 2’d2;
+
+is_E_rs1_W_rd_overlap = is_E_use_rs1 & is_W_use_rd & (E_rs1 == W_rd) & W_rd != 0
+is_E_rs1_M_rd_overlap = is_E_use_rs1 & is_M_use_rd & (E_rs1 == M_rd) & M_rd != 0
+is_E_use_rs1 = ?
+is_W_use_rd = ?
+is_M_use_rd = ?
+```
+```{.verilog filename="Controller.v "}
+E_rs2_data_sel = is_E_rs2_M_rd_overlap ? 2’d1 :
+                          is_E_rs2_W_rd_overlap ? 2’d0 : 2’d2;
+
+is_E_rs2_W_rd_overlap = is_E_use_rs2 & is_W_use_rd & (E_rs2 == W_rd) & W_rd != 0
+is_E_rs2_M_rd_overlap = is_E_use_rs2 & is_M_use_rd & (E_rs2 == M_rd) & M_rd != 0
+is_E_use_rs2 = ?
+is_W_use_rd = ?
+is_M_use_rd = ?
+```
+#### stall
+```{.verilog filename="Controller.v "}
+stall = (E == load) & is_DE_overlap
+
+is_DE_overlap = (is_D_rs1_E_rd_overlap | is_D_rs2_E_rd_overlap)
+
+is_D_rs1_E_rd_overlap = is_D_use_rs1 & is_E_use_rd & E_rd != 0
+is_D_use_rs1 = ?
+
+is_D_rs2_E_rd_overlap = is_D_use_rs2 & is_E_use_rd & E_rd != 0
+is_D_use_rs2 = ?
+```
 
 ## The Essence of Predicting a Branch
 
