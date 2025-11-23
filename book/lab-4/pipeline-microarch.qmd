@@ -96,6 +96,9 @@ Since the branch predictor is a bonus feature, it is not included in the CPU blo
 
 ![CPU Block Diagram](images/.png){width=100% fig-align="center"}
 
+next_PC_sel 就是 jb !! 
+
+請在自行放大
 ### Control Signal
 
 Need add some registers to keep instruction info in each stage and use the instruction info kept in each stages to get the control signals in each stages.
@@ -121,13 +124,11 @@ The number in parentheses represents the bit-width of the signal.
 |W_f3 (3)            | Output the func3 in W stage to LD_Filter                       | 
 |W_wb_data_sel (1)   | Select writeback data(ALU Result / Extended Load Data)         | 
 |stall (1)           | Set when there is a Load instruction in E stage and there is an instruction in D stage that uses the Load’s writeback data                            | 
-|next_pc_sel (1)    | Set when a jump or branch is established in E stage             | 
+|next_pc_sel (1)     | Set when a jump or branch is established in E stage            | 
 
 The following code from `Controller.v` is provided to help explain the control signals.
 
 #### D_rs1_data_sel & D_rs2_data_sel
-
-`用已經寫好的code檢查以下程式!!!!!!!!!!!!`
 
 ```{.verilog filename="Controller.v "}
 D_rs1_data_sel = is_D_rs1_W_rd_overlap ? 1’d1 : 1’d0;
@@ -171,12 +172,13 @@ stall = (E == load) & is_DE_overlap
 
 is_DE_overlap = (is_D_rs1_E_rd_overlap | is_D_rs2_E_rd_overlap)
 
-is_D_rs1_E_rd_overlap = is_D_use_rs1 & is_E_use_rd & E_rd != 0
+is_D_rs1_E_rd_overlap = is_D_use_rs1 & is_E_use_rd & (dc_rs1 == E_rd) & E_rd != 0
 is_D_use_rs1 = ?
 
-is_D_rs2_E_rd_overlap = is_D_use_rs2 & is_E_use_rd & E_rd != 0
+is_D_rs2_E_rd_overlap = is_D_use_rs2 & is_E_use_rd & (dc_rs2 == E_rd) & E_rd != 0
 is_D_use_rs2 = ?
 ```
+The `is_E_use_rd` flag can be optimized out due to redundant conditional checks.
 
 ## The Essence of Predicting a Branch
 
@@ -386,7 +388,7 @@ Based on the Lab 3 single-cycle CPU, the following Verilog files are required to
     - Reg_E.v 
     - Reg_M.v 
     - Reg_W.v 
-
+`要提供他們SRAM.v嗎????`
 The problem about pipeline bubbles:
 
 The pipeline bubble will lead to the synchronization issue between ISS (which can be viewed as a single-cycle CPU) and pipeline CPU.
