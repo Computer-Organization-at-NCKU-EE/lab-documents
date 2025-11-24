@@ -94,11 +94,20 @@ First, we will provide the RV32I instructions along with the corresponding type 
 Since the branch predictor is a bonus feature, it is not included in the CPU block diagram.
 
 
-![CPU Block Diagram](images/.png){width=100% fig-align="center"}
+![controller](images/controller.png){width=100% fig-align="center"}
 
-next_PC_sel 就是 jb !! 
+![stages](images/stage.png){width=100% fig-align="center"}
 
-請在自行放大
+![CPU](images/CPU.png){width=100% fig-align="center"}
+
+::: {.callout-note}
+The jb signal can also be viewed as next_PC_sel.
+
+Since ALU_Result[0] is related to determining the jb signal, this signal needs to be brought out and provided to the controller.
+
+If any part of the image is unclear, please zoom in as needed.
+:::
+
 ### Control Signal
 
 Need add some registers to keep instruction info in each stage and use the instruction info kept in each stages to get the control signals in each stages.
@@ -389,6 +398,7 @@ Based on the Lab 3 single-cycle CPU, the following Verilog files are required to
     - Reg_M.v 
     - Reg_W.v 
 `要提供他們SRAM.v嗎????`
+
 The problem about pipeline bubbles:
 
 The pipeline bubble will lead to the synchronization issue between ISS (which can be viewed as a single-cycle CPU) and pipeline CPU.
