@@ -13,7 +13,7 @@ Pipeline registers are the boundaries that [**split a long combinational datapat
 
 #### What they carry  
 
-source operands (or store data), immediates, `rd/rs1/rs2`, `PC/PC+4` (as needed), and **all control bits** required later (e.g., `RegWrite`, `MemRead/Write`, `MemToReg`, ALU-op). Carrying control forward lets a younger instruction act correctly several cycles after decode. (設計完再改變數名)
+source operands (or store data), immediates, `rd/rs1/rs2`, `PC/PC+4` (as needed), and **all control bits** required later. Carrying control forward lets a younger instruction act correctly several cycles after decode. 
 
 #### Frequency benefit and cost
 
