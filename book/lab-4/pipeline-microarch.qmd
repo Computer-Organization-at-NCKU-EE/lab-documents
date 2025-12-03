@@ -1,4 +1,5 @@
 # Pipeline CPU Micro-Architecture Design {#sec-pipeline-microarch}
+
 Each component in our pipeline CPU design .
 
 ## Pipeline Registers: 
@@ -15,36 +16,122 @@ Pipeline registers are the boundaries that [**split a long combinational datapat
 
 source operands (or store data), immediates, `rd/rs1/rs2`, `PC/PC+4` (as needed), and **all control bits** required later. Carrying control forward lets a younger instruction act correctly several cycles after decode. 
 
-#### Frequency benefit and cost
+## Performance Analysis: Benefit and Cost
 
-By cutting the path into stages, the clock period becomes
-$$
-T_{\mathrm{clk}} \approx \max_i D_i \;+\; t_{\mathrm{reg}},
-$$
-where $D_i$ is the delay of stage $i$ and $t_{\mathrm{reg}}$ is the register overhead
-(clk-to-Q, setup, clock skew). Staging **raises the maximum clock frequency**
-(throughput $\uparrow$), but the **latency per instruction** becomes
-$$
-L_{\mathrm{pipe}} = N \cdot T_{\mathrm{clk}},
-$$
-which is typically larger than the single-cycle latency
-$L_{\mathrm{single}} = \sum_i D_i$.
+### Frequency Benefit vs. Register Overhead
 
-::: {.callout-warning title="What you pay"}
-- Higher **latency** for one instruction ($N$ stages × $T_{\mathrm{clk}}$)
-- Extra register overhead $t_{\mathrm{reg}}$ per stage
-- More power/area and control complexity (stall/flush/forward)
-- Deeper pipelines → larger **misprediction penalty** (more bubbles on redirect)
+When we pipeline a processor, we cut the combinational logic into smaller stages. Ideally, this allows for a massive increase in clock frequency. However, this benefit comes with a cost: **Pipeline Register Overhead**.
+
+The clock period of a pipelined processor is determined by the slowest stage plus the overhead of the registers:
+
+$$
+T_{\mathrm{clk}} \approx \max_i (\text{Stage Delay}_i) \;+\; t_{\mathrm{overhead}}
+$$
+
+**Where does the overhead come from?** 
+
+Because we insert pipeline registers (Flip-Flops) between stages to latch data, we incur specific timing costs:
+
+1.  **Propagation Delay ($t_{pcq}$)**: The time it takes for the Flip-Flop to output valid data after the clock edge triggers.
+2.  **Setup Time ($t_{setup}$)**: The time the input signal must be stable *before* the next clock edge arrives for the next Flip-Flop to capture it correctly.
+
+Therefore, the total overhead added to every stage is:
+
+$$
+t_{\mathrm{overhead}} = t_{pcq} + t_{setup}
+$$
+
+---
+
+### The Latency Paradox
+
+A common misconception is that pipelining makes individual instructions faster. The opposite is true.
+
+::: {.callout-important title="warn"}
+**"Pipelining improves throughput, not each individual instruction."**
+
+If we look at just **one single instruction**, pipelining actually makes it **slower** ($L_{\mathrm{pipe}} > L_{\mathrm{single}}$).
+
+From **IF to WB**, the total time increases because the signal must now traverse $N$ pipeline registers, accumulating the overhead ($t_{pcq} + t_{setup}$) at *every* stage boundary.
 :::
 
-**Example:**  Stage delays = [10, 6, 6, 10, 3] ns, and $t_{\mathrm{reg}}=1$ ns.
+**So why do we do it?** 
 
-- Single-cycle:  $T_{\mathrm{single}} = 35$ ns → throughput = 1/35 ins/ns, latency = 35 ns.
-- 5-stage pipe:  $T_{\mathrm{clk}} = \max = 10 + 1 = 11$ ns  
-  Latency per instruction $L_{\mathrm{pipe}} = 5 \times 11 = 55$ ns (↑),  
-  Throughput ≈ 1/11 ins/ns (↑).
+We don't optimize for a single instruction; we optimize for the flow of millions of instructions. We must look at **Frequency** and **Maximum IPC** (Instructions Per Cycle) simultaneously:
 
-#### Control point for correctness
+$$
+\text{Performance} = \text{Frequency} \times \text{IPC}
+$$
+
+1.  **Frequency ($\uparrow$)**: By shortening the critical path to just one stage depth, $T_{\mathrm{clk}}$ drops significantly, allowing the clock to run much faster.
+2.  **Ideal IPC ($\approx 1$)**: In an ideal pipeline, we finish one instruction every cycle.
+
+Even though each individual instruction takes slightly longer (latency $\uparrow$), the rate at which we complete them (throughput) skyrockets.
+
+---
+
+### Quantitative Analysis: Iron Law of Performance
+
+To prove mathematically that pipelining reduces execution time, we use the classic **Iron Law of Performance**:
+
+$$
+\text{CPU Time} = \text{Instruction Count} \times \text{CPI} \times \text{Cycle Time}
+$$
+
+Let's compare the time to execute a benchmark program with **N instructions** ($IC = N$) on a Single-Cycle machine versus a 5-Stage Pipeline.
+
+**Setup:**
+
+* **Stage delays:** `[10, 6, 6, 10, 3] ns`
+* **Register overhead ($t_{\mathrm{reg}}$):** `1 ns`
+
+#### Case A: Single-Cycle Machine
+
+In a single-cycle design, the clock period must be long enough for the signal to pass through all stages in one go.
+
+* **Cycle Time ($T_{\mathrm{single}}$):** $\sum D_i = 10+6+6+10+3 = \mathbf{35 \text{ ns}}$.
+* **CPI:** 1 (by definition).
+* **Total CPU Time:**
+    $$
+    \text{Time}_{\text{single}} = N \times 1 \times 35 \text{ ns} = \mathbf{35N \text{ ns}}
+    $$
+
+#### Case B: 5-Stage Pipelined Machine
+
+In a pipelined design, the clock period is limited by the **slowest stage** plus the **register overhead**.
+
+* **Cycle Time ($T_{\mathrm{pipe}}$):** $\max(D_i) + t_{\mathrm{reg}} = \max(10, 6, 6, 10, 3) + 1 = 10 + 1 = \mathbf{11 \text{ ns}}$.
+* **CPI:** 1 (Ideal, assuming no stalls).
+* **Total CPU Time:**
+    $$
+    \text{Time}_{\text{pipe}} = N \times 1 \times 11 \text{ ns} = \mathbf{11N \text{ ns}}
+    $$
+
+::: {.callout-note title="Conclusion: The Speedup"}
+Comparing the two designs:
+
+1.  **Latency per Instruction:**
+    * Single: $35$ ns
+    * Pipeline: $5 \text{ stages} \times 11 \text{ ns} = 55$ ns (**Slower!**)
+2.  **Throughput / Total Execution Time:**
+    * We calculate the Speedup by dividing the total execution times:
+    $$
+    \text{Speedup} = \frac{\text{Time}_{\text{single}}}{\text{Time}_{\text{pipe}}} = \frac{35N}{11N} \approx \mathbf{3.18}
+    $$
+
+The **Cycle Time** reduction (35ns $\to$ 11ns) drastically reduces the total **CPU Time**, outweighing the latency penalty.
+:::
+
+::: {.callout-warning title="Trade-offs"}
+While we gain massive throughput, pipelining is not free:
+
+* **Higher Latency per Instruction**: An instruction takes longer from IF to WB due to accumulated register overhead ($N \times t_{\mathrm{overhead}}$).
+* **Hardware Cost**: Extra area and power consumption for the pipeline registers.
+* **Complexity**: We must design units to handle hazards (Stall/Flush/Forwarding) to maintain valid IPC.
+* **Misprediction Penalty**: Deeper pipelines mean more wasted cycles (bubbles) when we guess a branch wrong.
+:::
+
+### Control point for correctness
 
 [**Pipeline registers are where we apply hazard control**]{.mark}:
 
@@ -58,7 +145,7 @@ $L_{\mathrm{single}} = \sum_i D_i$.
 
 ---
 
-### Control policy
+#### Control policy
 - **stall**: a one-cycle *hold* (typically the **load–use RAW** case). Pause the front end until data can be forwarded.
 - **jb (redirect)**: control-flow change (taken branch/jump or misprediction). Flush younger wrong-path ops.
 - **others**: normal operation (no stall, no redirect).
@@ -68,17 +155,6 @@ $L_{\mathrm{single}} = \sum_i D_i$.
   
 ![Control policy](images/control_policy.png){width=90% fig-align="center"}
 
----
-
----
-title: "Pipeline CPU Micro-Architecture Design"
-format:
-  html:
-    toc: true
-    toc-location: left
-    theme: cosmo
-    code-fold: true
----
 ## Controller
 
 First, we will provide the RV32I instructions along with the corresponding type table for students to reference, followed by a presentation of the overall CPU block diagram. After that, we will introduce the purposes of the control signals.
