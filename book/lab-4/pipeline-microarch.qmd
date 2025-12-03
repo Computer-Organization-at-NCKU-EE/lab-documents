@@ -91,9 +91,6 @@ First, we will provide the RV32I instructions along with the corresponding type 
 
 ### CPU Block Diagram
 
-Since the branch predictor is a bonus feature, it is not included in the CPU block diagram.
-
-
 ![controller](images/controller.png){width=100% fig-align="center"}
 
 ![stages](images/stage.png){width=100% fig-align="center"}

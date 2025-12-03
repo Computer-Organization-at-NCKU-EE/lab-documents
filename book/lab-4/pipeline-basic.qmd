@@ -32,6 +32,8 @@ The overriding motivation for pipelining is to raise the maximum clock frequency
 
 
   Focusing on the datapath: before pipelining, a `LOAD` goes through 10+6+6+10+3 = 35 units of delay, so the overall critical path is 35. With one instruction completed per clock, the clock period must be ≥ 35. 
+
+  The latency caused by inserting the register is ignored here. A more detailed explanation of how to calculate the impact of latency will be provided later.
   
   With pipelining, we choose the clock period to match the slowest stage—in this case, MEM. That makes the per-stage critical path 10, so the design can run with a 10-unit clock period, ignoring pipeline-register overhead.
 
@@ -92,7 +94,9 @@ Result: hazards are controlled and the pipeline can run at the chosen stage peri
     ![jb control hazard](images/control_hazard.png){width=100% fig-align="center"}
     
   ::: {.callout-tip title="Branch Prediction"}
-  Branch prediction is also a form of control hazard. In Lab 4 we’ll introduce only the concept later; implementation is a *bonus*. There’s no prescribed solution—if you want the bonus, describe your own approach in the bonus section.
+  Branch prediction is also a form of control hazard. In Lab 4 we’ll introduce only the concept later.
+  
+  There is no specific solution. In the Lab 4 report, you will be asked to briefly describe how you would design the control signals to resolve this hazard. 
   :::
 
 - Data Hazard
@@ -161,7 +165,7 @@ Result: hazards are controlled and the pipeline can run at the chosen stage peri
         In a classic 5-stage, single-issue, in-order pipeline (in Lab4), WAW doesn’t occur because all writes happen in WB and instructions retire strictly in program order. A younger instruction cannot reach WB before the older one, so WAW cannot arise (no stalls/forwarding needed). WAW shows up in out-of-order or superscalar designs, where multiple instructions can progress and write out of order unless renaming enforces unique physical destinations.
    
   ::: {.callout-note}
-  In essence, anti-dependencies stem from the ISA’s limited set of architectural registers. By providing more physical registers and using register renaming, we can eliminate these constraints and enable out-of-order execution.
+  In essence, anti-dependencies and output dependencies stem from the ISA’s limited set of architectural registers. By providing more physical registers and using register renaming, we can eliminate these constraints and enable out-of-order execution.
   :::
 
   ::: {.callout-tip title="Diminishing returns"}
