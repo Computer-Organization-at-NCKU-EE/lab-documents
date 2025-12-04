@@ -173,6 +173,10 @@ First, we will provide the RV32I instructions along with the corresponding type 
 
 ![CPU](images/CPU.png){width=100% fig-align="center"}
 
+`架構圖的memory要改成lab3的ROM，這裡由學長改動!!!!`
+
+`特別檢查放大時，圖片畫質是否模糊，我是從畫布複製貼到小畫家再輸出成圖片檔，這樣放大也能清楚呈現圖片!!!!`
+
 ::: {.callout-note}
 The jb signal can also be viewed as next_PC_sel.
 
