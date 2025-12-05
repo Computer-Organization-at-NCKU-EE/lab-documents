@@ -455,6 +455,8 @@ There are two parts you must complete in the assignment:
 1. The program part  --- **80%** of scores
 2. Assignment Report --- **20%** of scores
 
+#### Program
+
 Based on the Lab 3 single-cycle CPU, the following Verilog files are required to implement the Lab 4 pipelined CPU architecture:
 
 - Top.v(CPU.v)
@@ -474,17 +476,29 @@ Based on the Lab 3 single-cycle CPU, the following Verilog files are required to
     - Reg_E.v 
     - Reg_M.v 
     - Reg_W.v 
-`要提供他們SRAM.v嗎????`
+`這裡SRAM.要改成學長的ROM!!!!!`
 
-The problem about pipeline bubbles:
+
+After completing the pipeline CPU, your RTL code needs to pass the ISS. At this point, compared to the single-cycle CPU, you will encounter the problem of pipeline bubbles:
 
 The pipeline bubble will lead to the synchronization issue between ISS (which can be viewed as a single-cycle CPU) and pipeline CPU.
   
 We might have to extend previous reference-model-based verification framework to adapt to pipeline CPU and add some check flags to notify the verification framework to stop ISS and wait for the completion of Pipeline CPU. 
   
-要跟同學說 DiffTest 怎麼改才可以銜接到 Pipeline CPU 上面繼續使用（基本上就是講 ISS 如何 Skip Pipeline Bubbles 以達成 RTL-ISS Synchronization）
+For example, you can add a bubble signal from the WB stage. When the WB stage executes a NOP instruction generated due to a stall or a jump/branch, this bubble signal is asserted to stop the ISS and wait for the pipeline CPU to catch up. 
 
-Bonus:
+#### Report
+
+`Report還要寫甚麼，CPU設計 report?`
+
+Please carefully study the branch predictor section of the handout. If it were up to you, which branch predictor design would you choose? Why? In addition, describe how you would design the control signals to resolve the control hazard caused by mispredictions (e.g., using flush).
+
+Here you only need to provide a written description; implementation is not required. Implementing it is a bonus.
+
+#### Bonus
+
+In your pipeline CPU RTL code, you must implement the branch predictor and show in the report that the total clock cycles decrease. You also need to submit an additional version of your pipeline CPU RTL code that includes the branch predictor.
+
 
 ### Steps To Prepare for Doing Lab 4
 
