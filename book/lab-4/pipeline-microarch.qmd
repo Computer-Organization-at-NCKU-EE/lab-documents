@@ -489,13 +489,26 @@ For example, you can add a bubble signal from the WB stage. When the WB stage ex
 
 #### Report
 
-`Report還要寫甚麼，CPU設計 report?`
+Your report should demonstrate your understanding of pipeline hazards and your specific implementation strategy. Please answer the following questions:
 
-Please carefully study the branch predictor section of the handout. If it were up to you, which branch predictor design would you choose? Why? In addition, describe how you would design the control signals to resolve the control hazard caused by mispredictions (e.g., using flush).
+For **each** hazard (Forwarding case, Load-Use Stall, and Control Flush), describe:
 
-Here you only need to provide a written description; implementation is not required. Implementing it is a bonus.
+1.  **Trigger Condition:** Under what specific circumstances does this hazard occur? (e.g., Which specific instruction sequence? Which register indices are compared?)
 
-#### Bonus
+2.  **Resolution Strategy:** How does your hardware resolve this hazard? (e.g., Forwarding data, inserting a bubble, or flushing the pipeline?)
+   
+3.  **Implementation Logic:** How did you implement this in `Controller.v`?
+    * For **Forwarding**: How do you decide priority if multiple stages have the data?
+    * For **Stalls**: Which pipeline registers are held (frozen) and which are flushed?
+    * For **Branches**: How do you clear the wrong-path instructions?
+
+**4. Branch Prediction**
+
+   - Please carefully study the branch predictor section of the handout. If it were up to you, which branch predictor design would you choose (Static vs. Dynamic, 1-bit vs. 2-bit)? Why?
+  
+   - Describe how you would design the control signals to resolve the control hazard caused by mispredictions (e.g., logic to flush instructions in IF and ID stages). *(Note: Implementation is bonus, but the conceptual description is required).*
+     
+#### Bonus ( + 20 points)
 
 In your pipeline CPU RTL code, you must implement the branch predictor and show in the report that the total clock cycles decrease. You also need to submit an additional version of your pipeline CPU RTL code that includes the branch predictor.
 
