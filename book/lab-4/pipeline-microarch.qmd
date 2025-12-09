@@ -138,11 +138,6 @@ While we gain massive throughput, pipelining is not free:
 - **stall**: hold **PC** and **IF/ID** (keep = `output ≤ output`) to wait for data;
 - **bubble / flush**: write a **NOP** into **ID/EX** (bubble) or into **IF/ID** and **ID/EX** (flush on redirect) so wrong-path or too-early work has **no architectural effects**.
 
-::: {.callout-warning title="Trade-offs to remember"}
-- Registers are not free: $t_{\mathrm{reg}}$ and extra power/area are the price for higher frequency.
-- A scalar pipeline’s **ideal IPC is still 1**; bubbles from hazards (RAW load–use, mispredicted branches, etc.) reduce the realized IPC below 1.
-:::
-
 ---
 
 #### Control policy
