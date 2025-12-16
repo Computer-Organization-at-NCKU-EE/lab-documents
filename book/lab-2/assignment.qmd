@@ -1,0 +1,239 @@
+# Lab 2 Assignment
+
+## Preamble
+
+In the assignment part for Lab 2, you must write **two** assembly programs by yourself.
+The goal of this assignment is to examine whether you possess the comprehensive understanding of basic RISC-V assembly programming concepts,
+which includes usages of instructions and the rule of RISC-V calling convention.
+
+In order to complete the two assembly programs, you must understand the algorithms to solve the problems at the first, then try to implement them in C language.
+After completing C codes, you can finally translate them into actual RISC-V assembly.
+
+## RISC-V Assembly Programs Assignment (60 pts)
+
+### Problem 0 - Compilation Test (10 pts)
+
+**Notice: You must pass the complation phase for your programs to get 10 pts.**
+
+### Problem 1 - Integer Array Sorter with Merge Sort Algorithm (25 pts)
+
+::: {.callout-note}
+Reference: [Wikipedia - Merge Sort](https://en.wikipedia.org/wiki/Merge_sort)
+:::
+
+In problem 1, our mission is to implement the ***Merge Sort*** algorithm in pure RV32I instructions.
+The core idea of *merge sort* follows the concepts about ***divide-and-conqure***.
+
+> The merge sort algorithm closely follows the divide-and-conquer method.
+> In each step, it sorts a subarray `A[p:r]`, starting with the entire array `A[1:n]` and recursing down to smaller and smaller subarrays. Here is how merge sort operates:
+>
+> **Divide** the subarray `A[p:r]` to be sorted into two adjacent subarrays, each of half the size. To do so, compute the midpoint q of `A[p:r]` (taking the average of p and r), and divide `A[p:r]` into subarrays `A[p:q]` and `A[q + 1:r]`. <br>
+> **Conqure** by sorting each of the two subarrays `A[p:q]` and `A[q + 1:r]` recursively using merge sort. <br>
+> **Combine** by merging the two sorted subarrays `A[p:q]` and `A[q + 1:r]` back into `A[p:r]`, producing the sorted answer.
+>
+> The key operation of the merge sort algorithm occurs in the “combine” step, which merges two adjacent, sorted subarrays.
+> The merge operation is performed by the auxiliary procedure `MERGE(A, p, q, r)` on the following page, where A is an array and p, q, and r are indices into the array such that $p \le q < r$.
+> The procedure assumes that the adjacent subarrays `A[p:q]` and `A[q + 1:r]` were already recursively sorted.
+> It merges the two sorted subarrays to form a single sorted subarray that replaces the current subarray `A[p:r]`.
+>
+> ![The operation of the **while** loop in lines 8-18 in the call `MERGE(A, 9, 12, 16)`, when the subarray `A[9:16]` contains the values `<2, 4, 6, 7, 1, 2, 3, 5>`.](images/merge.png){align="center" width=75%}
+>
+> ![The operation of merge sort on the array A with length 8 that initially contains the sequence `<12, 3, 7, 9, 14, 6, 11, 2>`.](images/merge-sort.png){width=75% align="center"}
+>
+> --- From chapter 2.3 in @clrs-4e
+
+In order to implement merge sort, we have firstly introduce a auxiliary function called *MERGE*. The function *MERGE* is used to **combine** two sorted array into one sorted array.
+
+```{.plain}
+MERGE(A, p, q, r)
+    nL = q − p + 1          // length of A[p : q]
+    nR = r − q              // length of A[q + 1 : r]
+    let L[0 : nL − 1] and R[0 : nR − 1] be new arrays
+    for i = 0 to nL − 1     // copy A[p : q] into L[0 : nL − 1]
+        L[i] = A[p + i]
+    for j = 0 to nR − 1     // copy A[q + 1 : r] into R[0 : nR − 1]
+        R[j] = A[q + j + 1]
+    i = 0                   // i indexes the smallest remaining element in L
+    j = 0                   // j indexes the smallest remaining element in R
+    k = p                   // k indexes the location in A to fill
+
+    // As long as each of the arrays L and R contains an unmerged element,
+    // copy the smallest unmerged element back into A[p : r].
+    while i < nL and j < nR
+        if L[i] ≤ R[j]
+            A[k] = L[i]
+            i = i + 1
+        else
+            A[k] = R[j]
+            j = j + 1
+        k = k + 1
+
+    // Having gone through one of L and R entirely, copy the
+    // remainder of the other to the end of A[p : r].
+    while i < nL
+        A[k] = L[i]
+        i = i + 1
+        k = k + 1
+    while j < nR
+        A[k] = R[j]
+        j = j + 1
+        k = k + 1
+```
+
+With theauxiliary function *MERGE*, we can now implement *MERGE-SORT* as following:
+
+```{.plain}
+MERGE-SORT(A, p, r)
+    if p ≥ r                  // zero or one element?
+        return
+    q = ⌊(p + r)/2⌋           // midpoint of A[p : r]
+    MERGE-SORT(A, p, q)       // recursively sort A[p : q]
+    MERGE-SORT(A, q + 1, r)   // recursively sort A[q + 1 : r]
+    // Merge A[p : q] and A[q + 1 : r] into A[p : r].
+    MERGE(A, p, q, r)
+```
+
+### Problem 2 - 2x2 Sudoku Solver (25 pts)
+
+::: {.callout-note title="References"}
+1. [Leetcode - 37. Sudoku Solver](https://leetcode.com/problems/sudoku-solver/description/)
+2. [Leetcode - 36. Valid Sudoku](https://leetcode.com/problems/valid-sudoku/description/)
+:::
+
+In problem 2, you need to write a function called `sudoku_solver()` to solve a **2-by-2** Sudoku puzzle **by filling the empty cells in the given 1D array**.
+
+A Sudoku solution must satisfy **all** of the following rules:
+
+1. Each of the digits `1-4` must occur exactly once in each **row**.
+2. Each of the digits `1-4` must occur exactly once in each **column**.
+3. Each of the digits `1-4` must occur exactly once in each of the 4 `2x2` sub-boxes of the grid.
+
+The integer `-1` in the array indicates empty cells.
+
+::: {layout-ncol=2}
+![An example Sudoku puzzle with empty cells](images/sudoku-1.png){width=60%}
+
+![An example Sudoku puzzle with its solution](images/sudoku-2.png){width=60%}
+:::
+
+Basically, to solve the sudoku problem in the perspective of algorithm, you can implement a **backtracking algorithm**. The core idea is about **trial and error**.
+The pesudocode below is the **general** version of backtracking algorithm.
+
+```{.plain}
+function backtrack(partial_solution):
+    // 1. Check if 'partial_solution' is a complete solution (Base Case)
+    if is_complete_solution(partial_solution):
+        process_solution(partial_solution)  // e.g., add to results list, print it
+        return // Backtrack from this complete solution (or continue if finding all solutions)
+
+    // 2. Iterate over all possible choices for the next step
+    for each choice in possible_choices(partial_solution):
+        // 3. Check if the current 'choice' is valid (Pruning)
+        if is_valid(choice, partial_solution):
+            // 4. Make the choice (Apply the choice to the partial solution)
+            make_choice(choice, partial_solution)
+            
+            // 5. Recurse: explore further
+            backtrack(partial_solution)
+            
+            // 6. Undo the choice (The "Backtrack" step)
+            // This is necessary so the loop can try the next 'choice'
+            // when returning from the recursive call.
+            unmake_choice(choice, partial_solution)
+
+// Initial call to start the process
+initial_solution = create_empty_solution()
+backtrack(initial_solution)
+```
+
+## Assignment Report (40 pts)
+
+The assignment report is divided into two parts. The first part is a question set which contains **five questions**, and the second part contains two syntesis questions which will ask you to exaplin how you implement the two assembly programming problems.
+
+### Question Set (10 pts)
+
+The question set contains **five questions**, and it is **2 pts for each question**.
+
+1. Why does RV32I base integer instruction set only has `beq`, `bne`, `blt(u)`,
+    and `bge(u)` instructions for integer signed/unsigned comparison? Is it sufficient for expressing all possible conditions?
+2. Why does *calling convention* matter when writing assembly programs?
+    Please give a concrete example to illustrate what might go wrong if it is not followed.
+3. When implementing a function in RISC-V assembly, how can you **allocate** and **access** a *function local array*?
+4. When writing a function in pure assembly code, it is important to distinguish between *caller* and *callee*, because they have different responsibilities. (e.g., caller-saved/callee-saved registers)
+    In the case of **recursive function**, however, it is hard to distinguish between caller and callee. How do you solve the problem? Please explain it briefly.
+5. Refer to this [video](https://www.youtube.com/watch?v=ioJkA7Mw2-U), please state the difference between *stack* and *heap* memory.
+
+### Synthesis Questions (30 pts)
+
+In the second part, it contains **two synthesis questions**, and it is **15 pts for each question**.
+
+1. How do you implement **merge sort** in RISC-V assembly instructions? Please explain it **in detail**.
+2. How do you implement **a 2x2 sudoku solver** in RISC-V assembly instructions? Please explain it **in detail**.
+
+## How to Compile and Run
+
+### Prepare Your Local Repository
+
+First of all, you have to clone your own remote repository for assignment 2.
+
+```{.shell}
+$ git clone <ssh_link_to_your_own_repo>
+```
+
+Different from assignment 1, you now **must** add your own ISA Simulator as a git submodle which is called `iss` in assignment 2.
+For example, the directory name for my assignment 2 is called `lab-2-Haouo` and the ssh link to my asignment 1 repository is `git@github.com:Computer-Organization-at-NCKU-EE/lab-1-Haouo.git`, then I need to type the commands below.
+
+```{.shell}
+$ cd lab-2-Haouo
+$ git submodule add git@github.com:Computer-Organization-at-NCKU-EE/lab-1-Haouo.git iss
+$ git submodule update --init --recursive
+```
+
+[**Please noet that you must change the commands above to use your own folder name and ssh link for your own remote repostory, instead of using the commands directly without any modification.**]{.mark}
+
+### Compile
+
+In order yo keep the directory for our project clean and readable, we would like to create a directory called `build` at the first and perform the whole building process inside `build` directory.
+
+```{.shell}
+$ mkdir build
+```
+
+After creating `build`, we can now enter the directory and prepare for generating the Makefiles we need by using cmake.
+
+```{.shell}
+$ cd build
+$ cmake ..
+```
+
+When the generating of Makefiles is done, we can then compile the programs with `make`.
+
+```{.shell}
+$ make -j
+```
+
+The only thing you must do is to `make` it again when modifying source files, and `cmake ..` again is redundant and not necessary.
+When to `cmake` again depends on whether the `CMakeLists.txt`(s) are modified.
+
+### Run CTest
+
+To run unit tests, you have to enter the `build` directory at the first, and then type `ctest` to run all test cases.
+There are **two test cases**, corresponding to problem 1 and 2 respectively.
+
+Furthermore, you can also run a single test only at a time by using the following commands:
+
+```{.shell}
+ctest -R "MergeSort"
+```
+
+or
+
+```{.shell}
+ctest -R "Sudoku"
+```
+
+## Tips for Debugging Your Assembly Programs
+
+Recall what we mention in @sec-c-asm-hybrid-programming and @sec-hal, the TA has implemented a simpler version of `printf` function which is called `my_printf` for you.
+Hence, you can call `my_printf` directly in your assembly programs with the power of *C-Assembly Hybrid Programming*.
+

@@ -42,6 +42,7 @@ book:
       chapters:
         - book/lab-2/riscv-asm.qmd
         - book/lab-2/bare-metal.qmd
+        - book/lab-2/assignment.qmd
     # Lab 3 - Single-Cycle CPU
     - part: book/lab-3/index.qmd
       chapters: 
