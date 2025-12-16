@@ -1,1 +1,522 @@
 # Pipeline CPU Micro-Architecture Design {#sec-pipeline-microarch}
+
+Each component in our pipeline CPU design .
+
+## Pipeline Registers: 
+
+![pipeline_register](images/pipeline_reg.png){width=90% fig-align="center"}
+
+### Why do we need Pipeline Registers? 
+
+#### Core idea  
+
+Pipeline registers are the boundaries that [**split a long combinational datapath into stages (IF/ID/EX/MEM/WB)**]{.mark}. Each register latches data and control between stages so multiple instructions can **overlap in time** while preserving correct program order.
+
+#### What they carry  
+
+source operands (or store data), immediates, `rd/rs1/rs2`, `PC/PC+4` (as needed), and **all control bits** required later. Carrying control forward lets a younger instruction act correctly several cycles after decode. 
+
+## Performance Analysis: Benefit and Cost
+
+### Frequency Benefit vs. Register Overhead
+
+When we pipeline a processor, we cut the combinational logic into smaller stages. Ideally, this allows for a massive increase in clock frequency. However, this benefit comes with a cost: **Pipeline Register Overhead**.
+
+The clock period of a pipelined processor is determined by the slowest stage plus the overhead of the registers:
+
+$$
+T_{\mathrm{clk}} \approx \max_i (\text{Stage Delay}_i) \;+\; t_{\mathrm{overhead}}
+$$
+
+**Where does the overhead come from?** 
+
+Because we insert pipeline registers (Flip-Flops) between stages to latch data, we incur specific timing costs:
+
+1.  **Propagation Delay ($t_{pcq}$)**: The time it takes for the Flip-Flop to output valid data after the clock edge triggers.
+2.  **Setup Time ($t_{setup}$)**: The time the input signal must be stable *before* the next clock edge arrives for the next Flip-Flop to capture it correctly.
+
+Therefore, the total overhead added to every stage is:
+
+$$
+t_{\mathrm{overhead}} = t_{pcq} + t_{setup}
+$$
+
+---
+
+### The Latency Paradox
+
+A common misconception is that pipelining makes individual instructions faster. The opposite is true.
+
+::: {.callout-important title="warn"}
+**"Pipelining improves throughput, not each individual instruction."**
+
+If we look at just **one single instruction**, pipelining actually makes it **slower** ($L_{\mathrm{pipe}} > L_{\mathrm{single}}$).
+
+From **IF to WB**, the total time increases because the signal must now traverse $N$ pipeline registers, accumulating the overhead ($t_{pcq} + t_{setup}$) at *every* stage boundary.
+:::
+
+**So why do we do it?** 
+
+We don't optimize for a single instruction; we optimize for the flow of millions of instructions. We must look at **Frequency** and **Maximum IPC** (Instructions Per Cycle) simultaneously:
+
+$$
+\text{Performance} = \text{Frequency} \times \text{IPC}
+$$
+
+1.  **Frequency ($\uparrow$)**: By shortening the critical path to just one stage depth, $T_{\mathrm{clk}}$ drops significantly, allowing the clock to run much faster.
+2.  **Ideal IPC ($\approx 1$)**: In an ideal pipeline, we finish one instruction every cycle.
+
+Even though each individual instruction takes slightly longer (latency $\uparrow$), the rate at which we complete them (throughput) skyrockets.
+
+---
+
+### Quantitative Analysis: Iron Law of Performance
+
+To prove mathematically that pipelining reduces execution time, we use the classic **Iron Law of Performance**:
+
+$$
+\text{CPU Time} = \text{Instruction Count} \times \text{CPI} \times \text{Cycle Time}
+$$
+
+Let's compare the time to execute a benchmark program with **N instructions** ($IC = N$) on a Single-Cycle machine versus a 5-Stage Pipeline.
+
+**Setup:**
+
+* **Stage delays:** `[10, 6, 6, 10, 3] ns`
+* **Register overhead ($t_{\mathrm{reg}}$):** `1 ns`
+
+#### Case A: Single-Cycle Machine
+
+In a single-cycle design, the clock period must be long enough for the signal to pass through all stages in one go.
+
+* **Cycle Time ($T_{\mathrm{single}}$):** $\sum D_i = 10+6+6+10+3 = \mathbf{35 \text{ ns}}$.
+* **CPI:** 1 (by definition).
+* **Total CPU Time:**
+    $$
+    \text{Time}_{\text{single}} = N \times 1 \times 35 \text{ ns} = \mathbf{35N \text{ ns}}
+    $$
+
+#### Case B: 5-Stage Pipelined Machine
+
+In a pipelined design, the clock period is limited by the **slowest stage** plus the **register overhead**.
+
+* **Cycle Time ($T_{\mathrm{pipe}}$):** $\max(D_i) + t_{\mathrm{reg}} = \max(10, 6, 6, 10, 3) + 1 = 10 + 1 = \mathbf{11 \text{ ns}}$.
+* **CPI:** 1 (Ideal, assuming no stalls).
+* **Total CPU Time:**
+    $$
+    \text{Time}_{\text{pipe}} = N \times 1 \times 11 \text{ ns} = \mathbf{11N \text{ ns}}
+    $$
+
+::: {.callout-note title="Conclusion: The Speedup"}
+Comparing the two designs:
+
+1.  **Latency per Instruction:**
+    * Single: $35$ ns
+    * Pipeline: $5 \text{ stages} \times 11 \text{ ns} = 55$ ns (**Slower!**)
+2.  **Throughput / Total Execution Time:**
+    * We calculate the Speedup by dividing the total execution times:
+    $$
+    \text{Speedup} = \frac{\text{Time}_{\text{single}}}{\text{Time}_{\text{pipe}}} = \frac{35N}{11N} \approx \mathbf{3.18}
+    $$
+
+The **Cycle Time** reduction (35ns $\to$ 11ns) drastically reduces the total **CPU Time**, outweighing the latency penalty.
+:::
+
+::: {.callout-warning title="Trade-offs"}
+While we gain massive throughput, pipelining is not free:
+
+* **Higher Latency per Instruction**: An instruction takes longer from IF to WB due to accumulated register overhead ($N \times t_{\mathrm{overhead}}$).
+* **Hardware Cost**: Extra area and power consumption for the pipeline registers.
+* **Complexity**: We must design units to handle hazards (Stall/Flush/Forwarding) to maintain valid IPC.
+* **Misprediction Penalty**: Deeper pipelines mean more wasted cycles (bubbles) when we guess a branch wrong.
+:::
+
+### Control point for correctness
+
+[**Pipeline registers are where we apply hazard control**]{.mark}:
+
+- **stall**: hold **PC** and **IF/ID** (keep = `output ≤ output`) to wait for data;
+- **bubble / flush**: write a **NOP** into **ID/EX** (bubble) or into **IF/ID** and **ID/EX** (flush on redirect) so wrong-path or too-early work has **no architectural effects**.
+
+---
+
+#### Control policy
+- **stall**: a one-cycle *hold* (typically the **load–use RAW** case). Pause the front end until data can be forwarded.
+- **jb (redirect)**: control-flow change (taken branch/jump or misprediction). Flush younger wrong-path ops.
+- **others**: normal operation (no stall, no redirect).
+- **keep (`output ≤ output`)**: hold the register value; do not advance this stage.
+- **flush (`output ≤ nop`)**: convert this stage to a **NOP** (no architectural effects).
+- **bubble (`output ≤ nop`)**: intentionally *insert* a NOP at this stage so older stages can drain.
+  
+![Control policy](images/control_policy.png){width=90% fig-align="center"}
+
+## Controller
+
+First, we will provide the RV32I instructions along with the corresponding type table for students to reference, followed by a presentation of the overall CPU block diagram. After that, we will introduce the purposes of the control signals.
+
+### RV32I Instructions
+
+![inst](images/inst.png){width=100% fig-align="center"}
+
+![inst type](images/inst_type.png){width=100% fig-align="center"}
+
+### CPU Block Diagram
+
+![controller](images/controller.png){width=100% fig-align="center"}
+
+![stages](images/stage.png){width=100% fig-align="center"}
+
+![CPU](images/CPU.png){width=100% fig-align="center"}
+
+`架構圖的memory要改成lab3的ROM，這裡由學長改動!!!!`
+
+`特別檢查放大時，圖片畫質是否模糊，我是從畫布複製貼到小畫家再輸出成圖片檔，這樣放大也能清楚呈現圖片!!!!`
+
+::: {.callout-note}
+The jb signal can also be viewed as next_PC_sel.
+
+Since ALU_Result[0] is related to determining the jb signal, this signal needs to be brought out and provided to the controller.
+
+If any part of the image is unclear, please zoom in as needed.
+:::
+
+### Control Signal
+
+Need add some registers to keep instruction info in each stage and use the instruction info kept in each stages to get the control signals in each stages.
+
+The number in parentheses represents the bit-width of the signal.
+
+|       *Signal*     |           *Usage*                                              |
+|--------------------|----------------------------------------------------------------|
+|F_im_w_en (4)       | Prevent writing data into im                                   | 
+|D_rs1_data_sel (1)  | Immediately Read the Writeback rs1 data                        | 
+|D_rs2_data_sel (1)  | Immediately Read the Writeback rs2 data                        | 
+|E_rs1_data_sel (2)  | Get the newest rs1 data                                        | 
+|E_rs2_data_sel (2)  | Get the newest rs2 data                                        | 
+|E_alu_op1_sel (1)   | Select alu op1 (rs1 / pc)                                      | 
+|E_alu_op2_sel (1)   | Select alu op2 (rs2 / imm)                                     | 
+|E_jb_op1_sel (1)    | Select jb_unit op1 (rs1 / pc)                                  | 
+|E_op_out (5)        | Output the opcode in E stage to ALU                            | 
+|E_f3_out (3)        | Output the func3 in E stage to ALU                             | 
+|E_f7_out (1)        | Output the func7 in E stage to ALU                             |
+|M_dm_w_en (4)       | Store [ byte / halfword / word ] into dm                       | 
+|W_wb_en (1)         | Whether write back data into RegFile                           | 
+|W_rd_index (5)      | Write back register destination index                          | 
+|W_f3 (3)            | Output the func3 in W stage to LD_Filter                       | 
+|W_wb_data_sel (1)   | Select writeback data(ALU Result / Extended Load Data)         | 
+|stall (1)           | Set when there is a Load instruction in E stage and there is an instruction in D stage that uses the Load’s writeback data                            | 
+|next_pc_sel (1)     | Set when a jump or branch is established in E stage            | 
+
+The following code from `Controller.v` is provided to help explain the control signals.
+
+#### D_rs1_data_sel & D_rs2_data_sel
+
+```{.verilog filename="Controller.v "}
+D_rs1_data_sel = is_D_rs1_W_rd_overlap ? 1’d1 : 1’d0;
+
+is_D_rs1_W_rd_overlap = is_D_use_rs1 & is_W_use_rd & (dc_rs1 == W_rd) & W_rd != 0
+is_D_use_rs1 = ?
+is_W_use_rd = ?
+```
+```{.verilog filename="Controller.v "}
+D_rs2_data_sel = is_D_rs2_W_rd_overlap ? 1’d1 : 1’d0;
+
+is_D_rs2_W_rd_overlap = is_D_use_rs2 & is_W_use_rd & (dc_rs2 == W_rd) & W_rd != 0
+is_D_use_rs2 = ?
+is_W_use_rd = ?
+```
+#### E_rs1_data_sel & E_rs2_data_sel
+
+```{.verilog filename="Controller.v "}
+E_rs1_data_sel = is_E_rs1_M_rd_overlap ? 2’d1 :
+                          is_E_rs1_W_rd_overlap ? 2’d0 : 2’d2;
+
+is_E_rs1_W_rd_overlap = is_E_use_rs1 & is_W_use_rd & (E_rs1 == W_rd) & W_rd != 0
+is_E_rs1_M_rd_overlap = is_E_use_rs1 & is_M_use_rd & (E_rs1 == M_rd) & M_rd != 0
+is_E_use_rs1 = ?
+is_W_use_rd = ?
+is_M_use_rd = ?
+```
+```{.verilog filename="Controller.v "}
+E_rs2_data_sel = is_E_rs2_M_rd_overlap ? 2’d1 :
+                          is_E_rs2_W_rd_overlap ? 2’d0 : 2’d2;
+
+is_E_rs2_W_rd_overlap = is_E_use_rs2 & is_W_use_rd & (E_rs2 == W_rd) & W_rd != 0
+is_E_rs2_M_rd_overlap = is_E_use_rs2 & is_M_use_rd & (E_rs2 == M_rd) & M_rd != 0
+is_E_use_rs2 = ?
+is_W_use_rd = ?
+is_M_use_rd = ?
+```
+#### stall
+```{.verilog filename="Controller.v "}
+stall = (E == load) & is_DE_overlap
+
+is_DE_overlap = (is_D_rs1_E_rd_overlap | is_D_rs2_E_rd_overlap)
+
+is_D_rs1_E_rd_overlap = is_D_use_rs1 & is_E_use_rd & (dc_rs1 == E_rd) & E_rd != 0
+is_D_use_rs1 = ?
+
+is_D_rs2_E_rd_overlap = is_D_use_rs2 & is_E_use_rd & (dc_rs2 == E_rd) & E_rd != 0
+is_D_use_rs2 = ?
+```
+The `is_E_use_rd` flag can be optimized out due to redundant conditional checks.
+
+## The Essence of Predicting a Branch
+
+In a pipelined processor, the Fetch stage must know the address of the *next* instruction to fetch in the very next cycle.
+
+* For sequential instructions, this is simple: `Next PC = Current PC + Instruction Size`.
+* For control-flow instructions (like branches), the next PC is not sequential. It could be the next sequential instruction (if **Not-Taken**) or a new **Target PC** (if **Taken**).
+
+This is the **Control Dependence** problem. Waiting for the branch to execute (many cycles later) to know the correct address would cause the pipeline to stall, severely hurting performance.
+
+A complete branch prediction mechanism must therefore guess two key things *before* the branch is even decoded:
+
+1.  **Branch Direction:** Will the branch be **Taken** or **Not-Taken**?
+2.  **Branch Target PC:** If it is Taken, what is the target address it will jump to?
+
+Implicitly, it must also guess if the fetched instruction is a branch at all.
+
+
+### Types of Branches
+
+Different branch types resolve their next fetch address at different times:
+
+![Branch types](images/branch_types.png){width=90% fig-align="center"}
+
+---
+
+### The Cost of a Misprediction
+
+The penalty for a wrong guess is high. If a processor has **N** pipeline stages and can fetch **W** instructions per cycle (a "W-wide" superscalar processor), a single misprediction wastes **$N \times W$** instruction slots.
+
+---
+
+## How to Predict Future Branches
+
+We can broadly categorize prediction strategies into two types: Static and Dynamic.
+
+### Static Approach
+
+Static prediction strategies are fixed, either hardwired into the processor or determined by the compiler. They do not adapt to the program's runtime behavior.
+
+* **Always Predict Not-Taken:**
+    * This is the simplest possible strategy. The hardware always assumes the branch will not be taken and continues fetching sequentially at `PC + Instruction Size`.
+    * **Advantage:** Extremely simple. No hardware is needed to store history.
+    * **Disadvantage:** Accuracy is very low (around 30-40% for typical programs).
+
+* **Other Static Approaches:**
+    * **Always Predict Taken:** This is slightly more accurate, as loop branches are very common and are "Taken" most of the time.
+    * **BTFN (Backward Taken, Forward Not-Taken):** A simple heuristic. Most backward-pointing branches are part of loops (so predict Taken). Most forward-pointing branches are for `if-then-else` logic (so predict Not-Taken). This is more accurate than the other simple static methods.
+    * **Profile-Based:** The compiler runs the program once with a sample input to "profile" its behavior. It then adds a "hint" bit to the branch instruction in the final code to tell the hardware which direction is more likely.
+
+The main weakness of all static approaches is their inability to adapt. If a branch's behavior changes, the static prediction will be consistently wrong.
+
+### Dynamic Approach
+
+Dynamic predictors use hardware to store the recent history of branches and adapt their predictions based on that history.
+
+### The Last-Time Predictor (1-bit Predictor)
+
+The "Last-Time Predictor" is a simple dynamic predictor that uses a **single bit** for each branch. This bit is often stored in a structure called a Branch History Table (BHT) or as part of a Branch Target Buffer (BTB) entry.
+
+* **Mechanism:** The single bit indicates which direction the branch went the *last time* it was executed.
+* **Prediction:** The predictor guesses the branch will go in the same direction it went last time.
+* **Update:** After the branch executes, the 1-bit entry is updated with the correct outcome.
+
+::: {.panel-tabset}
+#### State Machine
+
+The logic for a 1-bit predictor can be represented by a simple 2-state state machine.
+
+![1_bit predictor](images/1_bit_predictor.png){width=90% fig-align="center"}
+
+* **Predict Not Taken State (0):**
+    * If the branch is *actually not taken*, it stays in this state.
+    * If the branch is *actually taken*, it transitions to the "Predict Taken" state.
+* **Predict Taken State (1):**
+    * If the branch is *actually taken*, it stays in this state.
+    * If the branch is *actually not taken*, it transitions to the "Predict Not Taken" state.
+
+#### Performance
+
+* **Good Case:** For a branch with a stable, repetitive pattern like `TTNNNNNNNNNN` (Taken twice, then Not-Taken 10 times), this predictor is highly accurate (e.g., 90% in this case).
+* **Bad Case (Loops):** The predictor *always* mispredicts the first and last iteration of a loop. For a loop with N iterations, its accuracy is **(N-2) / N**.
+* **Worst Case:** For an alternating pattern like `TNTNTNTNT...`, the 1-bit predictor will achieve **0% accuracy** because it is always predicting based on the previous outcome, which is always different.
+
+#### The Problem
+
+The main issue with the Last-Time Predictor is that it changes its prediction too quickly. A single different outcome (like the last iteration of a loop) can flip the prediction, even if the branch is "mostly taken" or "mostly not-taken".
+:::
+
+---
+
+### Two-Bit Counter Based Prediction
+
+To solve the problem of the 1-bit predictor changing too quickly, we can add **hysteresis**.
+
+* **Idea:** Use two bits to track the history for a branch instead of just one. This allows the predictor to have "strong" and "weak" states.
+* **Mechanism:** Each branch is associated with a two-bit counter. This counter uses **saturating arithmetic**, meaning it stops at maximum (11) and minimum (00) values.
+* **Hysteresis:** The extra bit provides hysteresis. A "strong" prediction (like `11` - Strongly Taken) will not be changed by a single different outcome. It requires two consecutive mistakes to flip the prediction from Taken to Not-Taken (or vice-versa).
+
+::: {.panel-tabset}
+#### State Machine
+
+This predictor uses a 4-state state machine. The prediction is based on the most significant bit.
+
+![2_bit predictor](images/2_bit_predictor.png){width=90% fig-align="center"}
+
+* **States:**
+    * `11`: Strongly Taken (Predict Taken)
+    * `10`: Weakly Taken (Predict Taken)
+    * `01`: Weakly Not-Taken (Predict Not-Taken)~
+    * `00`: Strongly Not-Taken (Predict Not-Taken)
+* **Transitions (Example from `11`):**
+    * If the branch is *actually taken*, the state remains `11` (saturating).
+    * If the branch is *actually not taken*, the state changes to `10` (Weakly Taken). The prediction is still "Taken" but is now "Weak". It takes another "Not-Taken" outcome to move to state `01` and change the prediction.
+
+#### Performance
+
+* **Good Case (Loops):** For a loop with N iterations, the accuracy improves to **(N-1) / N**. It only mispredicts the final exit.
+* **Bad Case:** For the alternating `TNTNTNT...` pattern, the accuracy is **50%** (assuming it starts in a weak state). This is much better than 0%.
+* **Overall:** This predictor (also called a "bimodal predictor") provides better accuracy than the 1-bit scheme.
+
+#### Tradeoffs
+
+* **Advantage:** Better prediction accuracy.
+* **Disadvantage:** Higher hardware cost (e.g., more bits in the BTB entry).
+:::
+
+
+## The Architecture of a Complete Branch Predictor
+
+A real predictor must solve all parts of the problem simultaneously. It does this with two main hardware structures.
+
+### Branch Target Buffer (BTB)
+
+* **Purpose:** To answer the questions: "Is this a branch?" and "If so, what is its target address?"
+* **How it works:** The BTB is a small, fast cache.
+    * **Indexing:** It is indexed by the `PC` of the instruction being fetched.
+    * **Entry:** Each entry in the BTB stores:
+        1.  The `Target PC` (the address to jump to).
+        2.  The direction prediction bits (e.g., the 2-bit counter).
+* **In Operation (at Fetch stage):**
+    1.  The `Current PC` is sent to the BTB.
+    2.  **If it's a BTB Hit:** The hardware predicts this is a branch. It reads the `Target PC` and the 2-bit counter from the BTB entry.
+    3.  **If it's a BTB Miss:** The hardware predicts this is not a branch and sets the Next PC to `PC + Instruction Size`.
+
+### Branch Direction Predictor
+
+* **Purpose:** To answer the question: "Taken or Not-Taken?"
+* **How it works:** As described above, this is the set of **2-bit saturated counters**. In a common design, these counters are stored inside the BTB. When the BTB hits, the 2-bit counter is provided along with the target address.
+
+### Putting It All Together: The Full Flow
+
+1.  The `Current PC` is sent to the BTB.
+2.  The BTB is checked for a matching entry (a "hit").
+3.  **Case 1: BTB Miss**
+    * Prediction: Not a branch.
+    * Next Fetch PC = `Current PC + Instruction Size`.
+4.  **Case 2: BTB Hit**
+    * Prediction: This is a branch.
+    * The `Target PC` and the `2-bit counter` are read from the BTB entry.
+    * The 2-bit counter's state (e.g., `11`, `10`, `01`, `00`) determines the **Direction Prediction** (Taken or Not-Taken).
+    * **If (Predicted Taken):** Next Fetch PC = `Target PC`.
+    * **If (Predicted Not-Taken):** Next Fetch PC = `Current PC + Instruction Size`.
+
+![Complete Branch Predictor](images/predictor.png){width=100% fig-align="center"}
+
+
+## How to Handle Control Dependences?
+
+[**Branch prediction is not the only solution.**]{.mark}
+We have several strategies to handle branches:
+
+1.  **Stall**: Pause the pipeline until the branch is resolved. (Very poor performance)
+2.  **Guess**: This is **Branch Prediction**.
+3.  **Delayed Branching**: The N instructions after a branch (in the "delay slot") are always executed.
+4.  **Predicated Execution**: Convert the control dependence into a data dependence.
+5.  **Multi-Path Execution**: Fetch from both possible paths.
+6.  **Fine-Grained Multithreading**: Switch to another thread.
+
+---
+
+## Lab 4 Assignment
+
+### What You Must Do To Complete The Assignment?
+
+There are two parts you must complete in the assignment:
+
+1. The program part  --- **80%** of scores
+2. Assignment Report --- **20%** of scores
+
+#### Program
+
+Based on the Lab 3 single-cycle CPU, the following Verilog files are required to implement the Lab 4 pipelined CPU architecture:
+
+- Top.v(CPU.v)
+    - ALU.v
+    - Decoder.v
+    - Imme_Ext.v
+    - JB_Unit.v
+    - LD_Filter.v
+    - RegFile.v
+    - Adder.v
+    - Reg_PC.v 
+    - Mux2.v 
+    - Mux3.v 
+    - SRAM.v
+    - Controller.v 
+    - Reg_D.v 
+    - Reg_E.v 
+    - Reg_M.v 
+    - Reg_W.v 
+`這裡SRAM.要改成學長的ROM!!!!!`
+
+
+After completing the pipeline CPU, your RTL code needs to pass the ISS. At this point, compared to the single-cycle CPU, you will encounter the problem of pipeline bubbles:
+
+The pipeline bubble will lead to the synchronization issue between ISS (which can be viewed as a single-cycle CPU) and pipeline CPU.
+  
+We might have to extend previous reference-model-based verification framework to adapt to pipeline CPU and add some check flags to notify the verification framework to stop ISS and wait for the completion of Pipeline CPU. 
+  
+For example, you can add a bubble signal from the WB stage. When the WB stage executes a NOP instruction generated due to a stall or a jump/branch, this bubble signal is asserted to stop the ISS and wait for the pipeline CPU to catch up. 
+
+#### Report
+
+Your report should demonstrate your understanding of pipeline hazards and your specific implementation strategy. Please answer the following questions:
+
+For **each** hazard (Forwarding case, Load-Use Stall, and Control Flush), describe:
+
+1.  **Trigger Condition:** Under what specific circumstances does this hazard occur? (e.g., Which specific instruction sequence? Which register indices are compared?)
+
+2.  **Resolution Strategy:** How does your hardware resolve this hazard? (e.g., Forwarding data, inserting a bubble, or flushing the pipeline?)
+   
+3.  **Implementation Logic:** How did you implement this in `Controller.v`?
+    * For **Forwarding**: How do you decide priority if multiple stages have the data?
+    * For **Stalls**: Which pipeline registers are held (frozen) and which are flushed?
+    * For **Branches**: How do you clear the wrong-path instructions?
+
+**4. Branch Prediction**
+
+   - Please carefully study the branch predictor section of the handout. If it were up to you, which branch predictor design would you choose (Static vs. Dynamic, 1-bit vs. 2-bit)? Why?
+  
+   - Describe how you would design the control signals to resolve the control hazard caused by mispredictions (e.g., logic to flush instructions in IF and ID stages). *(Note: Implementation is bonus, but the conceptual description is required).*
+     
+#### Bonus ( + 20 points)
+
+In your pipeline CPU RTL code, you must implement the branch predictor and show in the report that the total clock cycles decrease. You also need to submit an additional version of your pipeline CPU RTL code that includes the branch predictor.
+
+
+### Steps To Prepare for Doing Lab 4
+
+1. Compile
+
+   ```{.shell}
+   $ cd 
+   $ 
+   # 
+   $ 
+   ```
+   
+### How to Turn in Your Assignment Report
