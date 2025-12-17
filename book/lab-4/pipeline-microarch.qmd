@@ -454,25 +454,28 @@ There are two parts you must complete in the assignment:
 
 Based on the Lab 3 single-cycle CPU, the following Verilog files are required to implement the Lab 4 pipelined CPU architecture:
 
-- Top.v(CPU.v)
-    - ALU.v
-    - Decoder.v
-    - Imme_Ext.v
-    - JB_Unit.v
-    - LD_Filter.v
-    - RegFile.v
-    - Adder.v
-    - Reg_PC.v 
-    - Mux2.v 
-    - Mux3.v 
-    - SRAM.v
-    - Controller.v 
-    - Reg_D.v 
-    - Reg_E.v 
-    - Reg_M.v 
-    - Reg_W.v 
-`這裡SRAM.要改成學長的ROM!!!!!`
-
+- Top.v
+    - DEF.sv
+    - ALU.sv
+    - Decoder.sv
+    - Imme_Ext.sv
+    - JB_Unit.sv
+    - LD_Filter.sv
+    - RegFile.sv
+    - Adder.sv
+    - MUX2.sv 
+    - MUX3.sv 
+    - Controller.sv (**you need to complete**)
+    - Reg_PC.sv 
+    - Reg_D.sv  (**you need to complete**)
+    - Reg_E.sv  (**you need to complete**)
+    - Reg_M.sv  (**you need to complete**)
+    - Reg_W.sv  (**you need to complete**)
+    - ROM.sv
+    - RAM.sv
+    - TextBuffer.sv
+    - Halt.sv
+    - CoreTop.sv
 
 After completing the pipeline CPU, your RTL code needs to pass the ISS. At this point, compared to the single-cycle CPU, you will encounter the problem of pipeline bubbles:
 
@@ -489,34 +492,27 @@ Your report should demonstrate your understanding of pipeline hazards and your s
 For **each** hazard (Forwarding case, Load-Use Stall, and Control Flush), describe:
 
 1.  **Trigger Condition:** Under what specific circumstances does this hazard occur? (e.g., Which specific instruction sequence? Which register indices are compared?)
-
 2.  **Resolution Strategy:** How does your hardware resolve this hazard? (e.g., Forwarding data, inserting a bubble, or flushing the pipeline?)
-   
 3.  **Implementation Logic:** How did you implement this in `Controller.v`?
     * For **Forwarding**: How do you decide priority if multiple stages have the data?
     * For **Stalls**: Which pipeline registers are held (frozen) and which are flushed?
     * For **Branches**: How do you clear the wrong-path instructions?
-
-**4. Branch Prediction**
-
+4. **Branch Prediction**
    - Please carefully study the branch predictor section of the handout. If it were up to you, which branch predictor design would you choose (Static vs. Dynamic, 1-bit vs. 2-bit)? Why?
-  
    - Describe how you would design the control signals to resolve the control hazard caused by mispredictions (e.g., logic to flush instructions in IF and ID stages). *(Note: Implementation is bonus, but the conceptual description is required).*
      
 #### Bonus ( + 20 points)
 
 In your pipeline CPU RTL code, you must implement the branch predictor and show in the report that the total clock cycles decrease. You also need to submit an additional version of your pipeline CPU RTL code that includes the branch predictor.
 
-
 ### Steps To Prepare for Doing Lab 4
 
 1. Compile
 
-   ```{.shell}
-   $ cd 
-   $ 
-   # 
-   $ 
+   ```{.bash}
+   $ cd <your lab-4 directory>
+   $ mkdir build # do only once
+   $ cd build
+   $ cmake ..
+   $ make -j
    ```
-   
-### How to Turn in Your Assignment Report
