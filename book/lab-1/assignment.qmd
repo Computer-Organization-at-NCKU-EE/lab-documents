@@ -16,10 +16,15 @@ $ git submodule update --init --recursive
 $ pre-commit install
 ```
 
-## How to Start to Write Codes?
+## How to Start Writing Code?
 
-In most cases, **the only file you must modify is `src/core.c`**.
-More precisely, you should complte the missing parts of the two functions `Core_decode()` and `Core_execute()`.
+There are two files you are expected to modify for Lab 1:
+
+1. `src/core.c` --- implement the missing parts of `Core_decode()` and `Core_execute()`.
+2. `report.md` --- complete the assignment report.
+
+For the program implementation itself, the primary file you should modify is `src/core.c`.
+Unless instructed otherwise by the TAs, do not modify the build system, public tests, or other framework files.
 
 ## After Completing Coding
 
