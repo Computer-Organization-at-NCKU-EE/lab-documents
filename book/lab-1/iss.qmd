@@ -64,7 +64,7 @@ To develop the ISS more effectively, we define several custom data types (i.e., 
 Firstly, we define `inst_fields_t` by using `union` in C language to make the decoding of instruction more convenient.
 
 ```{.cpp filename="inst.h"}
-/* define 6 (4 base + 2 extended) types of formats of instructions in RV64I */
+/* Define the six instruction formats used by the RV32I instructions in Lab 1. */
 typedef union {
     struct {
         uint32_t opcode : 7;
@@ -137,8 +137,9 @@ Secondly, we define `inst_enum_t` by using `enum` in C language to enumerate all
 
 ```{.cpp filename="inst.h"}
 /*
- * Enumerate 37 instructions in total
- * It should be generated in ISS_decode() stage
+ * Enumerate the 37 required Lab 1 instructions.
+ * inst_invalid is a framework sentinel for an encoding that has not been
+ * classified as one of the required instructions.
  */
 typedef enum {
     // OP
@@ -163,7 +164,7 @@ typedef enum {
     inst_srli,
     inst_srai,
     // LOAD
-    isnt_lb,
+    inst_lb,
     inst_lh,
     inst_lw,
     inst_lbu,
@@ -187,6 +188,9 @@ typedef enum {
     inst_auipc,
     // LUI
     inst_lui,
+
+    // Framework sentinel; not an additional RV32I instruction
+    inst_invalid,
 } inst_enum_t;
 ```
 
@@ -313,7 +317,7 @@ For example, one can implement the decoding logic as following:
 
 ```{.cpp}
 inst_fields_t inst_fields = some_inst;
-inst_enum_t inst_enum = {};
+inst_enum_t inst_enum = inst_invalid;
 
 switch (inst_fields.R_TYPE.opcode) {
     case OP: {
@@ -334,6 +338,8 @@ switch (inst_fields.R_TYPE.opcode) {
 }
 ```
 
+Initialize the decoded instruction to `inst_invalid`, so an encoding that has not been classified is not accidentally treated as a valid instruction.
+
 Typically, it is common to scan the opcode firstly for decoding a RISC-V instruction, because the position of opcodes are always fixed in the RISC-V ISA.
 Next, we can scan the *function codes* such as *funct3* or *funct7* to further decode the raw binary into specific types of instruction.
 
@@ -351,18 +357,28 @@ We take ADD and SUB instructions as examples at here.
 
 ```{.cpp}
 // ISS execution stage
-void Core_execute(Core *self, inst_fields_t inst_fields, inst_enum_t inst_enum) {
+static void Core_execute(Core *self,
+                         inst_fields_t inst_fields,
+                         inst_enum_t inst_enum) {
+    // Most instructions advance to the next sequential instruction.
+    // Control-flow instructions may override this value.
+    self->new_pc = self->arch_state.current_pc + 4;
+
     switch (inst_enum) {
-        case inst_add:{
-            self->arch_state.gpr[inst_fields.R_TYPE.rd] = self->arch_state.gpr[inst_fields.R_TYPE.rs1] + self->arch_state.gpr[inst_fields.R_TYPE.rs2];
-            self->new_pc = self.arch_state.current_pc + 4;
+        case inst_add: {
+            self->arch_state.gpr[inst_fields.R_TYPE.rd] =
+                self->arch_state.gpr[inst_fields.R_TYPE.rs1] +
+                self->arch_state.gpr[inst_fields.R_TYPE.rs2];
             break;
         }
+
         case inst_sub: {
-            self->arch_state.gpr[inst_fields.R_TYPE.rd] = self->arch_state.gpr[inst_fields.R_TYPE.rs1] - self->arch_state.gpr[inst_fields.R_TYPE.rs2];
-            self->new_pc = self.arch_state.current_pc + 4;
+            self->arch_state.gpr[inst_fields.R_TYPE.rd] =
+                self->arch_state.gpr[inst_fields.R_TYPE.rs1] -
+                self->arch_state.gpr[inst_fields.R_TYPE.rs2];
             break;
         }
+
         ...
         ...
     }
