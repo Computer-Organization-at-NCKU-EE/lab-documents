@@ -1,112 +1,206 @@
 # Lab 1 Assignment
 
-## Steps To Prepare for Doing Lab 1 
+## Prepare Your Repository
 
 ::: {.callout-caution}
-This part is only for students at NCKU.
+This assignment workflow is for students enrolled in the NCKU course. Follow
+the newest course announcement if it conflicts with an older copy of this
+document.
 :::
 
-After accepting Lab 1 on the **GitHub Classroom**, you should have your own repository which contains the code template for lab 1.
-Please clone the owned repository into your docker development environment under the path `/home/ubuntu/workspace`.
+Open the Lab 1 assignment link provided by the teaching staff and accept the
+assignment in **Classroom50**. Classroom50 creates an individual GitHub
+repository from the 2026 Lab 1 template.
+
+Clone that repository inside the prepared course development environment:
 
 ```{.shell}
-$ git clone <link_to_your_own_repo>
-$ cd <your_folder>
-$ git submodule update --init --recursive
-$ pre-commit install
+git clone <link_to_your_own_repo>
+cd <your_repository>
+git submodule update --init --recursive
+pre-commit install
 ```
 
-## How to Start Writing Code?
+::: {.callout-note}
+The `riscv-tests` directory is a Git submodule. If it is empty, or if test
+programs are missing, run the submodule command above before building.
+:::
+
+## What You Need to Implement
 
 There are two files you are expected to modify for Lab 1:
 
-1. `src/core.c` --- implement the missing parts of `Core_decode()` and `Core_execute()`.
+1. `src/core.c` --- implement the missing behavior in `Core_decode()` and
+   `Core_execute()`.
 2. `report.md` --- complete the assignment report.
 
-For the program implementation itself, the primary file you should modify is `src/core.c`.
-Unless instructed otherwise by the TAs, do not modify the build system, public tests, or other framework files.
+For the program implementation itself, the primary file you should modify is
+`src/core.c`. Your ISS must support the 37 required RV32I instructions
+described in the previous chapters.
 
-## After Completing Coding
-
-After finishing the implementation of the ISS, you can now compile it and run the unit tests.
-There are a few steps to do to run unit tests:
-
-1. Compile the unit tests itself
-
-   ```{.shell}
-   $ cd riscv-tests/isa
-   $ make -j
-   # go back to root path of lab-1
-   $ cd ../.. 
-   ```
-
-2. Compile the ISS you implement
-
-   ```shell
-   $ mkdir build && cd build   
-   $ cmake ..
-   $ make -j
-   ```
-
-   ![Build the ISS](images/build.png){fig-align="center"}
-
-3. Execute `ctest` to run all the 37 instruction unit tests
-
-   ::: {.callout-caution}
-   Please make sure that you are inside the folder `build`.
-   :::
-
-   ```shell
-   $ ctest
-   ```
-
-   ![Run CTest](images/ctest.png){fig-aligh="center"}
-
-Besides, you can run the command below if you want to run a specific test case (e.g., runs ADD instruction only):
-
-```{.shell}
-$ ctest -R "add\$"
-```
-
-Furthermore, you can also run tests in the unit of a opcode-type (e.g., runs OP-IMM opcode-type instructions only):
-
-```{.shell}
-$ ctest -R "^OPIMM_[a-z]+"
-```
-
-[As the minimal requirement]{.mark}, you should pass the **37** unit tests for instructions we implement in the ISS.
-
-::: {.callout-note}
-The expressions `add\$` and `^OPIMM_[a-z]+` are related to [*regular expression*](https://en.wikipedia.org/wiki/Regular_expression) and [*escape character*](https://en.wikipedia.org/wiki/Escape_character).
-If you are interested in regular expression, you can use the website [regex101](https://regex101.com/) to test and verify the regex patterns you write.
+::: {.callout-warning}
+Do not modify the build system, public tests, the `riscv-tests` submodule, or
+the Classroom50 grading workflow unless the teaching staff explicitly asks
+you to do so. The official grader evaluates your `src/core.c` inside a clean,
+authoritative framework; modifying local infrastructure cannot change the
+official score.
 :::
 
-## What You Must Do To Complete The Assignment?
+Your implementation must:
 
-There are two parts you must complete in the assignment:
+- classify every required encoding in `Core_decode()`;
+- apply the corresponding state transition in `Core_execute()`;
+- preserve `x0` as zero;
+- handle immediate values and signedness correctly;
+- access memory through the provided MemoryMap interface; and
+- update the PC correctly for sequential and control-flow instructions.
 
-1. The program part (i.e., the ISS) --- **80%** of scores
-2. Assignment Report --- **20%** of scores
+## Build and Run Tests
 
-In the program part, the score is further divided into two parts:
+First build the RISC-V test programs from the repository root:
 
-1. ISS compilation test<br>
-   - You can get **10%** of scores if your ISS can be compiled without any error 
-2. Instruction unit tests with [`riscv-tests`](https://github.com/Computer-Organization-at-NCKU-EE/riscv-tests/tree/no-priv)
-   - TA divides the 37 instruction unit tests into **9** parts according to the opcode map, and the division of scores is related to the number of instructions for each opcode-type.
-      - OP,  (15 pts)
-      - OP-IMM (15 pts)
-      - LOAD (8 pts)
-      - STORE (8 pts)
-      - BRANCH (8 pts)
-      - JAL (4 pts)
-      - JALR (4 pts)
-      - LUI (4 pts)
-      - AUIPC (4 pts)
-   - You will get 70 pts if you pass all the 9 groups of test mentioned above.
+```{.shell}
+make -C riscv-tests/isa -j
+```
 
-## How to Turn in Your Assignment Report
+Configure and build the ISS in a separate build directory:
 
-You should see a file called `report.md` inside your homework repository.
-Please complete the report **in plcae**, commit it, and push the commit to your remote repository on GitHub.
+```{.shell}
+cmake -S . -B build
+cmake --build build --parallel
+```
 
+Run all 37 registered CTest cases:
+
+```{.shell}
+ctest --test-dir build --output-on-failure
+```
+
+To list the registered tests without running them:
+
+```{.shell}
+ctest --test-dir build -N
+```
+
+To run one instruction, such as ADD:
+
+```{.shell}
+ctest --test-dir build -R '^OP_add$' --output-on-failure
+```
+
+To run one opcode group, such as OP-IMM:
+
+```{.shell}
+ctest --test-dir build -R '^OPIMM_' --output-on-failure
+```
+
+::: {.callout-note}
+The values passed to `-R` are [regular
+expressions](https://en.wikipedia.org/wiki/Regular_expression). You can use
+[regex101](https://regex101.com/) to experiment with a pattern.
+:::
+
+The public CTest cases provide local feedback. During formal grading,
+Classroom50 places the submitted `src/core.c` into a clean framework, builds
+it, and runs one isolated case for each of the 37 required instructions. The
+independent cases prevent one broken support instruction from automatically
+causing unrelated instruction cases to fail.
+
+## Grading
+
+The 100-point base score consists of the 80-point program and the 20-point
+report. The current `report.md` also contains an optional 2-point bonus
+question.
+
+| Part | Score |
+| --- | ---: |
+| ISS compilation | 10 pts |
+| 37 instruction cases | 70 pts |
+| Assignment report | 20 pts |
+| Optional bonus report question | +2 pts |
+
+The 70 instruction points are divided into nine opcode groups:
+
+| Group | Cases | Score |
+| --- | ---: | ---: |
+| OP | 10 | 15 pts |
+| OP-IMM | 9 | 15 pts |
+| LOAD | 5 | 8 pts |
+| STORE | 3 | 8 pts |
+| BRANCH | 6 | 8 pts |
+| JAL | 1 | 4 pts |
+| JALR | 1 | 4 pts |
+| LUI | 1 | 4 pts |
+| AUIPC | 1 | 4 pts |
+
+Compilation is all-or-nothing: a successful build earns 10 points. If the
+submission does not compile, Compilation receives 0 points, the instruction
+groups are marked as skipped, and the Program score is 0/80.
+
+Within each opcode group, points are proportional to the number of passing
+cases and rounded to the nearest integer, with an exact half rounded up:
+
+```text
+group score = round-half-up(group maximum × passed cases / total cases)
+```
+
+For example, passing 9 of the 10 OP cases gives:
+
+```text
+15 × 9 / 10 = 13.5 → 14 points
+```
+
+::: {.callout-important}
+Classroom50 reports only the **Program score out of 80**. The teaching staff
+grades `report.md` out of 20 and adds the optional 2-point bonus separately.
+:::
+
+## Submission through Classroom50
+
+The 2026 Lab 1 assignment uses **every push to the default branch** as a
+submission. You do not need to create a submission tag or upload a ZIP file.
+
+Before pushing:
+
+1. remove temporary debug output;
+2. complete `report.md` in place;
+3. review the files changed by `git diff` and `git status`;
+4. commit the intended `src/core.c` and `report.md`; and
+5. push the commit to the default branch of your Classroom50 repository.
+
+```{.shell}
+git status
+git add src/core.c report.md
+git commit -m "Complete Lab 1"
+git push
+```
+
+Each push starts the autograder. GitHub shows the result as a commit status,
+and Classroom50 publishes a submission Release containing the detailed
+program result. A failed test status does not mean that the grading
+infrastructure crashed; open the result to see the score and failed groups.
+
+Only committed and pushed work is submitted. The teaching staff uses the
+latest accepted submission before the announced deadline. Check Classroom50
+and the course announcement for the actual deadline.
+
+## Final Submission Checklist
+
+- [ ] I implemented all 37 required RV32I instructions.
+- [ ] `Core_decode()` classifies every required encoding.
+- [ ] `Core_execute()` produces the required state changes.
+- [ ] `x0` remains zero and control-flow instructions update the PC correctly.
+- [ ] The project builds without warnings or errors.
+- [ ] All 37 local CTest cases pass.
+- [ ] I did not modify tests, CMake files, the submodule, or grading workflow.
+- [ ] Temporary traces and debug output are removed.
+- [ ] `report.md` contains my name, student ID, and required answers.
+- [ ] I reviewed and committed the intended changes.
+- [ ] I pushed the final commit before the deadline.
+- [ ] I checked the Classroom50 result for the pushed commit.
+
+## References
+
+- [Course `riscv-tests`
+  repository](https://github.com/Computer-Organization-at-NCKU-EE/riscv-tests/tree/no-priv)
+- [Regular expressions](https://en.wikipedia.org/wiki/Regular_expression)
